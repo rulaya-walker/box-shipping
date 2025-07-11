@@ -1,8 +1,20 @@
 import { useState } from 'react';
-import box  from  '../assets/box.png';
 import { FaPlus } from 'react-icons/fa';
-import sb  from '../assets/Shipping-Boxes-inactive.png';
 
+import { picture,box,sb,imgTab,cycle,suitcase,backpacks } from '../constants';
+import ShippingBoxes from './quotes/ShippingBoxes';
+import Picture from './quotes/Picture';
+import Sports from './quotes/Sports';
+import Suitcase from './quotes/Suitcase';
+import Backpacks from './quotes/Backpacks';
+import Bedrooms from './quotes/Bedrooms';
+import DiningRoom from './quotes/DiningRoom';
+import Garden from './quotes/Garden';
+import Kitchen from './quotes/Kitchen';
+import LivingRoom from './quotes/LivingRoom';
+import Musica from './quotes/Musica';
+import Office from './quotes/Office';
+import Other from './quotes/Other';
 const QuoteBody = () => {
   const [activeTab, setActiveTab] = useState('origin');
   const [currentStep, setCurrentStep] = useState(1);
@@ -40,19 +52,19 @@ const QuoteBody = () => {
   ];
 
   const tabs = [
-    { id: 'origin', name: 'Shipping Boxes', icon: '📦' },
-    { id: 'destination', name: 'Pictures and Mirrors', icon: '📦' },
-    { id: 'package', name: 'Sports and Outdoors', icon: '📦' },
-    { id: 'service', name: 'Suitcases', icon: '📋' },
-    { id: 'additional', name: 'Backpacks', icon: '🎯' },
-    { id: 'bedrooms', name: 'Bedrooms', icon: '🪑' },
-    { id: 'dining_room', name: 'Dining Room', icon: '🛋️' },
-    { id: 'garden', name: 'Garden', icon: '🛋️' },
-    { id: 'kitchen', name: 'Kitchen', icon: '🍽️' },
-    { id: 'living_room', name: 'Living Room', icon: '🛋️' },
-    { id: 'musical', name: 'Musical Instruments', icon: '🎸' },
-    { id: 'office', name: 'Office', icon: '💻' },
-    { id: 'other', name: 'Other', icon: '🔌' }
+    { id: 'origin', name: 'Shipping Boxes',icon:box },
+    { id: 'picture', name: 'Pictures and Mirrors', icon:picture },
+    { id: 'package', name: 'Sports and Outdoors', icon:box },
+    { id: 'service', name: 'Suitcases', icon:suitcase },
+    { id: 'additional', name: 'Backpacks', icon:backpacks },
+    { id: 'bedrooms', name: 'Bedrooms', icon:box },
+    { id: 'dining_room', name: 'Dining Room', icon:box },
+    { id: 'garden', name: 'Garden', icon:box },
+    { id: 'kitchen', name: 'Kitchen', icon:box },
+    { id: 'living_room', name: 'Living Room', icon:box },
+    { id: 'musical', name: 'Musical Instruments', icon:box },
+    { id: 'office', name: 'Office', icon:box },
+    { id: 'other', name: 'Other', icon:box }
   ];
 
   return (
@@ -118,7 +130,7 @@ Tell us what you want to ship. You can build your order up out of boxes, items a
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
-                  <span className='text-sm text-white mr-3 relative'><img src={sb} alt={tab.name} /> <span className='absolute inset-0 rounded-full flex items-center justify-center border-2 border-transparent w-6 h-6 bg-primary'>0</span></span>
+                  <span className='text-sm text-white mr-3 relative'><img src={tab.icon} alt={tab.name} /> <span className='absolute inset-0 rounded-full flex items-center justify-center border-2 border-transparent w-6 h-6 bg-primary'>0</span></span>
                   <span className='font-medium'>{tab.name}</span>
                 </button>
               ))}
@@ -134,539 +146,73 @@ Tell us what you want to ship. You can build your order up out of boxes, items a
               <>
                 {/* Small Boxes Tab */}
                 {activeTab === 'origin' && (
-                  <div>
-                    <h3 className='text-xl font-semibold mb-4'>Shipping Boxes</h3>
-                <div className='space-y-4'>
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 '>
-                        <img src={box} alt='Small Box' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Large Boxes</h4>
-                        <p className='text-gray-600 text-sm mb-4'>Our chemically hardened, double-walled cardboard box is best for bulky items like bedding and blankets.</p>
-                        <p className='text-gray-600 text-xs'>61cm x 41 x 51 / 24inches x 16 x 20(HWD) 30kg max</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('large-box', -1)}
-                            className='px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('large-box')}</span>
-                          <button 
-                            onClick={() => updateQuantity('large-box', 1)}
-                            className='px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src={box} alt='Small Box' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Standard Box</h4>
-                        <p className='text-gray-600 text-sm mb-4'>Our chemically hardened, double-walled cardboard box is best for bulky items like bedding and blankets.</p>
-                        <p className='text-gray-600 text-xs'>61cm x 41 x 51 / 24inches x 16 x 20(HWD) 30kg max</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('standard-box', -1)}
-                            className='px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('standard-box')}</span>
-                          <button 
-                            onClick={() => updateQuantity('standard-box', 1)}
-                            className='px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src={box} alt='Small Box' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Clothes Box</h4>
-                        <p className='text-gray-600 text-sm mb-4'>Our chemically hardened, double-walled cardboard box is best for bulky items like bedding and blankets.</p>
-                        <p className='text-gray-600 text-xs'>61cm x 41 x 51 / 24inches x 16 x 20(HWD) 30kg max</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('clothes-box', -1)}
-                            className='px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('clothes-box')}</span>
-                          <button 
-                            onClick={() => updateQuantity('clothes-box', 1)}
-                            className='px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src={box} alt='Small Box' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Book Box</h4>
-                        <p className='text-gray-600 text-sm mb-4'>Our chemically hardened, double-walled cardboard box is best for bulky items like bedding and blankets.</p>
-                        <p className='text-gray-600 text-xs'>61cm x 41 x 51 / 24inches x 16 x 20(HWD) 30kg max</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('book-box', -1)}
-                            className='px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('book-box')}</span>
-                          <button 
-                            onClick={() => updateQuantity('book-box', 1)}
-                            className='px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src={box} alt='Small Box' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Add your own box</h4>
-                        <p className='text-gray-600 text-sm mb-4'>Already have some sturdy boxes you can use? Add them here.</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center'>
-                          <button 
-                            onClick={() => setShowAddBoxForm(true)}
-                            className='px-4 py-2 bg-primary text-white cursor-pointer flex items-center gap-2 rounded-full'
-                          >
-                            <FaPlus /> Add Box
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  
-
-                  
-                </div>
-              </div>
+                  <ShippingBoxes getQuantity={getQuantity} updateQuantity={updateQuantity} setShowAddBoxForm={setShowAddBoxForm} />
             )}
 
             {/* Medium Boxes Tab */}
-            {activeTab === 'destination' && (
-              <div>
-                <h3 className='text-xl font-semibold mb-4'>Medium Boxes</h3>
-                <div className='space-y-4'>
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src={box} alt='TV Box' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>TV Box (32" x 20" x 6")</h4>
-                        <p className='text-gray-600 text-sm'>Specially designed for flat screen TVs up to 32 inches. Includes protective padding.</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('tv-box', -1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('tv-box')}</span>
-                          <button 
-                            onClick={() => updateQuantity('tv-box', 1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src={box} alt='Wardrobe Box' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Wardrobe Box (24" x 20" x 48")</h4>
-                        <p className='text-gray-600 text-sm'>Perfect for hanging clothes during transport. Includes hanging bar.</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('wardrobe-box', -1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('wardrobe-box')}</span>
-                          <button 
-                            onClick={() => updateQuantity('wardrobe-box', 1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src={box} alt='Dish Pack Box' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Dish Pack Box (18" x 18" x 16")</h4>
-                        <p className='text-gray-600 text-sm'>Heavy-duty box with dividers for fragile dishes and glassware.</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('dish-pack-box', -1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('dish-pack-box')}</span>
-                          <button 
-                            onClick={() => updateQuantity('dish-pack-box', 1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {activeTab === 'picture' && (
+              <Picture getQuantity={getQuantity} updateQuantity={updateQuantity} setShowAddBoxForm={setShowAddBoxForm} />
             )}
 
             {/* Large Boxes Tab */}
             {activeTab === 'package' && (
-              <div>
-                <h3 className='text-xl font-semibold mb-4'>Large Boxes</h3>
-                <div className='space-y-4'>
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src={box} alt='Extra Large Box' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Extra Large Box (24" x 20" x 16")</h4>
-                        <p className='text-gray-600 text-sm'>Our biggest standard box for large items and bulk packing. Maximum weight: 50 lbs.</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('extra-large-box', -1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('extra-large-box')}</span>
-                          <button 
-                            onClick={() => updateQuantity('extra-large-box', 1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src={box} alt='Moving Box' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Heavy Duty Moving Box (18" x 18" x 24")</h4>
-                        <p className='text-gray-600 text-sm'>Reinforced box for heavy items like books, tools, and appliances.</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('heavy-duty-box', -1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('heavy-duty-box')}</span>
-                          <button 
-                            onClick={() => updateQuantity('heavy-duty-box', 1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src={box} alt='Banker Box' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Banker Box (15" x 12" x 10")</h4>
-                        <p className='text-gray-600 text-sm'>Professional storage box with handles, perfect for documents and files.</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('banker-box', -1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('banker-box')}</span>
-                          <button 
-                            onClick={() => updateQuantity('banker-box', 1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <Sports getQuantity={getQuantity} updateQuantity={updateQuantity} setShowAddBoxForm={setShowAddBoxForm} />
             )}
 
             {/* Packing Supplies Tab */}
             {activeTab === 'service' && (
-              <div>
-                <h3 className='text-xl font-semibold mb-4'>Packing Supplies</h3>
-                <div className='space-y-4'>
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src={box} alt='Bubble Wrap' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Bubble Wrap Roll (12" x 25ft)</h4>
-                        <p className='text-gray-600 text-sm'>Premium bubble wrap for protecting fragile items during shipping.</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('bubble-wrap', -1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('bubble-wrap')}</span>
-                          <button 
-                            onClick={() => updateQuantity('bubble-wrap', 1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src={box} alt='Packing Tape' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Heavy Duty Packing Tape (6-Pack)</h4>
-                        <p className='text-gray-600 text-sm'>Strong adhesive tape for securing boxes and packages.</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('packing-tape', -1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('packing-tape')}</span>
-                          <button 
-                            onClick={() => updateQuantity('packing-tape', 1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src={box} alt='Packing Paper' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Newsprint Packing Paper (25 lbs)</h4>
-                        <p className='text-gray-600 text-sm'>Clean newsprint paper for wrapping and cushioning items.</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('packing-paper', -1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('packing-paper')}</span>
-                          <button 
-                            onClick={() => updateQuantity('packing-paper', 1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <Suitcase getQuantity={getQuantity} updateQuantity={updateQuantity} setShowAddBoxForm={setShowAddBoxForm} />
             )}
 
             {/* Specialty Items Tab */}
             {activeTab === 'additional' && (
-              <div>
-                <h3 className='text-xl font-semibold mb-4'>Specialty Items</h3>
-                <div className='space-y-4'>
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src={box} alt='Art Shipping Box' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Artwork Shipping Box</h4>
-                        <p className='text-gray-600 text-sm'>Custom-sized protective box for paintings, prints, and artwork with foam padding.</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('artwork-box', -1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('artwork-box')}</span>
-                          <button 
-                            onClick={() => updateQuantity('artwork-box', 1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+              <Backpacks getQuantity={getQuantity} updateQuantity={updateQuantity} setShowAddBoxForm={setShowAddBoxForm} />
+            )}
 
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src={box} alt='Wine Shipping Box' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Wine Shipping Kit (6-bottle)</h4>
-                        <p className='text-gray-600 text-sm'>Specialized box with molded inserts for safe wine bottle transportation.</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('wine-kit', -1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('wine-kit')}</span>
-                          <button 
-                            onClick={() => updateQuantity('wine-kit', 1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+            {/* Bedrooms Items Tab */}
+            {activeTab === 'bedrooms' && (
+              <Bedrooms getQuantity={getQuantity} updateQuantity={updateQuantity} setShowAddBoxForm={setShowAddBoxForm} />
+            )}
 
-                  <div className='border rounded-lg p-4 hover:shadow-lg transition-shadow'>
-                    <div className='flex items-center gap-6'>
-                      <div className='w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <img src='https://via.placeholder.com/96x96/f0f0f0/999?text=Golf+Club+Box' alt='Golf Club Box' className='w-full h-full object-cover rounded-lg' />
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='font-semibold mb-2'>Golf Club Shipping Tube</h4>
-                        <p className='text-gray-600 text-sm'>Durable tube for shipping golf clubs and other long sporting equipment.</p>
-                      </div>
-                      <div className='flex items-center'>
-                        <div className='flex items-center border rounded-lg'>
-                          <button 
-                            onClick={() => updateQuantity('golf-tube', -1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            -
-                          </button>
-                          <span className='px-4 py-1 border-x'>{getQuantity('golf-tube')}</span>
-                          <button 
-                            onClick={() => updateQuantity('golf-tube', 1)}
-                            className='px-3 py-1 hover:bg-gray-100 text-gray-600'
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {/* Bedrooms Items Tab */}
+            {activeTab === 'dining_room' && (
+              <DiningRoom getQuantity={getQuantity} updateQuantity={updateQuantity} setShowAddBoxForm={setShowAddBoxForm} />
+            )}
+
+            {/* Garden Items Tab */}
+            {activeTab === 'garden' && (
+              <Garden getQuantity={getQuantity} updateQuantity={updateQuantity} setShowAddBoxForm={setShowAddBoxForm} />
+            )}
+
+            {/* Kitchen Items Tab */}
+            {activeTab === 'kitchen' && (
+              <Kitchen getQuantity={getQuantity} updateQuantity={updateQuantity} setShowAddBoxForm={setShowAddBoxForm} />
+            )}
+
+            {/* Living Room Items Tab */}
+            {activeTab === 'living_room' && (
+              <LivingRoom getQuantity={getQuantity} updateQuantity={updateQuantity} setShowAddBoxForm={setShowAddBoxForm} />
+            )}
+
+            {/* Music Items Tab */}
+            {activeTab === 'musical' && (
+              <Musica getQuantity={getQuantity} updateQuantity={updateQuantity} setShowAddBoxForm={setShowAddBoxForm} />
+            )}
+
+            {/* Office Items Tab */}
+            {activeTab === 'office' && (
+              <Office getQuantity={getQuantity} updateQuantity={updateQuantity} setShowAddBoxForm={setShowAddBoxForm} />
+            )}
+
+            {/* Other Items Tab */}
+            {activeTab === 'other' && (
+              <Other getQuantity={getQuantity} updateQuantity={updateQuantity} setShowAddBoxForm={setShowAddBoxForm} />
             )}
               </>
             )}
+
+            
+            
 
             {/* Step 2: Service Option */}
             {currentStep === 2 && (
