@@ -130,7 +130,7 @@ Tell us what you want to ship. You can build your order up out of boxes, items a
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
-                  <span className='text-sm text-white mr-3 relative'><img src={tab.icon} alt={tab.name} /> <span className='absolute inset-0 rounded-full flex items-center justify-center border-2 border-transparent w-6 h-6 bg-primary'>0</span></span>
+                  <span className='text-sm text-white mr-3 relative'><img src={tab.icon} className='w-8' alt={tab.name} /> <span className='absolute -bottom-2 -right-2 rounded-full flex items-center justify-center border-2 border-transparent w-6 h-6 bg-primary'>0</span></span>
                   <span className='font-medium'>{tab.name}</span>
                 </button>
               ))}
