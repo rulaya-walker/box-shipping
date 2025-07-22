@@ -23,10 +23,13 @@ import LivingRoom from "./quotes/LivingRoom";
 import Musica from "./quotes/Musica";
 import Office from "./quotes/Office";
 import Other from "./quotes/Other";
+import StripePayment from "./StripePayment";
+import { usePayment } from "../hooks/usePayment";
 const QuoteBody = () => {
   const [activeTab, setActiveTab] = useState("origin");
   const [currentStep, setCurrentStep] = useState(1);
   const [showAddBoxForm, setShowAddBoxForm] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
   const [quantities, setQuantities] = useState({});
   const [selectedService, setSelectedService] = useState("");
   const [formData, setFormData] = useState({
@@ -37,6 +40,8 @@ const QuoteBody = () => {
     quantity: "",
     weight: "0-30",
   });
+
+  const { calculateOrderTotal } = usePayment();
 
   const updateQuantity = (itemId, change) => {
     setQuantities((prev) => ({
@@ -49,8 +54,55 @@ const QuoteBody = () => {
     return quantities[itemId] || 0;
   };
 
+  // Map each tab to its related item categories
+  const getTabQuantity = (tabId) => {
+    const itemMappings = {
+      origin: ["origin-large-box", "origin-standard-box", "origin-clothes-box", "origin-book-box"], // Shipping Boxes
+      picture: ["picture-custom"], // Pictures and Mirrors (custom add form only)
+      package: Array.from({length: 9}, (_, i) => `sports-item-${i}`), // Sports and Outdoors (9 items)
+      service: ["service-suitcase"], // Suitcases (custom add form only)
+      additional: ["additional-backpack"], // Backpacks (custom add form only)
+      bedrooms: Array.from({length: 18}, (_, i) => `bedrooms-item-${i}`), // Bedrooms (18 items)
+      dining_room: ["dining-large-box"], // Dining Room
+      garden: ["garden-large-box"], // Garden
+      kitchen: ["kitchen-large-box"], // Kitchen
+      living_room: ["living-large-box"], // Living Room
+      musical: ["musical-large-box"], // Musical Instruments
+      office: ["office-large-box"], // Office
+      other: ["other-large-box"] // Other
+    };
+
+    const itemIds = itemMappings[tabId] || [];
+    return itemIds.reduce((total, itemId) => total + (quantities[itemId] || 0), 0);
+  };
+
   const handleStepClick = (stepId) => {
     setCurrentStep(stepId);
+  };
+
+  const handlePaymentClick = () => {
+    setShowPayment(true);
+  };
+
+  const handlePaymentSuccess = (paymentData) => {
+    console.log('Payment successful:', paymentData);
+    setShowPayment(false);
+    // You can add success handling logic here
+    alert('Payment successful! Your shipment has been booked.');
+  };
+
+  const handlePaymentError = (error) => {
+    console.error('Payment error:', error);
+    // You can add error handling logic here
+  };
+
+  const getOrderDetails = () => {
+    return calculateOrderTotal({
+      selectedService,
+      quantities,
+      destinationCharges: 1329.73,
+      processingFee: 12.50
+    });
   };
 
   const steps = [
@@ -78,7 +130,19 @@ const QuoteBody = () => {
 
   return (
     <>
-      <div className="h-96 w-full bg-primary flex items-center justify-center quote-bg relative">
+      {/* Show Stripe Payment if payment is triggered */}
+      {showPayment && (
+        <StripePayment
+          orderDetails={getOrderDetails()}
+          onPaymentSuccess={handlePaymentSuccess}
+          onPaymentError={handlePaymentError}
+        />
+      )}
+      
+      {/* Main Quote Interface */}
+      {!showPayment && (
+        <>
+          <div className="h-96 w-full bg-primary flex items-center justify-center quote-bg relative">
         <div className="py-64">
           <h2 className="text-2xl lg:text-4xl font-bold text-white mb-6 text-center">
             Build Your Order
@@ -159,7 +223,7 @@ const QuoteBody = () => {
                     <span className="text-sm text-white mr-3 relative">
                       <img src={tab.icon} className="w-8" alt={tab.name} />{" "}
                       <span className="absolute -bottom-2 -right-2 rounded-full flex items-center justify-center border-2 border-transparent w-6 h-6 bg-primary">
-                        0
+                        {getTabQuantity(tab.id)}
                       </span>
                     </span>
                     <span className="font-medium">{tab.name}</span>
@@ -875,7 +939,10 @@ const QuoteBody = () => {
                       
                       {/* Payment Button */}
                       <div className="space-y-4">
-                        <button className="w-full py-4 bg-primary text-white text-lg font-semibold rounded-lg hover:bg-green-700 transition-colors shadow-lg cursor-pointer">
+                        <button 
+                          onClick={handlePaymentClick}
+                          className="w-full py-4 bg-green-600 text-white text-lg font-semibold rounded-lg hover:bg-green-700 transition-colors shadow-lg cursor-pointer"
+                        >
                           💳 Proceed to Payment
                         </button>
                         
@@ -1100,6 +1167,8 @@ const QuoteBody = () => {
           )}
         </div>
       </div>
+        </>
+      )}
     </>
   );
 };

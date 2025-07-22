@@ -60,16 +60,16 @@ const LivingRoom = ({ getQuantity, updateQuantity, setShowAddBoxForm }) => {
               <div className="flex items-center">
                 <div className="flex items-center border rounded-lg">
                   <button
-                    onClick={() => updateQuantity("large-box", -1)}
+                    onClick={() => updateQuantity("living-large-box", -1)}
                     className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
                   >
                     -
                   </button>
                   <span className="px-4 py-1 border-x">
-                    {getQuantity("large-box")}
+                    {getQuantity("living-large-box")}
                   </span>
                   <button
-                    onClick={() => updateQuantity("large-box", 1)}
+                    onClick={() => updateQuantity("living-large-box", 1)}
                     className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
                   >
                     +

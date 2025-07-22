@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Test Setup</title>
+</head>
+<body>
+    <h1>Admin User Test Setup</h1>
+    <p>Click the button below to set up a temporary admin user for testing the admin/users page:</p>
+    
+    <button onclick="setupAdminUser()">Setup Admin User</button>
+    <button onclick="clearAuth()">Clear Auth</button>
+    
+    <div id="status"></div>
+    
+    <script>
+        function setupAdminUser() {
+            // Create a mock admin user
+            const adminUser = {
+                _id: "admin_test_001",
+                name: "Test Admin",
+                email: "admin@boxshipping.com",
+                role: "admin",
+                status: "active"
+            };
+            
+            const token = "test_admin_token_12345";
+            
+            // Store in localStorage
+            localStorage.setItem("userInfo", JSON.stringify(adminUser));
+            localStorage.setItem("userToken", token);
+            localStorage.setItem("userRole", "admin");
+            
+            document.getElementById("status").innerHTML = 
+                "<p style='color: green;'>✅ Admin user setup complete!</p>" +
+                "<p>User: " + adminUser.name + " (" + adminUser.role + ")</p>" +
+                "<p>You can now access <a href='http://localhost:5174/admin/users' target='_blank'>admin/users page</a></p>";
+        }
+        
+        function clearAuth() {
+            localStorage.removeItem("userInfo");
+            localStorage.removeItem("userToken");
+            localStorage.removeItem("userRole");
+            
+            document.getElementById("status").innerHTML = 
+                "<p style='color: red;'>🗑️ Authentication cleared</p>";
+        }
+        
+        // Check current auth status
+        window.onload = function() {
+            const user = localStorage.getItem("userInfo");
+            const token = localStorage.getItem("userToken");
+            
+            if (user && token) {
+                const userObj = JSON.parse(user);
+                document.getElementById("status").innerHTML = 
+                    "<p style='color: blue;'>ℹ️ Current user: " + userObj.name + " (" + userObj.role + ")</p>";
+            } else {
+                document.getElementById("status").innerHTML = 
+                    "<p style='color: gray;'>No authenticated user found</p>";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -28,16 +28,16 @@ const ShippingBoxes = ({ getQuantity, updateQuantity, setShowAddBoxForm }) => {
             <div className="flex items-center">
               <div className="flex items-center border rounded-lg">
                 <button
-                  onClick={() => updateQuantity("large-box", -1)}
+                  onClick={() => updateQuantity("origin-large-box", -1)}
                   className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
                 >
                   -
                 </button>
                 <span className="px-4 py-1 border-x">
-                  {getQuantity("large-box")}
+                  {getQuantity("origin-large-box")}
                 </span>
                 <button
-                  onClick={() => updateQuantity("large-box", 1)}
+                  onClick={() => updateQuantity("origin-large-box", 1)}
                   className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
                 >
                   +
@@ -69,16 +69,16 @@ const ShippingBoxes = ({ getQuantity, updateQuantity, setShowAddBoxForm }) => {
             <div className="flex items-center">
               <div className="flex items-center border rounded-lg">
                 <button
-                  onClick={() => updateQuantity("standard-box", -1)}
+                  onClick={() => updateQuantity("origin-standard-box", -1)}
                   className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
                 >
                   -
                 </button>
                 <span className="px-4 py-1 border-x">
-                  {getQuantity("standard-box")}
+                  {getQuantity("origin-standard-box")}
                 </span>
                 <button
-                  onClick={() => updateQuantity("standard-box", 1)}
+                  onClick={() => updateQuantity("origin-standard-box", 1)}
                   className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
                 >
                   +
@@ -110,16 +110,16 @@ const ShippingBoxes = ({ getQuantity, updateQuantity, setShowAddBoxForm }) => {
             <div className="flex items-center">
               <div className="flex items-center border rounded-lg">
                 <button
-                  onClick={() => updateQuantity("clothes-box", -1)}
+                  onClick={() => updateQuantity("origin-clothes-box", -1)}
                   className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
                 >
                   -
                 </button>
                 <span className="px-4 py-1 border-x">
-                  {getQuantity("clothes-box")}
+                  {getQuantity("origin-clothes-box")}
                 </span>
                 <button
-                  onClick={() => updateQuantity("clothes-box", 1)}
+                  onClick={() => updateQuantity("origin-clothes-box", 1)}
                   className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
                 >
                   +
@@ -151,16 +151,16 @@ const ShippingBoxes = ({ getQuantity, updateQuantity, setShowAddBoxForm }) => {
             <div className="flex items-center">
               <div className="flex items-center border rounded-lg">
                 <button
-                  onClick={() => updateQuantity("book-box", -1)}
+                  onClick={() => updateQuantity("origin-book-box", -1)}
                   className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
                 >
                   -
                 </button>
                 <span className="px-4 py-1 border-x">
-                  {getQuantity("book-box")}
+                  {getQuantity("origin-book-box")}
                 </span>
                 <button
-                  onClick={() => updateQuantity("book-box", 1)}
+                  onClick={() => updateQuantity("origin-book-box", 1)}
                   className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
                 >
                   +
