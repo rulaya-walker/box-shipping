@@ -42,7 +42,18 @@ const ProductManagement = () => {
     },
     size: '',
     details: '',
-    minimumPrice: '',
+    minimumPrice: { 
+      australia: '', 
+      bahrain: '', 
+      canada: '', 
+      china: '',
+      hongkong: '',
+      japan: '',
+      malasia: '',
+      newzealand: '',
+      singapore: '',
+      southafrica: ''
+    },
     category: 'Shipping Boxes',
     status: 'active',
     image: null
@@ -151,7 +162,18 @@ const ProductManagement = () => {
       },
       size: '',
       details: '',
-      minimumPrice: '',
+      minimumPrice: { 
+        australia: '', 
+        bahrain: '', 
+        canada: '', 
+        china: '',
+        hongkong: '',
+        japan: '',
+        malasia: '',
+        newzealand: '',
+        singapore: '',
+        southafrica: ''
+      },
       category: 'Shipping Boxes',
       status: 'active',
       image: null
@@ -180,6 +202,30 @@ const ProductManagement = () => {
       priceObj = product.price;
     }
 
+    // Parse minimumPrice data if it's a string from backend
+    let minimumPriceObj = {};
+    if (typeof product.minimumPrice === 'string') {
+      try {
+        minimumPriceObj = JSON.parse(product.minimumPrice);
+      } catch (e) {
+        console.error('Error parsing minimumPrice for editing:', e);
+        minimumPriceObj = {
+          australia: '', bahrain: '', canada: '', china: '',
+          hongkong: '', japan: '', malasia: '', newzealand: '',
+          singapore: '', southafrica: ''
+        };
+      }
+    } else if (typeof product.minimumPrice === 'object' && product.minimumPrice !== null) {
+      minimumPriceObj = product.minimumPrice;
+    } else {
+      // Default empty object if minimumPrice doesn't exist
+      minimumPriceObj = {
+        australia: '', bahrain: '', canada: '', china: '',
+        hongkong: '', japan: '', malasia: '', newzealand: '',
+        singapore: '', southafrica: ''
+      };
+    }
+
     setFormData({
       name: product.name || '',
       price: { 
@@ -196,7 +242,18 @@ const ProductManagement = () => {
       },
       size: product.size || '',
       details: product.details || '',
-      minimumPrice: product.minimumPrice || '',
+      minimumPrice: { 
+        australia: minimumPriceObj.australia || '', 
+        bahrain: minimumPriceObj.bahrain || '', 
+        canada: minimumPriceObj.canada || '',
+        china: minimumPriceObj.china || '',
+        hongkong: minimumPriceObj.hongkong || '',
+        japan: minimumPriceObj.japan || '',
+        malasia: minimumPriceObj.malasia || '',
+        newzealand: minimumPriceObj.newzealand || '',
+        singapore: minimumPriceObj.singapore || '',
+        southafrica: minimumPriceObj.southafrica || ''
+      },
       category: product.category || 'Shipping Boxes',
       status: product.status || 'active',
       image: product.image?.url || null // Extract URL from image object
@@ -212,10 +269,13 @@ const ProductManagement = () => {
       return;
     }
 
-    // Validate minimum price if provided
-    if (formData.minimumPrice && (isNaN(formData.minimumPrice) || parseFloat(formData.minimumPrice) < 0)) {
-      alert('Please enter a valid minimum price (must be a positive number)');
-      return;
+    // Validate minimum prices if provided
+    const minimumPriceValues = Object.values(formData.minimumPrice).filter(value => value !== '');
+    for (const value of minimumPriceValues) {
+      if (isNaN(value) || parseFloat(value) < 0) {
+        alert('Please enter valid minimum prices (must be positive numbers)');
+        return;
+      }
     }
 
     // Log authentication state for debugging
@@ -235,6 +295,19 @@ const ProductManagement = () => {
       southafrica: parseFloat(formData.price.southafrica) || 0
     };
 
+    const minimumPriceData = {
+      australia: parseFloat(formData.minimumPrice.australia) || 0,
+      bahrain: parseFloat(formData.minimumPrice.bahrain) || 0,
+      canada: parseFloat(formData.minimumPrice.canada) || 0,
+      china: parseFloat(formData.minimumPrice.china) || 0,
+      hongkong: parseFloat(formData.minimumPrice.hongkong) || 0,
+      japan: parseFloat(formData.minimumPrice.japan) || 0,
+      malasia: parseFloat(formData.minimumPrice.malasia) || 0,
+      newzealand: parseFloat(formData.minimumPrice.newzealand) || 0,
+      singapore: parseFloat(formData.minimumPrice.singapore) || 0,
+      southafrica: parseFloat(formData.minimumPrice.southafrica) || 0
+    };
+
     // Create FormData for multipart/form-data submission
     const formDataToSend = new FormData();
     
@@ -243,7 +316,7 @@ const ProductManagement = () => {
     formDataToSend.append('price', JSON.stringify(priceData));
     formDataToSend.append('size', formData.size);
     formDataToSend.append('details', formData.details);
-    formDataToSend.append('minimumPrice', formData.minimumPrice);
+    formDataToSend.append('minimumPrice', JSON.stringify(minimumPriceData));
     formDataToSend.append('category', formData.category);
     formDataToSend.append('status', formData.status);
     
@@ -301,7 +374,18 @@ const ProductManagement = () => {
         },
         size: '',
         details: '',
-        minimumPrice: '',
+        minimumPrice: { 
+          australia: '', 
+          bahrain: '', 
+          canada: '', 
+          china: '',
+          hongkong: '',
+          japan: '',
+          malasia: '',
+          newzealand: '',
+          singapore: '',
+          southafrica: ''
+        },
         category: 'Shipping Boxes',
         status: 'active',
         image: null
@@ -357,6 +441,16 @@ const ProductManagement = () => {
       ...formData,
       price: {
         ...formData.price,
+        [country]: value
+      }
+    });
+  };
+
+  const handleMinimumPriceChange = (country, value) => {
+    setFormData({
+      ...formData,
+      minimumPrice: {
+        ...formData.minimumPrice,
         [country]: value
       }
     });
@@ -848,7 +942,134 @@ const ProductManagement = () => {
                   </div>
                 </div>
               </div>
-
+              {/* Minimum Prices */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Minimum Prices by Country
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Australia</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.minimumPrice.australia}
+                      onChange={(e) => handleMinimumPriceChange('australia', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Bahrain</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.minimumPrice.bahrain}
+                      onChange={(e) => handleMinimumPriceChange('bahrain', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Canada</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.minimumPrice.canada}
+                      onChange={(e) => handleMinimumPriceChange('canada', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">China</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.minimumPrice.china}
+                      onChange={(e) => handleMinimumPriceChange('china', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Hong Kong</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.minimumPrice.hongkong}
+                      onChange={(e) => handleMinimumPriceChange('hongkong', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Japan</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.minimumPrice.japan}
+                      onChange={(e) => handleMinimumPriceChange('japan', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Malaysia</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.minimumPrice.malasia}
+                      onChange={(e) => handleMinimumPriceChange('malasia', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">New Zealand</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.minimumPrice.newzealand}
+                      onChange={(e) => handleMinimumPriceChange('newzealand', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Singapore</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.minimumPrice.singapore}
+                      onChange={(e) => handleMinimumPriceChange('singapore', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">South Africa</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.minimumPrice.southafrica}
+                      onChange={(e) => handleMinimumPriceChange('southafrica', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+              </div>
               {/* Size */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -874,22 +1095,6 @@ const ProductManagement = () => {
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                   placeholder="Enter detailed product description, features, specifications, etc."
-                />
-              </div>
-
-              {/* Minimum Price */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Minimum Price (USD)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.minimumPrice}
-                  onChange={(e) => setFormData({ ...formData, minimumPrice: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                  placeholder="Enter minimum price (e.g., 10.99)"
                 />
               </div>
 
