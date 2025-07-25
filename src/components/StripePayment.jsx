@@ -8,7 +8,7 @@ import {
 } from '@stripe/react-stripe-js';
 
 // Initialize Stripe with your publishable key
-const stripePromise = loadStripe('pk_test_51234567890abcdef...'); // Replace with your actual publishable key
+const stripePromise = loadStripe(import.meta.env.VITE_REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
 const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
   const stripe = useStripe();
@@ -16,6 +16,10 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [paymentError, setPaymentError] = useState(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  
+  // Debug logging
+  console.log('CheckoutForm received orderDetails:', orderDetails);
+  
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     email: '',
@@ -152,25 +156,25 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
         <h3 className="font-semibold text-gray-800 mb-3">Order Summary</h3>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span>Items ({orderDetails.totalItems}):</span>
-            <span>${orderDetails.itemsTotal}</span>
+            <span>Items ({orderDetails?.totalItems || 0}):</span>
+            <span>${orderDetails?.itemsTotal || '0.00'}</span>
           </div>
           <div className="flex justify-between">
-            <span>Shipping ({orderDetails.serviceType}):</span>
-            <span>${orderDetails.shippingCost}</span>
+            <span>Shipping ({orderDetails?.serviceType || 'Standard'}):</span>
+            <span>${orderDetails?.shippingCost || '0.00'}</span>
           </div>
           <div className="flex justify-between">
             <span>Destination Charges:</span>
-            <span>AUD {orderDetails.destinationCharges}</span>
+            <span>AUD {orderDetails?.destinationCharges || '0.00'}</span>
           </div>
           <div className="flex justify-between">
             <span>Processing Fee:</span>
-            <span>${orderDetails.processingFee}</span>
+            <span>${orderDetails?.processingFee || '0.00'}</span>
           </div>
           <hr className="my-2" />
           <div className="flex justify-between font-semibold text-lg">
             <span>Total:</span>
-            <span className="text-blue-600">${orderDetails.total}</span>
+            <span className="text-blue-600">${orderDetails?.total || '0.00'}</span>
           </div>
         </div>
       </div>
@@ -325,7 +329,7 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
               Processing Payment...
             </div>
           ) : (
-            `Pay $${orderDetails.total} Now`
+            `Pay $${orderDetails?.total || '0.00'} Now`
           )}
         </button>
 

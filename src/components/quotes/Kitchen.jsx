@@ -1,87 +1,139 @@
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchProductsByCategory } from '../../redux/slices/productSlice';
 import { FaPlus } from "react-icons/fa";
-const KITCHEN = [
-  {
-    title: "Blender",
-    dimensions: "38cm x 17 x 17 / 15inches x 7 x 7(HWD)",
-  },
-  {
-    title: "Chest Freezer",
-    dimensions: "74cm x 50 x 45 / 29inches x 20 x 18(HWD)",
-  },
-  {
-    title: "Coffee Machine",
-    dimensions: "39cm x 30 x 37 / 15inches x 12 x 14(HWD)",
-  },
-  {
-    title: "Microwave",
-    dimensions: "32cm x 47 x 38 / 12inches x 18 x 15(HWD)",
-  },
-  {
-    title: "Small Fridge",
-    dimensions: "78cm x 46 x 50 / 30inches x 18 x 20(HWD)",
-  },
-  {
-    title: "Standard Fridge Freezer",
-    dimensions: "187cm x 78 x 64 / 73inches x 30 x 25(HWD)",
-  },
-  {
-    title: "Tumble Dryer",
-    dimensions: "86cm x 62 x 65 / 34inches x 24 x 25(HWD)",
-  },
-  {
-    title: "Washing Machine",
-    dimensions: "84cm x 60 x 56 / 33inches x 23 x 22(HWD)",
-  },
-  {
-    title: "Upright Vacuum Cleaner",
-    dimensions: "113cm x 28 x 21 / 44inches x 11 x 8(HWD)",
-  },
-];
 
-const Kitchen = ({ getQuantity, updateQuantity, setShowAddBoxForm }) => {
+const Kitchen = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChange }) => {
+  const dispatch = useDispatch();
+  const { productsByCategory, loading, error } = useSelector((state) => state.products);
+
+  // Generate unique item ID from product
+  const generateItemId = (product) => {
+    const cleanName = product.name.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    return `kitchen-${cleanName}`;
+  };
+
+  // Function to get all current item IDs
+  const getCurrentItemIds = () => {
+    if (!productsByCategory || productsByCategory.length === 0) return [];
+    return productsByCategory.map(product => generateItemId(product));
+  };
+
+  useEffect(() => {
+    dispatch(fetchProductsByCategory('Kitchen'));
+  }, [dispatch]);
+
+  // Notify parent component when item IDs change
+  useEffect(() => {
+    const itemIds = getCurrentItemIds();
+    if (onItemIdsChange) {
+      onItemIdsChange('kitchen', itemIds);
+    }
+  }, [productsByCategory, onItemIdsChange]);
+
+  if (loading) {
+    return (
+      <div>
+        <h3 className="text-xl font-semibold mb-4">Kitchen</h3>
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span className="ml-2 text-gray-600">Loading products...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <h3 className="text-xl font-semibold mb-4">Kitchen</h3>
+        <div className="text-center py-8">
+          <p className="text-red-600">Error loading products: {error}</p>
+          <button 
+            onClick={() => dispatch(fetchProductsByCategory('Kitchen'))}
+            className="mt-2 px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <h3 className="text-xl font-semibold mb-4">Dining Room</h3>
+      <h3 className="text-xl font-semibold mb-4">Kitchen</h3>
       <div className="space-y-4">
-        {KITCHEN.map((item, index) => (
-          <div
-            key={index}
-            className="border rounded-lg p-4 hover:shadow-lg transition-shadow"
-          >
-            <div className="flex items-center gap-6">
-              <div className="flex-1">
-                <h4 className="font-semibold mb-2">{item.title}</h4>
-                <p className="text-gray-600 text-sm mb-4">{item.dimensions}</p>
-              </div>
-              <div className="flex items-center">
-                <div className="flex items-center border rounded-lg">
-                  <button
-                    onClick={() => updateQuantity("kitchen-large-box", -1)}
-                    className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
-                  >
-                    -
-                  </button>
-                  <span className="px-4 py-1 border-x">
-                    {getQuantity("kitchen-large-box")}
-                  </span>
-                  <button
-                    onClick={() => updateQuantity("kitchen-large-box", 1)}
-                    className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
-                  >
-                    +
-                  </button>
+        {productsByCategory && productsByCategory.length > 0 ? (
+          productsByCategory.map((product) => {
+            const itemId = generateItemId(product);
+            return (
+              <div key={product._id || product.id} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
+                <div className="flex items-center gap-6">
+                  <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="text-center">
+                      <div className="text-lg font-semibold text-primary">🍳</div>
+                      <div className="text-xs text-gray-600">Kitchen</div>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold mb-2">{product.name}</h4>
+                    <p className="text-gray-600 text-sm mb-4">
+                      {product.details || 'Professional packaging solution for kitchen appliances.'}
+                    </p>
+                    <p className="text-gray-600 text-sm mb-2">
+                      ${parseFloat(product.price.australia || 0).toFixed(2)}
+                    </p>
+                    <p className="text-gray-600 text-xs">
+                      {product.size || 'Custom dimensions available'}
+                    </p>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="flex items-center border rounded-lg">
+                      <button
+                        onClick={() => updateQuantity(itemId, -1)}
+                        className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
+                      >
+                        -
+                      </button>
+                      <span className="px-4 py-1 border-x">
+                        {getQuantity(itemId)}
+                      </span>
+                      <button
+                        onClick={() => updateQuantity(itemId, 1)}
+                        className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            );
+          })
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-600">No kitchen products available at the moment.</p>
           </div>
-        ))}
+        )}
 
+        {/* Add custom kitchen option */}
         <div className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
           <div className="flex items-center gap-6">
+            <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="text-center">
+                <div className="text-lg font-semibold text-primary">🍳</div>
+                <div className="text-xs text-gray-600">Kitchen</div>
+              </div>
+            </div>
             <div className="flex-1">
-              <h4 className="font-semibold mb-2">Add Custom Item</h4>
+              <h4 className="font-semibold mb-2">Add kitchen items</h4>
               <p className="text-gray-600 text-sm mb-4">
-                Already have some sturdy boxes you can use? Add them here.
+                Please add the dimensions of your kitchen items here.
               </p>
             </div>
             <div className="flex items-center">
@@ -90,7 +142,7 @@ const Kitchen = ({ getQuantity, updateQuantity, setShowAddBoxForm }) => {
                   onClick={() => setShowAddBoxForm(true)}
                   className="px-4 py-2 bg-primary text-white cursor-pointer flex items-center gap-2 rounded-full"
                 >
-                  <FaPlus /> Add Box
+                  <FaPlus /> Add kitchen item
                 </button>
               </div>
             </div>

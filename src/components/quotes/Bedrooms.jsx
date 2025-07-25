@@ -1,122 +1,139 @@
-import { FaPlus } from "react-icons/fa"
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchProductsByCategory } from '../../redux/slices/productSlice';
+import { FaPlus } from "react-icons/fa";
 
-const Bedrooms = ({ getQuantity, updateQuantity, setShowAddBoxForm }) => {
+const Bedrooms = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChange }) => {
+  const dispatch = useDispatch();
+  const { productsByCategory, loading, error } = useSelector((state) => state.products);
 
-  const BEDROOMS = [
-    {
-      title: "Bed Side Table",
-      dimensions: "56cm x 38 x 38 / 22inches x 15 x 15(HWD)"
-    },
-    {
-      title: "Bed Side Table (Dismantled)",
-      dimensions: "56cm x 38 x 10 / 22inches x 15 x 4(HWD)"
-    },
-    {
-      title: "Child's Bed",
-      dimensions: "95cm x 100 x 175 / 37inches x 39 x 68(HWD)"
-    },
-    {
-      title: "Child's Bed (Dismantled)",
-      dimensions: "20cm x 100 x 175 / 8inches x 39 x 68(HWD)"
-    },
-    {
-      title: "Children's Cot",
-      dimensions: "90cm x 135 x 70 / 35inches x 53 x 27(HWD)"
-    },
-    {
-      title: "Children's Cot (Dismantled)",
-      dimensions: "90cm x 20 x 135 / 35inches x 8 x 53(HWD)"
-    },
-    {
-      title: "Double Bed",
-      dimensions: "90cm x 145 x 198 / 35inches x 57 x 77(HWD)"
-    },
-    {
-      title: "Double Bed (Dismantled)",
-      dimensions: "20cm x 145 x 198 / 8inches x 57 x 77(HWD)"
-    },
-    {
-      title: "Large Chest Of Drawers",
-      dimensions: "90cm x 75 x 30 / 35inches x 29 x 12(HWD)"
-    },
-    {
-      title: "Large Chest of Drawers (Dismantled)",
-      dimensions: "90cm x 75 x 10 / 35inches x 29 x 4(HWD)"
-    },
-    {
-      title: "Large Wardrobe",
-      dimensions: "195cm x 150 x 55 / 76inches x 58 x 21(HWD)"
-    },
-    {
-      title: "Large Wardrobe (Dismantled)",
-      dimensions: "195cm x 20 x 55 / 76inches x 8 x 21(HWD)"
-    },
-    {
-      title: "Single Bed",
-      dimensions: "85cm x 100 x 200 / 33inches x 39 x 78(HWD)"
-    },
-    {
-      title: "Single Bed (Dismantled)",
-      dimensions: "20cm x 100 x 200 / 8inches x 39 x 78(HWD)"
-    },
-    {
-      title: "Small Chest Of Drawers",
-      dimensions: "53cm x 66 x 30 / 21inches x 26 x 12(HWD)"
-    },
-    {
-      title: "Small Chest of Drawers (Dismantled)",
-      dimensions: "53cm x 66 x 10 / 21inches x 26 x 4(HWD)"
-    },
-    {
-      title: "Small Wardrobe",
-      dimensions: "180cm x 60 x 55 / 70inches x 23 x 21(HWD)"
-    },
-    {
-      title: "Small Wardrobe (Dismantled)",
-      dimensions: "180cm x 20 x 55 / 70inches x 8 x 21(HWD)"
+  // Generate unique item ID from product
+  const generateItemId = (product) => {
+    const cleanName = product.name.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    return `bedrooms-${cleanName}`;
+  };
+
+  // Function to get all current item IDs
+  const getCurrentItemIds = () => {
+    if (!productsByCategory || productsByCategory.length === 0) return [];
+    return productsByCategory.map(product => generateItemId(product));
+  };
+
+  useEffect(() => {
+    dispatch(fetchProductsByCategory('Bedrooms'));
+  }, [dispatch]);
+
+  // Notify parent component when item IDs change
+  useEffect(() => {
+    const itemIds = getCurrentItemIds();
+    if (onItemIdsChange) {
+      onItemIdsChange('bedrooms', itemIds);
     }
-  ]
+  }, [productsByCategory, onItemIdsChange]);
+
+  if (loading) {
+    return (
+      <div>
+        <h3 className="text-xl font-semibold mb-4">Bedrooms</h3>
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span className="ml-2 text-gray-600">Loading products...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <h3 className="text-xl font-semibold mb-4">Bedrooms</h3>
+        <div className="text-center py-8">
+          <p className="text-red-600">Error loading products: {error}</p>
+          <button 
+            onClick={() => dispatch(fetchProductsByCategory('Bedrooms'))}
+            className="mt-2 px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h3 className="text-xl font-semibold mb-4">Bedrooms</h3>
       <div className="space-y-4">
-        {BEDROOMS.map((item, index) => (
-          <div key={index} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-6">
-              <div className="flex-1">
-                <h4 className="font-semibold mb-2">{item.title}</h4>
-                <p className="text-gray-600 text-sm mb-4">
-                  {item.dimensions}
-                </p>
+        {productsByCategory && productsByCategory.length > 0 ? (
+          productsByCategory.map((product) => {
+            const itemId = generateItemId(product);
+            return (
+              <div key={product._id || product.id} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
+                <div className="flex items-center gap-6">
+                  <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="text-center">
+                      <div className="text-lg font-semibold text-primary">🛏️</div>
+                      <div className="text-xs text-gray-600">Bedroom</div>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold mb-2">{product.name}</h4>
+                    <p className="text-gray-600 text-sm mb-4">
+                      {product.details || 'Professional packaging solution for bedroom furniture.'}
+                    </p>
+                    <p className="text-gray-600 text-sm mb-2">
+                      ${parseFloat(product.price.australia || 0).toFixed(2)}
+                    </p>
+                    <p className="text-gray-600 text-xs">
+                      {product.size || 'Custom dimensions available'}
+                    </p>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="flex items-center border rounded-lg">
+                      <button
+                        onClick={() => updateQuantity(itemId, -1)}
+                        className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
+                      >
+                        -
+                      </button>
+                      <span className="px-4 py-1 border-x">
+                        {getQuantity(itemId)}
+                      </span>
+                      <button
+                        onClick={() => updateQuantity(itemId, 1)}
+                        className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center">
-                <div className="flex items-center border rounded-lg">
-                <button
-                  onClick={() => updateQuantity(`bedrooms-item-${index}`, -1)}
-                  className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
-                >
-                  -
-                </button>
-                <span className="px-4 py-1 border-x">
-                  {getQuantity(`bedrooms-item-${index}`)}
-                </span>
-                <button
-                  onClick={() => updateQuantity(`bedrooms-item-${index}`, 1)}
-                  className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
-                >
-                  +
-                </button>
-              </div>
-            </div>
+            );
+          })
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-600">No bedroom products available at the moment.</p>
           </div>
-        </div> ))}
+        )}
 
+        {/* Add custom bedroom option */}
         <div className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
           <div className="flex items-center gap-6">
+            <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="text-center">
+                <div className="text-lg font-semibold text-primary">🛏️</div>
+                <div className="text-xs text-gray-600">Bedroom</div>
+              </div>
+            </div>
             <div className="flex-1">
-              <h4 className="font-semibold mb-2">Add Custom Item</h4>
+              <h4 className="font-semibold mb-2">Add bedroom furniture</h4>
               <p className="text-gray-600 text-sm mb-4">
-                Already have some sturdy boxes you can use? Add them here.
+                Please add the dimensions of your bedroom items here.
               </p>
             </div>
             <div className="flex items-center">
@@ -125,7 +142,7 @@ const Bedrooms = ({ getQuantity, updateQuantity, setShowAddBoxForm }) => {
                   onClick={() => setShowAddBoxForm(true)}
                   className="px-4 py-2 bg-primary text-white cursor-pointer flex items-center gap-2 rounded-full"
                 >
-                  <FaPlus /> Add Box
+                  <FaPlus /> Add bedroom item
                 </button>
               </div>
             </div>
@@ -133,7 +150,7 @@ const Bedrooms = ({ getQuantity, updateQuantity, setShowAddBoxForm }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Bedrooms
+export default Bedrooms;

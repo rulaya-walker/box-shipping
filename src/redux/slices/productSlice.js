@@ -61,6 +61,29 @@ export const fetchProductById = createAsyncThunk(
   }
 );
 
+// Async thunk for fetching a products by Category
+export const fetchProductsByCategory = createAsyncThunk(
+  'products/fetchByCategory',
+  async (category, {rejectWithValue}) => {
+    try {
+      const response = await axiosInstance.get(`/api/products/category/${category}`); 
+      if (response.status !== 200) {
+        throw new Error(response.data.message || 'Failed to fetch products by category');
+      }
+  
+      return response.data;
+    } catch (error) {
+      if (error.code === 'ECONNABORTED') {
+        return rejectWithValue('Request timed out. Please try again.');
+      }
+      if (!error.response) {
+        return rejectWithValue('Network error. Please check your connection and try again.');
+      }
+      return rejectWithValue(error.response?.data?.message || error.message || 'An error occurred while fetching products by category');
+    }
+  }
+);
+
 export const updateProduct = createAsyncThunk(
   'products/updateProduct',
   async ({productId, productData}, {rejectWithValue}) => {
@@ -104,6 +127,7 @@ const productSlice = createSlice({
     products: [],
     product: null,
     similarProducts: [],
+    productsByCategory: [],
     loading: false,
     error: null,
     filters: {
@@ -170,6 +194,18 @@ const productSlice = createSlice({
 
       })
       .addCase(fetchProductById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchProductsByCategory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductsByCategory.fulfilled, (state, action) => {
+        state.loading = false;
+        state.productsByCategory = Array.isArray(action.payload) ? action.payload : [];
+      })
+      .addCase(fetchProductsByCategory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
