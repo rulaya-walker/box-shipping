@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { FaPlus } from "react-icons/fa";
 
 import {
@@ -31,6 +31,7 @@ const QuoteBody = () => {
   const [showAddBoxForm, setShowAddBoxForm] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [quantities, setQuantities] = useState({});
+  const [dynamicItemIds, setDynamicItemIds] = useState({});
   const [selectedService, setSelectedService] = useState("");
   const [formData, setFormData] = useState({
     itemName: "",
@@ -44,35 +45,36 @@ const QuoteBody = () => {
   const { calculateOrderTotal } = usePayment();
 
   const updateQuantity = (itemId, change) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [itemId]: Math.max(0, (prev[itemId] || 0) + change),
-    }));
+    setQuantities((prev) => {
+      const newQuantity = Math.max(0, (prev[itemId] || 0) + change);
+      const newState = {
+        ...prev,
+        [itemId]: newQuantity,
+      };
+      return newState;
+    });
   };
 
   const getQuantity = (itemId) => {
     return quantities[itemId] || 0;
   };
 
+  // Handle dynamic item IDs from Redux components
+  const onItemIdsChange = useCallback((tabId, itemIds) => {
+    setDynamicItemIds((prev) => {
+      const newState = {
+        ...prev,
+        [tabId]: itemIds
+      };
+      return newState;
+    });
+  }, []);
+
   // Map each tab to its related item categories
   const getTabQuantity = (tabId) => {
-    const itemMappings = {
-      origin: ["origin-large-box", "origin-standard-box", "origin-clothes-box", "origin-book-box"], // Shipping Boxes
-      picture: ["picture-custom"], // Pictures and Mirrors (custom add form only)
-      package: Array.from({length: 9}, (_, i) => `sports-item-${i}`), // Sports and Outdoors (9 items)
-      service: ["service-suitcase"], // Suitcases (custom add form only)
-      additional: ["additional-backpack"], // Backpacks (custom add form only)
-      bedrooms: Array.from({length: 18}, (_, i) => `bedrooms-item-${i}`), // Bedrooms (18 items)
-      dining_room: ["dining-large-box"], // Dining Room
-      garden: ["garden-large-box"], // Garden
-      kitchen: ["kitchen-large-box"], // Kitchen
-      living_room: ["living-large-box"], // Living Room
-      musical: ["musical-large-box"], // Musical Instruments
-      office: ["office-large-box"], // Office
-      other: ["other-large-box"] // Other
-    };
-
-    const itemIds = itemMappings[tabId] || [];
+    // Use dynamic item IDs from Redux components
+    const itemIds = dynamicItemIds[tabId] || [];
+    
     return itemIds.reduce((total, itemId) => total + (quantities[itemId] || 0), 0);
   };
 
@@ -81,6 +83,19 @@ const QuoteBody = () => {
   };
 
   const handlePaymentClick = () => {
+    // Validate that user has selected a service and has items
+    if (!selectedService) {
+      alert('Please select a shipping service before proceeding to payment.');
+      return;
+    }
+    
+    const totalItems = Object.values(quantities).reduce((sum, qty) => sum + qty, 0);
+    if (totalItems === 0) {
+      alert('Please add at least one item to your order before proceeding to payment.');
+      return;
+    }
+    
+    console.log('Proceeding to payment with:', { selectedService, quantities, totalItems });
     setShowPayment(true);
   };
 
@@ -97,12 +112,26 @@ const QuoteBody = () => {
   };
 
   const getOrderDetails = () => {
-    return calculateOrderTotal({
-      selectedService,
-      quantities,
+    // Provide default values to ensure we always have valid data
+    const defaultService = selectedService || 'express';
+    const defaultQuantities = Object.keys(quantities).length > 0 ? quantities : { 'default-item': 1 };
+    
+    const orderDetails = calculateOrderTotal({
+      selectedService: defaultService,
+      quantities: defaultQuantities,
       destinationCharges: 1329.73,
       processingFee: 12.50
     });
+    
+    console.log('Order Details Debug:', {
+      selectedService,
+      defaultService,
+      quantities,
+      defaultQuantities,
+      orderDetails
+    });
+    
+    return orderDetails;
   };
 
   const steps = [
@@ -249,6 +278,7 @@ const QuoteBody = () => {
                       getQuantity={getQuantity}
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
+                      onItemIdsChange={onItemIdsChange}
                     />
                   )}
 
@@ -258,6 +288,7 @@ const QuoteBody = () => {
                       getQuantity={getQuantity}
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
+                      onItemIdsChange={onItemIdsChange}
                     />
                   )}
 
@@ -267,6 +298,7 @@ const QuoteBody = () => {
                       getQuantity={getQuantity}
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
+                      onItemIdsChange={onItemIdsChange}
                     />
                   )}
 
@@ -276,6 +308,7 @@ const QuoteBody = () => {
                       getQuantity={getQuantity}
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
+                      onItemIdsChange={onItemIdsChange}
                     />
                   )}
 
@@ -285,6 +318,7 @@ const QuoteBody = () => {
                       getQuantity={getQuantity}
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
+                      onItemIdsChange={onItemIdsChange}
                     />
                   )}
 
@@ -294,6 +328,7 @@ const QuoteBody = () => {
                       getQuantity={getQuantity}
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
+                      onItemIdsChange={onItemIdsChange}
                     />
                   )}
 
@@ -303,6 +338,7 @@ const QuoteBody = () => {
                       getQuantity={getQuantity}
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
+                      onItemIdsChange={onItemIdsChange}
                     />
                   )}
 
@@ -312,6 +348,7 @@ const QuoteBody = () => {
                       getQuantity={getQuantity}
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
+                      onItemIdsChange={onItemIdsChange}
                     />
                   )}
 
@@ -321,6 +358,7 @@ const QuoteBody = () => {
                       getQuantity={getQuantity}
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
+                      onItemIdsChange={onItemIdsChange}
                     />
                   )}
 
@@ -330,6 +368,7 @@ const QuoteBody = () => {
                       getQuantity={getQuantity}
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
+                      onItemIdsChange={onItemIdsChange}
                     />
                   )}
 
@@ -339,6 +378,7 @@ const QuoteBody = () => {
                       getQuantity={getQuantity}
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
+                      onItemIdsChange={onItemIdsChange}
                     />
                   )}
 
@@ -348,6 +388,7 @@ const QuoteBody = () => {
                       getQuantity={getQuantity}
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
+                      onItemIdsChange={onItemIdsChange}
                     />
                   )}
 
@@ -357,6 +398,7 @@ const QuoteBody = () => {
                       getQuantity={getQuantity}
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
+                      onItemIdsChange={onItemIdsChange}
                     />
                   )}
                 </>

@@ -1,111 +1,156 @@
-import { FaPlus } from "react-icons/fa"
-const GARDEN = [
-  {
-    title: "Garden Chair",
-    dimensions: "85cm x 64 x 55 / 33inches x 25 x 21(HWD)"
-  },
-  {
-    title: "2 Garden Chairs Stacked",
-    dimensions: "170cm x 128 x 110 / 66inches x 50 x 43(HWD)"
-  },
-  {
-    title: "Large BBQ",
-    dimensions: "115cm x 140 x 65 / 45inches x 55 x 25(HWD)"
-  },
-  {
-    title: "Large BBQ (Dismantled)",
-    dimensions: "40cm x 140 x 65 / 16inches x 55 x 25(HWD)"
-  },
-  {
-    title: "Large Garden Table",
-    dimensions: "73cm x 90 x 200 / 28inches x 35 x 78(HWD)"
-  },
-  {
-    title: "Large Garden Table (Dismantled)",
-    dimensions: "20cm x 90 x 200 / 8inches x 35 x 78(HWD)"
-  },
-  {
-    title: "Small BBQ",
-    dimensions: "45cm x 40 x 45 / 18inches x 16 x 18(HWD)"
-  },
-  {
-    title: "Small BBQ (Dismantled)",
-    dimensions: "10cm x 40 x 45 / 4inches x 16 x 18(HWD)"
-  },
-  {
-    title: "Small Garden Table",
-    dimensions: "55cm x 80 x 80 / 21inches x 31 x 31(HWD)"
-  },
-  {
-    title: "Small Garden Table (Dismantled)",
-    dimensions: "10cm x 80 x 80 / 4inches x 31 x 31(HWD)"
-  },
-  {
-    title: "Sun Lounger (Collapsed)",
-    dimensions: "20cm x 60 x 120 / 8inches x 23 x 47(HWD)"
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchProductsByCategory } from '../../redux/slices/productSlice';
+import { FaPlus } from "react-icons/fa";
+
+const Garden = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChange }) => {
+  const dispatch = useDispatch();
+  const { productsByCategory, loading, error } = useSelector((state) => state.products);
+
+  // Generate unique item ID from product
+  const generateItemId = (product) => {
+    const cleanName = product.name.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    return `garden-${cleanName}`;
+  };
+
+  // Function to get all current item IDs
+  const getCurrentItemIds = () => {
+    if (!productsByCategory || productsByCategory.length === 0) return [];
+    return productsByCategory.map(product => generateItemId(product));
+  };
+
+  useEffect(() => {
+    dispatch(fetchProductsByCategory('Garden'));
+  }, [dispatch]);
+
+  // Notify parent component when item IDs change
+  useEffect(() => {
+    const itemIds = getCurrentItemIds();
+    if (onItemIdsChange) {
+      onItemIdsChange('garden', itemIds);
+    }
+  }, [productsByCategory, onItemIdsChange]);
+
+  if (loading) {
+    return (
+      <div>
+        <h3 className="text-xl font-semibold mb-4">Garden</h3>
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span className="ml-2 text-gray-600">Loading products...</span>
+        </div>
+      </div>
+    );
   }
 
-]
+  if (error) {
+    return (
+      <div>
+        <h3 className="text-xl font-semibold mb-4">Garden</h3>
+        <div className="text-center py-8">
+          <p className="text-red-600">Error loading products: {error}</p>
+          <button 
+            onClick={() => dispatch(fetchProductsByCategory('Garden'))}
+            className="mt-2 px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-const Garden = ({ getQuantity, updateQuantity, setShowAddBoxForm }) => {
   return (
     <div>
-          <h3 className="text-xl font-semibold mb-4">Dining Room</h3>
-          <div className="space-y-4">
-            {GARDEN.map((item, index) => (
-              <div key={index} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
+      <h3 className="text-xl font-semibold mb-4">Garden</h3>
+      <div className="space-y-4">
+        {productsByCategory && productsByCategory.length > 0 ? (
+          productsByCategory.map((product) => {
+            const itemId = generateItemId(product);
+            return (
+              <div key={product._id || product.id} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
                 <div className="flex items-center gap-6">
+                  <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="text-center">
+                      <div className="text-lg font-semibold text-primary">🌻</div>
+                      <div className="text-xs text-gray-600">Garden</div>
+                    </div>
+                  </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold mb-2">{item.title}</h4>
+                    <h4 className="font-semibold mb-2">{product.name}</h4>
                     <p className="text-gray-600 text-sm mb-4">
-                      {item.dimensions}
+                      {product.details || 'Professional packaging solution for garden furniture.'}
+                    </p>
+                    <p className="text-gray-600 text-sm mb-2">
+                      ${parseFloat(product.price.australia || 0).toFixed(2)}
+                    </p>
+                    <p className="text-gray-600 text-xs">
+                      {product.size || 'Custom dimensions available'}
                     </p>
                   </div>
                   <div className="flex items-center">
                     <div className="flex items-center border rounded-lg">
-                    <button
-                      onClick={() => updateQuantity("garden-large-box", -1)}
-                      className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
-                    >
-                      -
-                    </button>
-                    <span className="px-4 py-1 border-x">
-                      {getQuantity("garden-large-box")}
-                    </span>
-                    <button
-                      onClick={() => updateQuantity("garden-large-box", 1)}
-                      className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
-                    >
-                      +
-                    </button>
+                      <button
+                        onClick={() => updateQuantity(itemId, -1)}
+                        className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
+                      >
+                        -
+                      </button>
+                      <span className="px-4 py-1 border-x">
+                        {getQuantity(itemId)}
+                      </span>
+                      <button
+                        onClick={() => updateQuantity(itemId, 1)}
+                        className="px-3 py-1 text-gray-600 cursor-pointer hover:bg-gray-100"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div> ))}
-    
-            <div className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
-              <div className="flex items-center gap-6">
-                <div className="flex-1">
-                  <h4 className="font-semibold mb-2">Add Custom Item</h4>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Already have some sturdy boxes you can use? Add them here.
-                  </p>
-                </div>
-                <div className="flex items-center">
-                  <div className="flex items-center">
-                    <button
-                      onClick={() => setShowAddBoxForm(true)}
-                      className="px-4 py-2 bg-primary text-white cursor-pointer flex items-center gap-2 rounded-full"
-                    >
-                      <FaPlus /> Add Box
-                    </button>
-                  </div>
-                </div>
+            );
+          })
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-600">No garden products available at the moment.</p>
+          </div>
+        )}
+
+        {/* Add custom garden option */}
+        <div className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
+          <div className="flex items-center gap-6">
+            <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="text-center">
+                <div className="text-lg font-semibold text-primary">🌻</div>
+                <div className="text-xs text-gray-600">Garden</div>
+              </div>
+            </div>
+            <div className="flex-1">
+              <h4 className="font-semibold mb-2">Add garden items</h4>
+              <p className="text-gray-600 text-sm mb-4">
+                Please add the dimensions of your garden items here.
+              </p>
+            </div>
+            <div className="flex items-center">
+              <div className="flex items-center">
+                <button
+                  onClick={() => setShowAddBoxForm(true)}
+                  className="px-4 py-2 bg-primary text-white cursor-pointer flex items-center gap-2 rounded-full"
+                >
+                  <FaPlus /> Add garden item
+                </button>
               </div>
             </div>
           </div>
         </div>
-  )
-}
+      </div>
+    </div>
+  );
+};
 
-export default Garden
+export default Garden;

@@ -296,16 +296,16 @@ const ProductManagement = () => {
     };
 
     const minimumPriceData = {
-      australia: parseFloat(formData.minimumPrice.australia) || 0,
-      bahrain: parseFloat(formData.minimumPrice.bahrain) || 0,
-      canada: parseFloat(formData.minimumPrice.canada) || 0,
-      china: parseFloat(formData.minimumPrice.china) || 0,
-      hongkong: parseFloat(formData.minimumPrice.hongkong) || 0,
-      japan: parseFloat(formData.minimumPrice.japan) || 0,
-      malasia: parseFloat(formData.minimumPrice.malasia) || 0,
-      newzealand: parseFloat(formData.minimumPrice.newzealand) || 0,
-      singapore: parseFloat(formData.minimumPrice.singapore) || 0,
-      southafrica: parseFloat(formData.minimumPrice.southafrica) || 0
+      australia: formData.minimumPrice.australia ? parseFloat(formData.minimumPrice.australia) : null,
+      bahrain: formData.minimumPrice.bahrain ? parseFloat(formData.minimumPrice.bahrain) : null,
+      canada: formData.minimumPrice.canada ? parseFloat(formData.minimumPrice.canada) : null,
+      china: formData.minimumPrice.china ? parseFloat(formData.minimumPrice.china) : null,
+      hongkong: formData.minimumPrice.hongkong ? parseFloat(formData.minimumPrice.hongkong) : null,
+      japan: formData.minimumPrice.japan ? parseFloat(formData.minimumPrice.japan) : null,
+      malasia: formData.minimumPrice.malasia ? parseFloat(formData.minimumPrice.malasia) : null,
+      newzealand: formData.minimumPrice.newzealand ? parseFloat(formData.minimumPrice.newzealand) : null,
+      singapore: formData.minimumPrice.singapore ? parseFloat(formData.minimumPrice.singapore) : null,
+      southafrica: formData.minimumPrice.southafrica ? parseFloat(formData.minimumPrice.southafrica) : null
     };
 
     // Create FormData for multipart/form-data submission
@@ -333,6 +333,8 @@ const ProductManagement = () => {
 
     // Log FormData contents
     console.log('FormData contents:');
+    console.log('Price data:', priceData);
+    console.log('Minimum price data:', minimumPriceData);
     for (let [key, value] of formDataToSend.entries()) {
       if (value instanceof File) {
         console.log(`${key}: File(${value.name}, ${value.size} bytes, ${value.type})`);
