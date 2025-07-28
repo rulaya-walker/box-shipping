@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { FaPlus } from "react-icons/fa";
 
 import {
@@ -25,13 +26,73 @@ import Office from "./quotes/Office";
 import Other from "./quotes/Other";
 import StripePayment from "./StripePayment";
 import { usePayment } from "../hooks/usePayment";
+import { 
+  addToCart, 
+  updateCartItemQuantity, 
+  removeFromCart, 
+  fetchCart 
+} from "../redux/slices/cartSlice";
 const QuoteBody = () => {
+  const dispatch = useDispatch();
+  const { cart, loading: cartLoading } = useSelector((state) => state.cart);
+
+  // Helper function to calculate item price from various sources
+  const calculateItemPrice = (cartItem) => {
+    // First, try to get price from the cart item itself
+    if (typeof cartItem.price === 'number' && cartItem.price > 0) {
+      return cartItem.price;
+    }
+    
+    if (typeof cartItem.price === 'object' && cartItem.price) {
+      const objectPrice = parseFloat(cartItem.price.australia || 
+                                   cartItem.price.canada || 
+                                   Object.values(cartItem.price)[0] || 
+                                   0);
+      if (objectPrice > 0) return objectPrice;
+    }
+    
+    if (typeof cartItem.price === 'string') {
+      const stringPrice = parseFloat(cartItem.price.replace(/[^0-9.]/g, '')) || 0;
+      if (stringPrice > 0) return stringPrice;
+    }
+    
+    // Fallback: get price from productDetailsMap using productId
+    const productDetails = productDetailsMap[cartItem.productId] || {};
+    if (productDetails.price) {
+      if (typeof productDetails.price === 'object') {
+        return parseFloat(productDetails.price.australia || 
+                         productDetails.price.canada || 
+                         Object.values(productDetails.price)[0] || 
+                         0);
+      } else {
+        return parseFloat(productDetails.price) || 0;
+      }
+    }
+    
+    // If no price found anywhere, return 0
+    return 0;
+  };
+
+  // Helper function to calculate total cart value
+  const calculateCartTotal = () => {
+    if (!cart || !cart.products || cart.products.length === 0) {
+      return 0;
+    }
+    
+    return cart.products.reduce((sum, item) => {
+      const itemPrice = calculateItemPrice(item);
+      return sum + (itemPrice * item.quantity);
+    }, 0);
+  };
+  
   const [activeTab, setActiveTab] = useState("origin");
   const [currentStep, setCurrentStep] = useState(1);
   const [showAddBoxForm, setShowAddBoxForm] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [quantities, setQuantities] = useState({});
   const [dynamicItemIds, setDynamicItemIds] = useState({});
+  const [itemIdToProductMap, setItemIdToProductMap] = useState({}); // Maps itemId to productId
+  const [productDetailsMap, setProductDetailsMap] = useState({}); // Maps productId to full product details
   const [selectedService, setSelectedService] = useState("");
   const [formData, setFormData] = useState({
     itemName: "",
@@ -44,15 +105,167 @@ const QuoteBody = () => {
 
   const { calculateOrderTotal } = usePayment();
 
+  // Generate a unique guest ID for cart operations
+  const getGuestId = () => {
+    let guestId = localStorage.getItem('guestId');
+    if (!guestId) {
+      guestId = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('guestId', guestId);
+    }
+    return guestId;
+  };
+
+  // Load cart on component mount (with error handling)
+  useEffect(() => {
+    try {
+      const guestId = getGuestId();
+      dispatch(fetchCart({ guestId }));
+    } catch (error) {
+      console.error('Failed to load cart:', error);
+    }
+  }, [dispatch]);
+
+  // Initialize itemIdToProductMap from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedMapping = localStorage.getItem('itemIdToProductMap');
+      if (savedMapping) {
+        const parsedMapping = JSON.parse(savedMapping);
+        setItemIdToProductMap(parsedMapping);
+        console.log('Restored itemIdToProductMap from localStorage:', parsedMapping);
+      }
+    } catch (error) {
+      console.error('Failed to restore itemIdToProductMap from localStorage:', error);
+    }
+  }, []);
+
+  // Save itemIdToProductMap to localStorage whenever it changes
+  useEffect(() => {
+    if (Object.keys(itemIdToProductMap).length > 0) {
+      try {
+        localStorage.setItem('itemIdToProductMap', JSON.stringify(itemIdToProductMap));
+        console.log('Saved itemIdToProductMap to localStorage:', itemIdToProductMap);
+      } catch (error) {
+        console.error('Failed to save itemIdToProductMap to localStorage:', error);
+      }
+    }
+  }, [itemIdToProductMap]);
+
+  // Sync quantities from cart when cart is loaded (with error handling)
+  useEffect(() => {
+    try {
+      if (cart && cart.products && Array.isArray(cart.products)) {
+        const cartQuantities = {};
+        
+        // Map cart products back to frontend itemIds
+        cart.products.forEach(cartProduct => {
+          if (cartProduct.productId && cartProduct.quantity) {
+            // Find the frontend itemId that corresponds to this productId
+            const itemId = Object.keys(itemIdToProductMap).find(
+              key => itemIdToProductMap[key] === cartProduct.productId
+            );
+            
+            if (itemId) {
+              cartQuantities[itemId] = cartProduct.quantity;
+              console.log(`Restored quantity: ${itemId} = ${cartProduct.quantity}`);
+            } else {
+              // If we can't find the itemId mapping, use productId as fallback
+              cartQuantities[cartProduct.productId] = cartProduct.quantity;
+              console.log(`Fallback quantity: ${cartProduct.productId} = ${cartProduct.quantity}`);
+            }
+          }
+        });
+        
+        // Only update if we have cart quantities to restore
+        if (Object.keys(cartQuantities).length > 0) {
+          setQuantities(prevQuantities => ({
+            ...prevQuantities,
+            ...cartQuantities
+          }));
+          console.log('Cart quantities synced:', cartQuantities);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to sync quantities from cart:', error);
+    }
+  }, [cart, itemIdToProductMap]); // Added itemIdToProductMap dependency
+
+  // Log cart items whenever cart changes
+  useEffect(() => {
+    try {
+      if (cart && cart.products) {
+        console.log('Current cart items:', cart.products);
+        console.log('Cart total price:', cart.totalPrice || 0);
+        console.log('Number of items in cart:', cart.products.length);
+      }
+    } catch (error) {
+      console.error('Error logging cart:', error);
+    }
+  }, [cart]);
+
   const updateQuantity = (itemId, change) => {
-    setQuantities((prev) => {
-      const newQuantity = Math.max(0, (prev[itemId] || 0) + change);
-      const newState = {
-        ...prev,
-        [itemId]: newQuantity,
-      };
-      return newState;
-    });
+    const currentQuantity = quantities[itemId] || 0;
+    const newQuantity = Math.max(0, currentQuantity + change);
+    
+    // Update local state immediately for UI responsiveness
+    setQuantities((prev) => ({
+      ...prev,
+      [itemId]: newQuantity,
+    }));
+
+    // Log the quantity change for debugging
+    console.log(`Quantity change: ${itemId} from ${currentQuantity} to ${newQuantity}`);
+
+    // Handle cart operations in background without blocking UI
+    const handleCartOperation = async () => {
+      try {
+        const guestId = getGuestId();
+        
+        // Get the actual product ID from the mapping, fallback to itemId if not found
+        const productId = itemIdToProductMap[itemId] || itemId;
+        
+        // Get product details for price
+        const productDetails = productDetailsMap[productId];
+        const price = productDetails?.price?.australia || 25; // Default to australia price or fallback
+        
+        console.log(`Cart operation: itemId=${itemId}, productId=${productId}, quantity=${newQuantity}, price=${price}`);
+        
+        if (newQuantity === 0 && currentQuantity > 0) {
+          // Remove from cart when quantity becomes 0
+          console.log(`Removing ${itemId} from cart`);
+          await dispatch(removeFromCart({ 
+            productId, 
+            guestId 
+          })).unwrap();
+          
+        } else if (newQuantity === 1 && currentQuantity === 0) {
+          // Add to cart when quantity becomes 1 (first time adding)
+          console.log(`Adding ${itemId} to cart with quantity 1`);
+          await dispatch(addToCart({ 
+            productId, 
+            quantity: 1, 
+            price,
+            guestId 
+          })).unwrap();
+          
+        } else if (newQuantity > 1) {
+          // Update cart quantity when quantity is greater than 1
+          console.log(`Updating ${itemId} quantity to ${newQuantity} in cart`);
+          await dispatch(updateCartItemQuantity({ 
+            productId, 
+            quantity: newQuantity, 
+            guestId 
+          })).unwrap();
+        }
+        console.log(`✅ Cart operation successful for ${itemId}`);
+      } catch (error) {
+        console.warn('⚠️ Cart operation failed, continuing with local quantities:', error.message);
+        // Don't revert UI state - let user continue with local quantities
+      }
+    };
+
+    // Execute cart operation asynchronously without blocking UI
+    handleCartOperation();
   };
 
   const getQuantity = (itemId) => {
@@ -60,7 +273,7 @@ const QuoteBody = () => {
   };
 
   // Handle dynamic item IDs from Redux components
-  const onItemIdsChange = useCallback((tabId, itemIds) => {
+  const onItemIdsChange = useCallback((tabId, itemIds, itemToProductMap = {}, productDetails = {}) => {
     setDynamicItemIds((prev) => {
       const newState = {
         ...prev,
@@ -68,6 +281,18 @@ const QuoteBody = () => {
       };
       return newState;
     });
+    
+    // Update the item ID to product ID mapping
+    setItemIdToProductMap((prev) => ({
+      ...prev,
+      ...itemToProductMap
+    }));
+    
+    // Update the product details mapping
+    setProductDetailsMap((prev) => ({
+      ...prev,
+      ...productDetails
+    }));
   }, []);
 
   // Map each tab to its related item categories
@@ -89,13 +314,19 @@ const QuoteBody = () => {
       return;
     }
     
-    const totalItems = Object.values(quantities).reduce((sum, qty) => sum + qty, 0);
+    const totalItems = cart && cart.products ? 
+      cart.products.reduce((sum, item) => sum + item.quantity, 0) : 0;
+    
     if (totalItems === 0) {
       alert('Please add at least one item to your order before proceeding to payment.');
       return;
     }
     
-    console.log('Proceeding to payment with:', { selectedService, quantities, totalItems });
+    console.log('Proceeding to payment with:', { 
+      selectedService, 
+      cartItems: cart?.products || [], 
+      totalItems 
+    });
     setShowPayment(true);
   };
 
@@ -112,24 +343,30 @@ const QuoteBody = () => {
   };
 
   const getOrderDetails = () => {
-    // Provide default values to ensure we always have valid data
-    const defaultService = selectedService || 'express';
-    const defaultQuantities = Object.keys(quantities).length > 0 ? quantities : { 'default-item': 1 };
+    // Calculate cart total using helper function
+    const cartTotal = calculateCartTotal();
+
+    // Calculate shipping cost
+    const shippingCost = parseFloat(selectedService === 'standard' ? '15.99' :
+                                   selectedService === 'express' ? '29.99' :
+                                   selectedService === 'whiteglove' ? '59.99' :
+                                   '29.99');
     
-    const orderDetails = calculateOrderTotal({
-      selectedService: defaultService,
-      quantities: defaultQuantities,
-      destinationCharges: 1329.73,
-      processingFee: 12.50
-    });
+    const processingFee = 12.50;
+    const totalAmount = cartTotal + shippingCost + processingFee;
+
+    const orderDetails = {
+      selectedService: selectedService || 'express',
+      cartItems: cart?.products || [],
+      cartTotal: cartTotal.toFixed(2),
+      shippingCost: shippingCost.toFixed(2),
+      processingFee: processingFee.toFixed(2),
+      totalAmount: totalAmount.toFixed(2),
+      destinationCharges: cartTotal.toFixed(2),
+      currency: 'USD'
+    };
     
-    console.log('Order Details Debug:', {
-      selectedService,
-      defaultService,
-      quantities,
-      defaultQuantities,
-      orderDetails
-    });
+    console.log('Order Details:', orderDetails);
     
     return orderDetails;
   };
@@ -268,6 +505,7 @@ const QuoteBody = () => {
               showAddBoxForm ? "w-4/5" : "flex-1"
             } bg-white rounded-lg shadow-md p-6 transition-all duration-300`}
           >
+
             <div>
               {/* Step 1: Build Order */}
               {currentStep === 1 && (
@@ -417,10 +655,57 @@ const QuoteBody = () => {
                         Selected Items
                       </h4>
                       <div className="space-y-4 max-h-96 overflow-y-auto">
-                        {Object.entries(quantities).filter(
-                          ([_, qty]) => qty > 0
-                        ).length === 0 ? (
-                          // Sample items when no real selections
+                        {cart && cart.products && cart.products.length > 0 ? (
+                          // Show actual cart items from database
+                          cart.products.map((cartItem, index) => {
+                            // Get product details from our mapping
+                            const productDetails = productDetailsMap[cartItem.productId] || {};
+                            
+                            // Find the frontend itemId for this productId
+                            const itemId = Object.keys(itemIdToProductMap).find(
+                              key => itemIdToProductMap[key] === cartItem.productId
+                            );
+                            
+                            return (
+                              <div
+                                key={`cart-item-${index}`}
+                                className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-sm"
+                              >
+                                <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <img
+                                    src={productDetails.image || box}
+                                    alt={productDetails.name || 'Product'}
+                                    className="w-full h-full object-cover rounded-lg"
+                                  />
+                                </div>
+                                <div className="flex-1">
+                                  <h5 className="font-medium text-gray-800">
+                                    {cartItem.name}
+                                  </h5>
+                                  <div className="flex items-center justify-between mt-1">
+                                    <span className="text-sm text-gray-500">
+                                      {productDetails.dimensions || 'Standard size'}
+                                    </span>
+                                    <span className="font-semibold text-primary">
+                                      {cartItem.quantity}
+                                    </span>
+                                  </div>
+                                  {productDetails.price && (
+                                    <div className="text-sm text-gray-600 mt-1">
+                                      ${typeof productDetails.price === 'object' ? 
+                                        (productDetails.price.australia || 
+                                         productDetails.price.canada || 
+                                         Object.values(productDetails.price)[0] || 
+                                         'N/A') : 
+                                        productDetails.price}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          // Fallback to sample items when no cart items
                           <>
                             <div className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-sm">
                               <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -491,36 +776,6 @@ const QuoteBody = () => {
                               </div>
                             </div>
                           </>
-                        ) : (
-                          Object.entries(quantities)
-                            .filter(([_, qty]) => qty > 0)
-                            .map(([itemId, qty]) => (
-                              <div
-                                key={itemId}
-                                className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-sm"
-                              >
-                                <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                  <img
-                                    src={box}
-                                    alt={itemId}
-                                    className="w-full h-full object-cover rounded-lg"
-                                  />
-                                </div>
-                                <div className="flex-1">
-                                  <h5 className="font-medium text-gray-800 capitalize">
-                                    {itemId.replace("-", " ")}
-                                  </h5>
-                                  <div className="flex items-center justify-between mt-1">
-                                    <span className="text-sm text-gray-500">
-                                      Standard size
-                                    </span>
-                                    <span className="font-semibold text-primary">
-                                      {qty}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            ))
                         )}
                       </div>
                       <div className="mt-4 pt-4 border-t border-gray-200">
@@ -529,10 +784,21 @@ const QuoteBody = () => {
                             Total Items:
                           </span>
                           <span className="font-semibold text-primary">
-                            {Object.values(quantities).reduce(
-                              (sum, qty) => sum + qty,
-                              0
-                            ) || 6}
+                            {cart && cart.products ? 
+                              cart.products.reduce((sum, item) => sum + item.quantity, 0) :
+                              6
+                            }
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <div className="flex justify-between items-center">
+                          <span className="font-semibold text-gray-800">
+                            Total Price:
+                          </span>
+                          <span className="font-semibold text-primary">
+                            ${calculateCartTotal().toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -723,13 +989,15 @@ const QuoteBody = () => {
                           </div>
                           <div className="text-right">
                             <div className="text-sm text-gray-500 mb-1">
-                              AUD
+                              USD
                             </div>
                             <div className="text-3xl font-bold text-primary">
-                              1,329.73
+                             ${calculateCartTotal().toFixed(2)}
                             </div>
                           </div>
                         </div>
+
+                      
 
                         <div className="border-t-2 border-gray-200 pt-4 pb-4 space-y-3">
                           <div className="flex flex-col text-center justify-center text-sm">
@@ -804,10 +1072,57 @@ const QuoteBody = () => {
                         Selected Items
                       </h4>
                       <div className="space-y-4 max-h-96 overflow-y-auto">
-                        {Object.entries(quantities).filter(
-                          ([_, qty]) => qty > 0
-                        ).length === 0 ? (
-                          // Sample items when no real selections
+                        {cart && cart.products && cart.products.length > 0 ? (
+                          // Show actual cart items from database
+                          cart.products.map((cartItem, index) => {
+                            // Get product details from our mapping
+                            const productDetails = productDetailsMap[cartItem.productId] || {};
+                            
+                            // Find the frontend itemId for this productId
+                            const itemId = Object.keys(itemIdToProductMap).find(
+                              key => itemIdToProductMap[key] === cartItem.productId
+                            );
+                            
+                            return (
+                              <div
+                                key={`cart-item-${index}`}
+                                className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-sm"
+                              >
+                                <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <img
+                                    src={productDetails.image || box}
+                                    alt={productDetails.name || 'Product'}
+                                    className="w-full h-full object-cover rounded-lg"
+                                  />
+                                </div>
+                                <div className="flex-1">
+                                  <h5 className="font-medium text-gray-800">
+                                    {cartItem.name}
+                                  </h5>
+                                  <div className="flex items-center justify-between mt-1">
+                                    <span className="text-sm text-gray-500">
+                                      {productDetails.dimensions || 'Standard size'}
+                                    </span>
+                                    <span className="font-semibold text-primary">
+                                      {cartItem.quantity}
+                                    </span>
+                                  </div>
+                                  {productDetails.price && (
+                                    <div className="text-sm text-gray-600 mt-1">
+                                      ${typeof productDetails.price === 'object' ? 
+                                        (productDetails.price.australia || 
+                                         productDetails.price.canada || 
+                                         Object.values(productDetails.price)[0] || 
+                                         'N/A') : 
+                                        productDetails.price}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          // Fallback to sample items when no cart items
                           <>
                             <div className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-sm">
                               <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -878,36 +1193,6 @@ const QuoteBody = () => {
                               </div>
                             </div>
                           </>
-                        ) : (
-                          Object.entries(quantities)
-                            .filter(([_, qty]) => qty > 0)
-                            .map(([itemId, qty]) => (
-                              <div
-                                key={itemId}
-                                className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-sm"
-                              >
-                                <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                  <img
-                                    src={box}
-                                    alt={itemId}
-                                    className="w-full h-full object-cover rounded-lg"
-                                  />
-                                </div>
-                                <div className="flex-1">
-                                  <h5 className="font-medium text-gray-800 capitalize">
-                                    {itemId.replace("-", " ")}
-                                  </h5>
-                                  <div className="flex items-center justify-between mt-1">
-                                    <span className="text-sm text-gray-500">
-                                      Standard size
-                                    </span>
-                                    <span className="font-semibold text-primary">
-                                      {qty}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            ))
                         )}
                       </div>
                       <div className="mt-4 pt-4 border-t border-gray-200">
@@ -916,10 +1201,21 @@ const QuoteBody = () => {
                             Total Items:
                           </span>
                           <span className="font-semibold text-primary">
-                            {Object.values(quantities).reduce(
-                              (sum, qty) => sum + qty,
-                              0
-                            ) || 6}
+                            {cart && cart.products ? 
+                              cart.products.reduce((sum, item) => sum + item.quantity, 0) :
+                              6
+                            }
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <div className="flex justify-between items-center">
+                          <span className="font-semibold text-gray-800">
+                            Total Price:
+                          </span>
+                          <span className="font-semibold text-primary">
+                            ${calculateCartTotal().toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -955,7 +1251,9 @@ const QuoteBody = () => {
                         
                         <div className="flex justify-between text-gray-600">
                           <span>Destination Charges:</span>
-                          <span className="font-medium">AUD 1,329.73</span>
+                          <span className="font-medium">
+                            ${calculateCartTotal().toFixed(2)}
+                          </span>
                         </div>
                         
                         <div className="flex justify-between text-gray-600">
@@ -969,12 +1267,17 @@ const QuoteBody = () => {
                           <span className="text-xl font-bold text-gray-800">Total:</span>
                           <div className="text-right">
                             <div className="text-2xl font-bold text-primary">
-                              ${(parseFloat(selectedService === 'standard' ? '15.99' :
-                                         selectedService === 'express' ? '29.99' :
-                                         selectedService === 'whiteglove' ? '59.99' :
-                                         '29.99') + 1329.73 + 12.50).toFixed(2)}
+                              ${(() => {
+                                const shippingCost = parseFloat(selectedService === 'standard' ? '15.99' :
+                                                               selectedService === 'express' ? '29.99' :
+                                                               selectedService === 'whiteglove' ? '59.99' :
+                                                               '29.99');
+                                const processingFee = 12.50;
+                                const cartTotal = calculateCartTotal();
+                                return (shippingCost + processingFee + cartTotal).toFixed(2);
+                              })()}
                             </div>
-                            <div className="text-sm text-gray-500">USD + AUD</div>
+                            <div className="text-sm text-gray-500">USD</div>
                           </div>
                         </div>
                       </div>

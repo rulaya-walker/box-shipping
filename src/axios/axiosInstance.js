@@ -4,6 +4,7 @@ import axios from 'axios';
 const baseURL = import.meta.env.DEV 
   ? '' // Use relative URLs with Vite proxy in development
   : import.meta.env.VITE_BACKEND_URL?.replace(/[%\s]$/, '') || 'http://localhost:9000';
+  console.log("Using base URL:", baseURL);
 
 const axiosInstance = axios.create({
   baseURL,
@@ -25,33 +26,5 @@ axiosTokenInstance.interceptors.request.use((config) => {
   return config;
 });
 
-// Add response interceptor to handle common errors
-const handleError = (error) => {
-  if (error.code === 'ECONNABORTED') {
-    console.error('Request timeout:', error);
-    return Promise.reject({
-      message: 'Request timed out. Please try again later.'
-    });
-  }
-  
-  if (!error.response) {
-    console.error('Network error:', error);
-    return Promise.reject({
-      message: 'Network error. Please check your connection and try again.'
-    });
-  }
-  
-  return Promise.reject(error);
-};
-
-axiosInstance.interceptors.response.use(
-  response => response,
-  handleError
-);
-
-axiosTokenInstance.interceptors.response.use(
-  response => response,
-  handleError
-);
 
 export { axiosInstance, axiosTokenInstance };

@@ -30,8 +30,20 @@ const Suitcase = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsCha
   // Notify parent component when item IDs change
   useEffect(() => {
     const itemIds = getCurrentItemIds();
+    
+    // Create mapping between itemIds and product._id
+    const itemToProductMap = {};
+    const productDetails = {};
+    if (productsByCategory && productsByCategory.length > 0) {
+      productsByCategory.forEach(product => {
+        const itemId = generateItemId(product);
+        itemToProductMap[itemId] = product._id;
+        productDetails[product._id] = product;
+      });
+    }
+    
     if (onItemIdsChange) {
-      onItemIdsChange('service', itemIds);
+      onItemIdsChange('service', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 

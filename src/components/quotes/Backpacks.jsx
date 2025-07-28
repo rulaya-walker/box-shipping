@@ -31,8 +31,20 @@ const Backpacks = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsCh
   // Notify parent component when item IDs change
   useEffect(() => {
     const itemIds = getCurrentItemIds();
+    
+    // Create mapping between itemIds and product._id
+    const itemToProductMap = {};
+    const productDetails = {};
+    if (productsByCategory && productsByCategory.length > 0) {
+      productsByCategory.forEach(product => {
+        const itemId = generateItemId(product);
+        itemToProductMap[itemId] = product._id;
+        productDetails[product._id] = product;
+      });
+    }
+    
     if (onItemIdsChange) {
-      onItemIdsChange('additional', itemIds);
+      onItemIdsChange('additional', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 

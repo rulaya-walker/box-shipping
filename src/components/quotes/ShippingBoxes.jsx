@@ -36,8 +36,19 @@ const ShippingBoxes = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemI
   useEffect(() => {
     const itemIds = getCurrentItemIds();
     
+    // Create mapping between itemIds and product._id
+    const itemToProductMap = {};
+    const productDetails = {};
+    if (productsByCategory && productsByCategory.length > 0) {
+      productsByCategory.forEach(product => {
+        const itemId = generateItemId(product);
+        itemToProductMap[itemId] = product._id;
+        productDetails[product._id] = product; // Store full product details
+      });
+    }
+    
     if (onItemIdsChange) {
-      onItemIdsChange('origin', itemIds);
+      onItemIdsChange('origin', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 

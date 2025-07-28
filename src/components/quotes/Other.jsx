@@ -30,8 +30,20 @@ const Other = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChange
   // Notify parent component when item IDs change
   useEffect(() => {
     const itemIds = getCurrentItemIds();
+    
+    // Create mapping between itemIds and product._id
+    const itemToProductMap = {};
+    const productDetails = {};
+    if (productsByCategory && productsByCategory.length > 0) {
+      productsByCategory.forEach(product => {
+        const itemId = generateItemId(product);
+        itemToProductMap[itemId] = product._id;
+        productDetails[product._id] = product;
+      });
+    }
+    
     if (onItemIdsChange) {
-      onItemIdsChange('other', itemIds);
+      onItemIdsChange('other', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 

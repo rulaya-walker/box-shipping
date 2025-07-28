@@ -156,16 +156,16 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
         <h3 className="font-semibold text-gray-800 mb-3">Order Summary</h3>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span>Items ({orderDetails?.totalItems || 0}):</span>
-            <span>${orderDetails?.itemsTotal || '0.00'}</span>
+            <span>Cart Items ({orderDetails?.cartItems?.length || 0}):</span>
+            <span>${orderDetails?.cartTotal || '0.00'}</span>
           </div>
           <div className="flex justify-between">
-            <span>Shipping ({orderDetails?.serviceType || 'Standard'}):</span>
+            <span>Shipping ({orderDetails?.selectedService || 'Express'}):</span>
             <span>${orderDetails?.shippingCost || '0.00'}</span>
           </div>
           <div className="flex justify-between">
             <span>Destination Charges:</span>
-            <span>AUD {orderDetails?.destinationCharges || '0.00'}</span>
+            <span>${orderDetails?.destinationCharges || '0.00'}</span>
           </div>
           <div className="flex justify-between">
             <span>Processing Fee:</span>
@@ -174,7 +174,7 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
           <hr className="my-2" />
           <div className="flex justify-between font-semibold text-lg">
             <span>Total:</span>
-            <span className="text-blue-600">${orderDetails?.total || '0.00'}</span>
+            <span className="text-blue-600">${orderDetails?.totalAmount || '0.00'}</span>
           </div>
         </div>
       </div>
@@ -329,7 +329,7 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
               Processing Payment...
             </div>
           ) : (
-            `Pay $${orderDetails?.total || '0.00'} Now`
+            `Pay $${orderDetails?.totalAmount || '0.00'} Now`
           )}
         </button>
 
