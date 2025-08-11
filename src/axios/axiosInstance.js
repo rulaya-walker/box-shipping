@@ -1,10 +1,8 @@
 import axios from 'axios';
 
-// Use proxy in development, otherwise use environment variable or default
-const baseURL = import.meta.env.DEV 
-  ? '' // Use relative URLs with Vite proxy in development
-  : import.meta.env.VITE_BACKEND_URL?.replace(/[%\s]$/, '') || 'http://localhost:9000';
-  console.log("Using base URL:", baseURL);
+// Always use the backend URL from environment variable or default
+const baseURL = import.meta.env.VITE_BACKEND_URL?.replace(/[%\s]$/, '') || 'http://localhost:9000';
+console.log("Using base URL:", baseURL);
 
 const axiosInstance = axios.create({
   baseURL,

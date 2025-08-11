@@ -172,6 +172,35 @@ export const mergeCarts = createAsyncThunk(
     }
 );
 
+// Clear entire cart (after successful order)
+export const clearCart = createAsyncThunk(
+  "cart/clearCart",
+  async ({ userId, guestId }, { rejectWithValue }) => {
+    try {
+      console.log("Clearing cart for:", { userId, guestId });
+      
+      // Use axiosTokenInstance if userId exists (user is logged in)
+      const axiosClient = userId ? axiosTokenInstance : axiosInstance;
+      
+      const response = await axiosClient.post(`/api/cart/clear`, {
+        userId,
+        guestId
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error("Clear cart error:", error.response?.data || error.message);
+      
+      // Return empty cart for local functionality
+      return {
+        products: [],
+        totalPrice: 0,
+        message: "Cart cleared locally - backend unavailable"
+      };
+    }
+  }
+);
+
 
 const cartSlice = createSlice({
   name: "cart",
@@ -254,6 +283,23 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.payload?.message || action.error?.message || "Failed to merge carts";
         console.error("Cart merge error in reducer:", state.error);
+      })
+      .addCase(clearCart.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(clearCart.fulfilled, (state, action) => {
+        state.loading = false;
+        // Set cart to empty
+        state.cart = { products: [], totalPrice: 0 };
+        saveCartToStorage(state.cart);
+      })
+      .addCase(clearCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Failed to clear cart";
+        // Still clear the local cart even if API fails
+        state.cart = { products: [], totalPrice: 0 };
+        saveCartToStorage(state.cart);
       });
   },
 });

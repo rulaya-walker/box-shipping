@@ -15,6 +15,7 @@ import {
   resetStripeState 
 } from '../redux/slices/stripeSlice';
 import { createCheckout, payCheckout, finalizeCheckout } from '../redux/slices/checkoutSlice';
+import { createOrderFromCheckout } from '../redux/slices/orderSlice';
 import { clearCart } from '../redux/slices/cartSlice';
 
 // Initialize Stripe with your publishable key
@@ -28,6 +29,8 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
   
   // Redux state
   const { user, token } = useSelector(state => state.auth);
+  const stripeState = useSelector(state => state.stripe);
+  const checkoutState = useSelector(state => state.checkout);
   const orderState = useSelector(state => state.orders);
   
   // Local state
@@ -166,21 +169,31 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
 
       // Step 4: Confirm payment with Stripe
       console.log('Step 4: Confirming payment with Stripe...');
+      console.log('Client secret:', clientSecret?.substring(0, 20) + '...');
+      console.log('Payment method ID:', paymentMethod.id);
+      
       const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: paymentMethod.id
       });
 
       if (stripeError) {
-        throw new Error(stripeError.message);
+        console.error('Stripe confirmation error:', stripeError);
+        throw new Error(`Stripe Error: ${stripeError.message}`);
       }
 
       console.log('Stripe payment confirmed successfully:', paymentIntent.status);
+      console.log('Payment intent details:', {
+        id: paymentIntent.id,
+        status: paymentIntent.status,
+        amount: paymentIntent.amount,
+        currency: paymentIntent.currency
+      });
 
       // Step 5: Update payment status in backend
       console.log('Step 5: Updating payment status...');
       const payResult = await dispatch(payCheckout({
         checkoutId,
-        paymentStatus: 'Paid', // Fixed case sensitivity - backend expects 'Paid' not 'paid'
+        paymentStatus: 'Paid', // Changed from 'paid' to 'Paid' to match backend expectation
         paymentDetails: {
           paymentIntentId: paymentIntent.id,
           paymentMethodId: paymentMethod.id,
@@ -190,24 +203,35 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
       }));
       
       if (payCheckout.rejected.match(payResult)) {
-        throw new Error(payResult.payload?.message || 'Failed to update payment status');
+        console.error('Pay checkout rejected:', payResult);
+        throw new Error(payResult.payload?.message || payResult.error?.message || 'Failed to update payment status');
       }
 
-      console.log('Payment status updated successfully');
+      console.log('Payment status updated successfully:', payResult.payload);
 
-      // Step 6: Finalize checkout (this creates the order)
-      console.log('Step 6: Finalizing checkout and creating order...');
+      // Step 6: Finalize checkout
+      console.log('Step 6: Finalizing checkout...');
       const finalizeResult = await dispatch(finalizeCheckout(checkoutId));
       
       if (finalizeCheckout.rejected.match(finalizeResult)) {
         throw new Error(finalizeResult.payload?.message || 'Failed to finalize checkout');
       }
 
-      console.log('Checkout finalized and order created successfully');
-      const newOrder = finalizeResult.payload.order; // Order comes from finalize, not separate step
+      console.log('Checkout finalized successfully');
 
-      // Step 7: Clear cart
-      console.log('Step 7: Clearing cart...');
+      // Step 7: Create order from checkout
+      console.log('Step 7: Creating order...');
+      const orderResult = await dispatch(createOrderFromCheckout(checkoutId));
+      
+      if (createOrderFromCheckout.rejected.match(orderResult)) {
+        throw new Error(orderResult.payload?.message || 'Failed to create order');
+      }
+
+      const newOrder = orderResult.payload.order;
+      console.log('Order created successfully:', newOrder._id);
+
+      // Step 8: Clear cart
+      console.log('Step 8: Clearing cart...');
       dispatch(clearCart());
 
       // Success!
@@ -227,12 +251,33 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
 
       // Redirect to order details after a short delay
       setTimeout(() => {
-        navigate(`/user/orders/${newOrder._id}`);
+        navigate(`/orders/${newOrder._id}`);
       }, 3000);
 
     } catch (error) {
       console.error('Payment workflow error:', error);
-      setPaymentError(error.message || 'Payment failed. Please try again.');
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+        cause: error.cause
+      });
+      
+      // More specific error messages
+      let errorMessage = 'Payment failed. Please try again.';
+      if (error.message.includes('payment_intent')) {
+        errorMessage = 'Payment processing failed. Please check your card details and try again.';
+      } else if (error.message.includes('checkout')) {
+        errorMessage = 'Order creation failed. Please try again.';
+      } else if (error.message.includes('authentication') || error.message.includes('auth')) {
+        errorMessage = 'Authentication failed. Please log in and try again.';
+      } else if (error.message.includes('network') || error.message.includes('timeout')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setPaymentError(errorMessage);
       setIsLoading(false);
       setCurrentStep('payment');
       onPaymentError && onPaymentError(error);
@@ -289,7 +334,7 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
         <div className="space-y-3">
           {orderState.newOrder && (
             <button 
-              onClick={() => navigate(`/user/orders/${orderState.newOrder._id}`)}
+              onClick={() => navigate(`/orders/${orderState.newOrder._id}`)}
               className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors"
             >
               View Order Details

@@ -15,6 +15,7 @@ import {
   resetStripeState 
 } from '../redux/slices/stripeSlice';
 import { createCheckout, payCheckout, finalizeCheckout } from '../redux/slices/checkoutSlice';
+import { createOrderFromCheckout } from '../redux/slices/orderSlice';
 import { clearCart } from '../redux/slices/cartSlice';
 
 // Initialize Stripe with your publishable key
@@ -28,6 +29,8 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
   
   // Redux state
   const { user, token } = useSelector(state => state.auth);
+  const stripeState = useSelector(state => state.stripe);
+  const checkoutState = useSelector(state => state.checkout);
   const orderState = useSelector(state => state.orders);
   
   // Local state
@@ -35,6 +38,13 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
   const [paymentError, setPaymentError] = useState(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [currentStep, setCurrentStep] = useState('payment'); // payment, processing, success
+  
+  // Debug logging
+  console.log('CheckoutForm received orderDetails:', orderDetails);
+  console.log('Stripe state:', stripeState);
+  console.log('Checkout state:', checkoutState);
+  console.log('Order state:', orderState);
+  console.log('Auth state:', { user: !!user, token: !!token });
   
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
@@ -52,7 +62,51 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
   // Clear errors when component mounts
   useEffect(() => {
     dispatch(clearStripeErrors());
-  }, [dispatch]);
+    
+    // Debug: Log current environment and configuration
+    console.log('=== STRIPE PAYMENT COMPONENT DEBUG ===');
+    console.log('Environment:', {
+      backendUrl: import.meta.env.VITE_BACKEND_URL,
+      stripeKey: import.meta.env.VITE_REACT_APP_STRIPE_PUBLISHABLE_KEY ? 'Present' : 'Missing',
+      nodeEnv: import.meta.env.NODE_ENV
+    });
+    console.log('Auth state:', { 
+      hasUser: !!user, 
+      hasToken: !!token,
+      userId: user?._id || user?.id
+    });
+    console.log('========================================');
+  }, [dispatch, user, token]);
+
+  // Debug function to test backend connectivity
+  const testBackendConnectivity = async () => {
+    console.log('=== Testing Backend Connectivity ===');
+    try {
+      // Test basic connection
+      const basicResponse = await fetch(import.meta.env.VITE_BACKEND_URL || 'http://localhost:9000');
+      console.log('Basic connection test:', basicResponse.status);
+      
+      // Test with axios instance
+      const { axiosTokenInstance } = await import('../../axios/axiosInstance');
+      console.log('Axios token instance available:', !!axiosTokenInstance);
+      
+      // Test auth headers
+      const headers = axiosTokenInstance.defaults.headers;
+      console.log('Auth headers:', headers);
+      
+      // Test a simple authenticated endpoint
+      try {
+        const authTest = await axiosTokenInstance.get('/api/test/auth');
+        console.log('Auth test successful:', authTest.data);
+      } catch (authError) {
+        console.log('Auth test failed:', authError.response?.data || authError.message);
+      }
+      
+    } catch (error) {
+      console.error('Backend connectivity test failed:', error);
+    }
+    console.log('=====================================');
+  };
 
   const handleCustomerInfoChange = (field, value) => {
     if (field.includes('.')) {
@@ -91,6 +145,19 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
       return;
     }
 
+    // Test network connectivity first
+    try {
+      console.log('Testing backend connectivity...');
+      const response = await fetch(import.meta.env.VITE_BACKEND_URL || 'http://localhost:9000');
+      console.log('Backend connectivity test:', response.status);
+    } catch (connectError) {
+      console.error('Backend connectivity test failed:', connectError);
+      setPaymentError('Unable to connect to payment server. Please check if the backend server is running.');
+      setIsLoading(false);
+      setCurrentStep('payment');
+      return;
+    }
+
     const cardElement = elements.getElement(CardElement);
 
     try {
@@ -121,6 +188,13 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
 
       // Step 2: Create checkout in backend
       console.log('Step 2: Creating checkout...');
+      console.log('Authentication check:', {
+        hasUser: !!user,
+        userId: user?._id || user?.id,
+        hasToken: !!token,
+        tokenLength: token?.length
+      });
+      
       const checkoutData = {
         checkoutItems: orderDetails.cartItems?.map(item => ({
           productId: item.productId || item.id || item._id,
@@ -144,6 +218,12 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
       const checkoutResult = await dispatch(createCheckout(checkoutData));
       
       if (createCheckout.rejected.match(checkoutResult)) {
+        console.error('Checkout creation failed:', {
+          payload: checkoutResult.payload,
+          error: checkoutResult.error,
+          meta: checkoutResult.meta,
+          checkoutData
+        });
         throw new Error(checkoutResult.payload?.message || 'Failed to create checkout');
       }
 
@@ -158,6 +238,11 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
       }));
       
       if (createPaymentIntent.rejected.match(paymentIntentResult)) {
+        console.error('Payment intent creation failed:', {
+          payload: paymentIntentResult.payload,
+          error: paymentIntentResult.error,
+          meta: paymentIntentResult.meta
+        });
         throw new Error(paymentIntentResult.payload || 'Failed to create payment intent');
       }
 
@@ -180,7 +265,7 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
       console.log('Step 5: Updating payment status...');
       const payResult = await dispatch(payCheckout({
         checkoutId,
-        paymentStatus: 'Paid', // Fixed case sensitivity - backend expects 'Paid' not 'paid'
+        paymentStatus: 'paid',
         paymentDetails: {
           paymentIntentId: paymentIntent.id,
           paymentMethodId: paymentMethod.id,
@@ -195,19 +280,29 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
 
       console.log('Payment status updated successfully');
 
-      // Step 6: Finalize checkout (this creates the order)
-      console.log('Step 6: Finalizing checkout and creating order...');
+      // Step 6: Finalize checkout
+      console.log('Step 6: Finalizing checkout...');
       const finalizeResult = await dispatch(finalizeCheckout(checkoutId));
       
       if (finalizeCheckout.rejected.match(finalizeResult)) {
         throw new Error(finalizeResult.payload?.message || 'Failed to finalize checkout');
       }
 
-      console.log('Checkout finalized and order created successfully');
-      const newOrder = finalizeResult.payload.order; // Order comes from finalize, not separate step
+      console.log('Checkout finalized successfully');
 
-      // Step 7: Clear cart
-      console.log('Step 7: Clearing cart...');
+      // Step 7: Create order from checkout
+      console.log('Step 7: Creating order...');
+      const orderResult = await dispatch(createOrderFromCheckout(checkoutId));
+      
+      if (createOrderFromCheckout.rejected.match(orderResult)) {
+        throw new Error(orderResult.payload?.message || 'Failed to create order');
+      }
+
+      const newOrder = orderResult.payload.order;
+      console.log('Order created successfully:', newOrder._id);
+
+      // Step 8: Clear cart
+      console.log('Step 8: Clearing cart...');
       dispatch(clearCart());
 
       // Success!
@@ -227,12 +322,34 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
 
       // Redirect to order details after a short delay
       setTimeout(() => {
-        navigate(`/user/orders/${newOrder._id}`);
+        navigate(`/orders/${newOrder._id}`);
       }, 3000);
 
     } catch (error) {
       console.error('Payment workflow error:', error);
-      setPaymentError(error.message || 'Payment failed. Please try again.');
+      
+      // Provide more specific error messages
+      let errorMessage = 'Payment failed. Please try again.';
+      
+      if (error.message?.includes('Network Error') || error.code === 'NETWORK_ERROR') {
+        errorMessage = 'Unable to connect to payment server. Please check your internet connection and try again.';
+      } else if (error.message?.includes('401') || error.message?.includes('unauthorized') || error.message?.includes('Not authorized')) {
+        errorMessage = 'Authentication failed. Please log in again and try again.';
+      } else if (error.message?.includes('403') || error.message?.includes('Forbidden')) {
+        errorMessage = 'Access denied. Please make sure you are logged in with the correct account.';
+      } else if (error.message?.includes('500')) {
+        errorMessage = 'Server error occurred. Please try again in a moment.';
+      } else if (error.message?.includes('timeout')) {
+        errorMessage = 'Request timed out. Please check your connection and try again.';
+      } else if (error.message?.includes('Failed to create checkout')) {
+        errorMessage = 'Unable to create checkout. Please make sure you are logged in and try again.';
+      } else if (error.message?.includes('Error creating payment intent') || error.message?.includes('Failed to create payment intent')) {
+        errorMessage = 'Unable to process payment. Please ensure you are logged in and your cart contains valid items.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setPaymentError(errorMessage);
       setIsLoading(false);
       setCurrentStep('payment');
       onPaymentError && onPaymentError(error);
@@ -289,7 +406,7 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
         <div className="space-y-3">
           {orderState.newOrder && (
             <button 
-              onClick={() => navigate(`/user/orders/${orderState.newOrder._id}`)}
+              onClick={() => navigate(`/orders/${orderState.newOrder._id}`)}
               className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors"
             >
               View Order Details
@@ -540,6 +657,27 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
             <p className="text-sm text-yellow-700 mt-1">
               Please log in to your account to complete the payment and create your order.
             </p>
+            <button 
+              onClick={() => navigate('/login')}
+              className="mt-2 bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-yellow-700 transition-colors"
+            >
+              Go to Login
+            </button>
+          </div>
+        )}
+
+        {/* Debug Section - Remove in production */}
+        {import.meta.env.NODE_ENV === 'development' && (
+          <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 text-gray-800 mb-2">
+              <span className="text-sm font-medium">Debug Tools</span>
+            </div>
+            <button 
+              onClick={testBackendConnectivity}
+              className="bg-gray-600 text-white px-3 py-1 rounded text-xs hover:bg-gray-700 transition-colors"
+            >
+              Test Backend Connection
+            </button>
           </div>
         )}
 

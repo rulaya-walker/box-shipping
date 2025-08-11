@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUserOrders } from '../../redux/slices/orderSlice';
 import { 
   FaSearch, 
   FaEye, 
@@ -10,81 +12,94 @@ import {
   FaTimes,
   FaFilter,
   FaCalendarAlt,
-  FaBox
+  FaBox,
+  FaSpinner
 } from 'react-icons/fa';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 const MyOrders = () => {
-  const [orders, setOrders] = useState([
-    {
-      id: 'ORD-001',
-      date: '2025-07-20',
-      status: 'delivered',
-      total: 156.99,
-      currency: 'USD',
-      items: [
-        { name: 'Large Shipping Box', quantity: 2, price: 59.99 },
-        { name: 'Medium Shipping Box', quantity: 1, price: 37.01 }
-      ],
-      trackingNumber: 'TRK-123456789',
-      estimatedDelivery: '2025-07-22',
-      actualDelivery: '2025-07-21',
-      origin: 'New York, NY',
-      destination: 'Los Angeles, CA'
-    },
-    {
-      id: 'ORD-002',
-      date: '2025-07-18',
-      status: 'in_transit',
-      total: 89.50,
-      currency: 'USD',
-      items: [
-        { name: 'Standard Shipping Box', quantity: 3, price: 29.83 }
-      ],
-      trackingNumber: 'TRK-987654321',
-      estimatedDelivery: '2025-07-23',
-      actualDelivery: null,
-      origin: 'Chicago, IL',
-      destination: 'Miami, FL'
-    },
-    {
-      id: 'ORD-003',
-      date: '2025-07-15',
-      status: 'processing',
-      total: 234.75,
-      currency: 'USD',
-      items: [
-        { name: 'Extra Large Shipping Box', quantity: 1, price: 89.99 },
-        { name: 'Large Shipping Box', quantity: 2, price: 59.99 },
-        { name: 'Packaging Materials', quantity: 1, price: 24.78 }
-      ],
-      trackingNumber: 'TRK-456789123',
-      estimatedDelivery: '2025-07-25',
-      actualDelivery: null,
-      origin: 'Seattle, WA',
-      destination: 'Denver, CO'
-    },
-    {
-      id: 'ORD-004',
-      date: '2025-07-10',
-      status: 'cancelled',
-      total: 67.25,
-      currency: 'USD',
-      items: [
-        { name: 'Small Shipping Box', quantity: 5, price: 13.45 }
-      ],
-      trackingNumber: null,
-      estimatedDelivery: null,
-      actualDelivery: null,
-      origin: 'Boston, MA',
-      destination: 'Atlanta, GA'
-    }
-  ]);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
+  // Redux state
+  const { orders, loading, error } = useSelector(state => state.orders);
+  const { user, token } = useSelector(state => state.auth);
+  console.log('My Orders', orders);
 
+  // More detailed Redux state logging
+  const fullOrdersState = useSelector(state => state.orders);
+  console.log('Full Redux orders state:', fullOrdersState);
+  console.log('Auth state:', { user: !!user, token: !!token, userDetails: user });
+  
+  // Local state for filters
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
+
+  // Test function to check API directly
+  const testApiDirectly = async () => {
+    try {
+      console.log('Testing API directly...');
+      const token = localStorage.getItem('userToken');
+      console.log('Token from localStorage:', token ? 'exists' : 'missing');
+      
+      if (!token) {
+        console.error('No token found in localStorage');
+        return;
+      }
+
+      const response = await fetch('/api/orders/my-orders', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Direct API response status:', response.status);
+      console.log('Direct API response headers:', Object.fromEntries(response.headers.entries()));
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Direct API response data:', data);
+      } else {
+        const errorText = await response.text();
+        console.error('Direct API error response:', errorText);
+      }
+    } catch (error) {
+      console.error('Direct API test failed:', error);
+    }
+  };
+
+  // Fetch orders when component mounts
+  useEffect(() => {
+    console.log('MyOrders useEffect triggered:', { user: !!user, userId: user?._id });
+    if (user) {
+      console.log('Dispatching fetchUserOrders...');
+      dispatch(fetchUserOrders())
+        .then((result) => {
+          console.log('fetchUserOrders result:', result);
+        })
+        .catch((error) => {
+          console.error('fetchUserOrders error:', error);
+        });
+    } else {
+      console.log('No user found, redirecting to login');
+      navigate('/login');
+    }
+  }, [dispatch, user, navigate]);
+
+  // Log when orders or loading state changes
+  useEffect(() => {
+    console.log('Orders state changed:', { orders, loading, error });
+  }, [orders, loading, error]);
+
+
+  // Use real orders if available, otherwise use mock data for development
+  // Handle different possible data structures from backend
+  const realOrders = Array.isArray(orders) ? orders : (orders?.orders || []);
+  const ordersToUse = realOrders.length > 0 ? realOrders : [];
 
   const statusOptions = [
     { value: 'all', label: 'All Orders' },
@@ -102,8 +117,8 @@ const MyOrders = () => {
     { value: 'last_90_days', label: 'Last 90 Days' }
   ];
 
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredOrders = ordersToUse.filter(order => {
+    const matchesSearch = order.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          order.trackingNumber?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     
@@ -147,10 +162,10 @@ const MyOrders = () => {
   };
 
   const getOrderStats = () => {
-    const total = orders.length;
-    const delivered = orders.filter(o => o.status === 'delivered').length;
-    const inProgress = orders.filter(o => ['processing', 'shipped', 'in_transit'].includes(o.status)).length;
-    const totalSpent = orders
+    const total = ordersToUse.length;
+    const delivered = ordersToUse.filter(o => o.status === 'delivered').length;
+    const inProgress = ordersToUse.filter(o => ['processing', 'shipped', 'in_transit'].includes(o.status)).length;
+    const totalSpent = ordersToUse
       .filter(o => o.status !== 'cancelled')
       .reduce((sum, order) => sum + order.total, 0);
 
@@ -168,6 +183,32 @@ const MyOrders = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">My Orders</h1>
           <p className="mt-2 text-gray-600">Track and manage your shipping orders</p>
+          
+          {/* Loading State */}
+          {loading && (
+            <div className="mt-4 flex items-center space-x-2 text-blue-600">
+              <FaSpinner className="h-4 w-4 animate-spin" />
+              <span className="text-sm">Loading your orders...</span>
+            </div>
+          )}
+          
+          {/* Error State */}
+          {error && (
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-700 text-sm">
+                <strong>Error loading orders:</strong> {error}
+              </p>
+              <p className="text-red-600 text-xs mt-1">
+                Showing sample data for demonstration. Check your connection and try again.
+              </p>
+              <button 
+                onClick={() => dispatch(fetchUserOrders())}
+                className="mt-2 text-red-700 text-sm underline hover:text-red-800"
+              >
+                Retry
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Stats Cards */}
@@ -220,6 +261,23 @@ const MyOrders = () => {
             </div>
           </div>
         </div>
+
+        {/* Development Banner */}
+        {!loading && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-blue-700 text-sm">
+              <strong>Development Mode:</strong> {error ? `Error loading real orders: ${error}` : realOrders.length === 0 ? 'No orders found in database' : 'Using mock data'} - Showing sample data for demonstration.
+            </p>
+            {error && (
+              <button 
+                onClick={() => dispatch(fetchUserOrders())}
+                className="mt-2 text-blue-800 text-sm underline hover:text-blue-900"
+              >
+                Try Again
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow mb-6">
@@ -294,7 +352,7 @@ const MyOrders = () => {
 
         {/* Orders List */}
         <div className="space-y-6">
-          {filteredOrders.length === 0 ? (
+          {orders.length === 0 ? (
             <div className="bg-white rounded-lg shadow p-12 text-center">
               <FaBox className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
@@ -307,21 +365,21 @@ const MyOrders = () => {
               </Link>
             </div>
           ) : (
-            filteredOrders.map((order) => (
-              <div key={order.id} className="bg-white rounded-lg shadow">
+            orders.map((order) => (
+              <div key={order.id || order._id} className="bg-white rounded-lg shadow">
                 <div className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-4 mb-4 lg:mb-0">
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-900">{order.id}</h3>
+                          <h3 className="text-lg font-semibold text-gray-900">{order.id || order._id || 'Unknown'}</h3>
                           <div className="flex items-center space-x-2 text-sm text-gray-500">
                             <FaCalendarAlt className="h-4 w-4" />
-                            <span>Ordered on {new Date(order.date).toLocaleDateString()}</span>
+                            <span>Ordered on {order.date ? new Date(order.date).toLocaleDateString() : order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'Unknown date'}</span>
                           </div>
                         </div>
                         <div>
-                          {getStatusBadge(order.status)}
+                          {getStatusBadge(order.status || 'processing')}
                         </div>
                       </div>
 
@@ -329,12 +387,12 @@ const MyOrders = () => {
                         <div>
                           <span className="font-medium text-gray-500">Items:</span>
                           <span className="ml-1 text-gray-900">
-                            {order.items.reduce((sum, item) => sum + item.quantity, 0)} items
+                            {(order.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0)} items
                           </span>
                         </div>
                         <div>
                           <span className="font-medium text-gray-500">Total:</span>
-                          <span className="ml-1 text-gray-900">${order.total.toFixed(2)}</span>
+                          <span className="ml-1 text-gray-900">${(order.total || order.totalPrice || 0).toFixed(2)}</span>
                         </div>
                         {order.trackingNumber && (
                           <div>
@@ -345,13 +403,13 @@ const MyOrders = () => {
                       </div>
 
                       <div className="mt-4 text-sm text-gray-600">
-                        <span className="font-medium">Route:</span> {order.origin} → {order.destination}
+                        <span className="font-medium">Route:</span> {order.origin || order.shippingAddress?.city || 'Unknown'} → {order.destination || order.shippingAddress?.city || 'Unknown'}
                       </div>
                     </div>
 
                     <div className="mt-4 lg:mt-0 lg:ml-6 flex flex-col sm:flex-row lg:flex-col space-y-2 sm:space-y-0 sm:space-x-2 lg:space-x-0 lg:space-y-2">
                       <Link
-                        to={`/user/orders/${order.id}`}
+                        to={`/user/orders/${order.id || order._id}`}
                         className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                       >
                         <FaEye className="h-4 w-4 mr-2" />
