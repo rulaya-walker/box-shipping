@@ -1,87 +1,21 @@
 import { useState, useEffect } from 'react';
-import { FaSearch, FaEye, FaEdit, FaDownload, FaTruck, FaCheckCircle, FaClock, FaTimes } from 'react-icons/fa';
+import { useDispatch, useSelector } from 'react-redux';
+import { FaSearch, FaEye, FaEdit, FaDownload, FaTruck, FaCheckCircle, FaClock, FaTimes, FaTrash } from 'react-icons/fa';
+import {
+  fetchAdminOrders,
+  updateOrderStatus,
+  deleteOrder,
+} from '../../redux/slices/adminOrderSlice';
 
 const OrderManagement = () => {
-  const [orders, setOrders] = useState([
-    {
-      id: 'ORD-001',
-      customerName: 'John Doe',
-      customerEmail: 'john.doe@example.com',
-      items: [
-        { name: 'Small Storage Box', quantity: 2, price: 25.99 },
-        { name: 'Medium Storage Box', quantity: 1, price: 39.99 }
-      ],
-      origin: 'New York, NY',
-      destination: 'Los Angeles, CA',
-      totalAmount: 91.97,
-      currency: 'USD',
-      status: 'delivered',
-      paymentStatus: 'paid',
-      orderDate: '2025-07-15',
-      deliveryDate: '2025-07-20',
-      trackingNumber: 'TRK-12345678',
-      shippingMethod: 'Standard Shipping',
-      notes: 'Handle with care'
-    },
-    {
-      id: 'ORD-002',
-      customerName: 'Jane Smith',
-      customerEmail: 'jane.smith@example.com',
-      items: [
-        { name: 'Large Storage Box', quantity: 3, price: 59.99 },
-        { name: 'Extra Large Storage Box', quantity: 1, price: 79.99 }
-      ],
-      origin: 'Chicago, IL',
-      destination: 'Miami, FL',
-      totalAmount: 259.96,
-      currency: 'USD',
-      status: 'in_transit',
-      paymentStatus: 'paid',
-      orderDate: '2025-07-18',
-      deliveryDate: null,
-      trackingNumber: 'TRK-87654321',
-      shippingMethod: 'Express Shipping',
-      notes: 'Fragile items'
-    },
-    {
-      id: 'ORD-003',
-      customerName: 'Bob Johnson',
-      customerEmail: 'bob.johnson@example.com',
-      items: [
-        { name: 'Medium Storage Box', quantity: 4, price: 39.99 }
-      ],
-      origin: 'Seattle, WA',
-      destination: 'Denver, CO',
-      totalAmount: 159.96,
-      currency: 'USD',
-      status: 'processing',
-      paymentStatus: 'paid',
-      orderDate: '2025-07-20',
-      deliveryDate: null,
-      trackingNumber: 'TRK-11223344',
-      shippingMethod: 'Standard Shipping',
-      notes: ''
-    },
-    {
-      id: 'ORD-004',
-      customerName: 'Alice Brown',
-      customerEmail: 'alice.brown@example.com',
-      items: [
-        { name: 'Small Storage Box', quantity: 1, price: 25.99 }
-      ],
-      origin: 'Boston, MA',
-      destination: 'Atlanta, GA',
-      totalAmount: 25.99,
-      currency: 'USD',
-      status: 'pending',
-      paymentStatus: 'pending',
-      orderDate: '2025-07-21',
-      deliveryDate: null,
-      trackingNumber: null,
-      shippingMethod: 'Standard Shipping',
-      notes: 'Customer requested delayed processing'
-    }
-  ]);
+  const dispatch = useDispatch();
+  const {
+    adminOrders,
+    loading,
+    error,
+    pagination,
+  } = useSelector((state) => state.adminOrders);
+  console.log('Admin Orders:', adminOrders);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -89,38 +23,63 @@ const OrderManagement = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
 
-  const orderStatuses = ['pending', 'processing', 'shipped', 'in_transit', 'delivered', 'cancelled'];
+  const orderStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
   const paymentStatuses = ['pending', 'paid', 'failed', 'refunded'];
 
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
-    const matchesPaymentStatus = paymentStatusFilter === 'all' || order.paymentStatus === paymentStatusFilter;
-    
-    return matchesSearch && matchesStatus && matchesPaymentStatus;
-  });
+  // Fetch orders on component mount and when filters change
+  useEffect(() => {
+    const filters = {
+      page: 1,
+      limit: 10,
+      ...(statusFilter !== 'all' && { status: statusFilter }),
+      ...(searchTerm && { search: searchTerm })
+    };
+    dispatch(fetchAdminOrders(filters));
+  }, [dispatch, statusFilter, searchTerm]);
 
   const handleViewOrder = (order) => {
     setSelectedOrder(order);
     setShowOrderDetails(true);
   };
 
-  const handleUpdateStatus = (orderId, newStatus) => {
-    setOrders(orders.map(order =>
-      order.id === orderId
-        ? { ...order, status: newStatus }
-        : order
-    ));
+  const handleUpdateStatus = async (orderId, newStatus) => {
+    try {
+      await dispatch(updateOrderStatus({ id: orderId, status: newStatus })).unwrap();
+      // Refresh orders after update
+      const filters = {
+        page: pagination?.currentPage || 1,
+        limit: pagination?.limit || 10,
+        ...(statusFilter !== 'all' && { status: statusFilter }),
+        ...(searchTerm && { search: searchTerm })
+      };
+      dispatch(fetchAdminOrders(filters));
+    } catch (error) {
+      console.error('Failed to update order status:', error);
+    }
   };
 
-  const handleUpdatePaymentStatus = (orderId, newPaymentStatus) => {
-    setOrders(orders.map(order =>
-      order.id === orderId
-        ? { ...order, paymentStatus: newPaymentStatus }
-        : order
-    ));
+  const handleDeleteOrder = async (orderId) => {
+    if (window.confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+      try {
+        await dispatch(deleteOrder(orderId)).unwrap();
+        // Refresh orders after deletion
+        const filters = {
+          page: pagination?.currentPage || 1,
+          limit: pagination?.limit || 10,
+          ...(statusFilter !== 'all' && { status: statusFilter }),
+          ...(searchTerm && { search: searchTerm })
+        };
+        dispatch(fetchAdminOrders(filters));
+      } catch (error) {
+        console.error('Failed to delete order:', error);
+      }
+    }
+  };
+
+  const handleUpdatePaymentStatus = async (orderId, newPaymentStatus) => {
+    // If there's a payment status update action in the slice, use it
+    // For now, we'll just log it as the slice doesn't have this action
+    console.log('Payment status update not implemented yet:', orderId, newPaymentStatus);
   };
 
   const getStatusBadge = (status) => {
@@ -166,20 +125,43 @@ const OrderManagement = () => {
   };
 
   const calculateOrderStats = () => {
-    const totalOrders = orders.length;
-    const totalRevenue = orders
+    const totalOrders = adminOrders.length;
+    const totalRevenue = adminOrders
       .filter(order => order.paymentStatus === 'paid')
-      .reduce((sum, order) => sum + order.totalAmount, 0);
-    const pendingOrders = orders.filter(order => order.status === 'pending').length;
-    const deliveredOrders = orders.filter(order => order.status === 'delivered').length;
+      .reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+    const pendingOrders = adminOrders.filter(order => order.status === 'pending').length;
+    const deliveredOrders = adminOrders.filter(order => order.status === 'delivered').length;
 
     return { totalOrders, totalRevenue, pendingOrders, deliveredOrders };
   };
 
   const stats = calculateOrderStats();
 
+  // For client-side display of the fetched orders
+  const filteredOrders = adminOrders || [];
+
   return (
     <div>
+      {/* Loading State */}
+      {loading && (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="flex">
+            <FaTimes className="h-5 w-5 text-red-400" />
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">Error loading orders</h3>
+              <p className="mt-1 text-sm text-red-700">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -328,29 +310,37 @@ const OrderManagement = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
+                <tr key={order._id || order.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{order.id}</div>
+                    <div className="text-sm font-medium text-gray-900">{order._id || order.id}</div>
                     {order.trackingNumber && (
                       <div className="text-xs text-gray-500">{order.trackingNumber}</div>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{order.customerName}</div>
-                      <div className="text-sm text-gray-500">{order.customerEmail}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {order.user?.name || order.customerName || 'N/A'}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {order.user?.email || order.customerEmail || 'N/A'}
+                      </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{order.origin}</div>
-                    <div className="text-sm text-gray-500">→ {order.destination}</div>
+                    <div className="text-sm text-gray-900">
+                      {order.shippingAddress?.origin || order.origin || 'N/A'}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      → {order.shippingAddress?.destination || order.destination || 'N/A'}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      ${order.totalAmount.toFixed(2)} {order.currency}
+                      ${(order.totalPrice || order.totalAmount || 0).toFixed(2)}
                     </div>
                     <div className="text-xs text-gray-500">
-                      {order.items.reduce((sum, item) => sum + item.quantity, 0)} items
+                      {order.orderItems?.length || order.items?.length || 0} items
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -360,7 +350,7 @@ const OrderManagement = () => {
                     {getPaymentStatusBadge(order.paymentStatus)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(order.orderDate).toLocaleDateString()}
+                    {new Date(order.createdAt || order.orderDate).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
@@ -392,7 +382,7 @@ const OrderManagement = () => {
           <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-semibold text-gray-900">
-                Order Details - {selectedOrder.id}
+                Order Details - {selectedOrder._id || selectedOrder.id}
               </h3>
               <button
                 onClick={() => setShowOrderDetails(false)}
@@ -452,7 +442,7 @@ const OrderManagement = () => {
                     <select
                       value={selectedOrder.status}
                       onChange={(e) => {
-                        handleUpdateStatus(selectedOrder.id, e.target.value);
+                        handleUpdateStatus(selectedOrder._id || selectedOrder.id, e.target.value);
                         setSelectedOrder({ ...selectedOrder, status: e.target.value });
                       }}
                       className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
@@ -469,7 +459,7 @@ const OrderManagement = () => {
                     <select
                       value={selectedOrder.paymentStatus}
                       onChange={(e) => {
-                        handleUpdatePaymentStatus(selectedOrder.id, e.target.value);
+                        handleUpdatePaymentStatus(selectedOrder._id || selectedOrder.id, e.target.value);
                         setSelectedOrder({ ...selectedOrder, paymentStatus: e.target.value });
                       }}
                       className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"

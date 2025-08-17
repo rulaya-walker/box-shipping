@@ -35,7 +35,10 @@ import {
 const QuoteBody = () => {
   const dispatch = useDispatch();
   const { cart, loading: cartLoading } = useSelector((state) => state.cart);
-
+  //get params value
+  const queryParams = new URLSearchParams(window.location.search);
+  const countryParam = queryParams.get('toCountry');
+  const toCountry = countryParam?.toLowerCase() || 'australia';
   // Helper function to calculate item price from various sources
   const calculateItemPrice = (cartItem) => {
     // First, try to get price from the cart item itself
@@ -44,7 +47,7 @@ const QuoteBody = () => {
     }
     
     if (typeof cartItem.price === 'object' && cartItem.price) {
-      const objectPrice = parseFloat(cartItem.price.australia || 
+      const objectPrice = parseFloat(cartItem.price[toCountry] || 
                                    cartItem.price.canada || 
                                    Object.values(cartItem.price)[0] || 
                                    0);
@@ -60,7 +63,7 @@ const QuoteBody = () => {
     const productDetails = productDetailsMap[cartItem.productId] || {};
     if (productDetails.price) {
       if (typeof productDetails.price === 'object') {
-        return parseFloat(productDetails.price.australia || 
+        return parseFloat(productDetails.price[toCountry] || 
                          productDetails.price.canada || 
                          Object.values(productDetails.price)[0] || 
                          0);
@@ -226,8 +229,8 @@ const QuoteBody = () => {
         
         // Get product details for price
         const productDetails = productDetailsMap[productId];
-        const price = productDetails?.price?.australia || 25; // Default to australia price or fallback
-        
+        const price = productDetails?.price?.[toCountry] || 25; // Default to australia price or fallback
+
         console.log(`Cart operation: itemId=${itemId}, productId=${productId}, quantity=${newQuantity}, price=${price}`);
         
         if (newQuantity === 0 && currentQuantity > 0) {
@@ -245,7 +248,8 @@ const QuoteBody = () => {
             productId, 
             quantity: 1, 
             price,
-            guestId 
+            guestId,
+            country: toCountry
           })).unwrap();
           
         } else if (newQuantity > 1) {
@@ -517,6 +521,7 @@ const QuoteBody = () => {
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
                       onItemIdsChange={onItemIdsChange}
+                      toCountry={toCountry}
                     />
                   )}
 
@@ -527,6 +532,7 @@ const QuoteBody = () => {
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
                       onItemIdsChange={onItemIdsChange}
+                      toCountry={toCountry}
                     />
                   )}
 
@@ -537,6 +543,7 @@ const QuoteBody = () => {
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
                       onItemIdsChange={onItemIdsChange}
+                      toCountry={toCountry}
                     />
                   )}
 
@@ -547,6 +554,7 @@ const QuoteBody = () => {
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
                       onItemIdsChange={onItemIdsChange}
+                      toCountry={toCountry}
                     />
                   )}
 
@@ -557,6 +565,7 @@ const QuoteBody = () => {
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
                       onItemIdsChange={onItemIdsChange}
+                      toCountry={toCountry}
                     />
                   )}
 
@@ -567,6 +576,7 @@ const QuoteBody = () => {
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
                       onItemIdsChange={onItemIdsChange}
+                      toCountry={toCountry}
                     />
                   )}
 
@@ -577,6 +587,7 @@ const QuoteBody = () => {
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
                       onItemIdsChange={onItemIdsChange}
+                      toCountry={toCountry}
                     />
                   )}
 
@@ -587,6 +598,7 @@ const QuoteBody = () => {
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
                       onItemIdsChange={onItemIdsChange}
+                      toCountry={toCountry}
                     />
                   )}
 
@@ -597,6 +609,7 @@ const QuoteBody = () => {
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
                       onItemIdsChange={onItemIdsChange}
+                      toCountry={toCountry}
                     />
                   )}
 
@@ -607,6 +620,7 @@ const QuoteBody = () => {
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
                       onItemIdsChange={onItemIdsChange}
+                      toCountry={toCountry}
                     />
                   )}
 
@@ -617,6 +631,7 @@ const QuoteBody = () => {
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
                       onItemIdsChange={onItemIdsChange}
+                      toCountry={toCountry}
                     />
                   )}
 
@@ -627,6 +642,7 @@ const QuoteBody = () => {
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
                       onItemIdsChange={onItemIdsChange}
+                      toCountry={toCountry}
                     />
                   )}
 
@@ -637,6 +653,7 @@ const QuoteBody = () => {
                       updateQuantity={updateQuantity}
                       setShowAddBoxForm={setShowAddBoxForm}
                       onItemIdsChange={onItemIdsChange}
+                      toCountry={toCountry}
                     />
                   )}
                 </>
@@ -693,7 +710,7 @@ const QuoteBody = () => {
                                   {productDetails.price && (
                                     <div className="text-sm text-gray-600 mt-1">
                                       ${typeof productDetails.price === 'object' ? 
-                                        (productDetails.price.australia || 
+                                        (productDetails.price[toCountry] || 
                                          productDetails.price.canada || 
                                          Object.values(productDetails.price)[0] || 
                                          'N/A') : 
@@ -707,74 +724,8 @@ const QuoteBody = () => {
                         ) : (
                           // Fallback to sample items when no cart items
                           <>
-                            <div className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-sm">
-                              <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <img
-                                  src={box}
-                                  alt="Large Box"
-                                  className="w-full h-full object-cover rounded-lg"
-                                />
-                              </div>
-                              <div className="flex-1">
-                                <h5 className="font-medium text-gray-800">
-                                  Large Box
-                                </h5>
-                                <div className="flex items-center justify-between mt-1">
-                                  <span className="text-sm text-gray-500">
-                                    24" x 20" x 16"
-                                  </span>
-                                  <span className="font-semibold text-primary">
-                                    2
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
 
-                            <div className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-sm">
-                              <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <img
-                                  src={picture}
-                                  alt="Picture Frame"
-                                  className="w-full h-full object-cover rounded-lg"
-                                />
-                              </div>
-                              <div className="flex-1">
-                                <h5 className="font-medium text-gray-800">
-                                  Picture Frame
-                                </h5>
-                                <div className="flex items-center justify-between mt-1">
-                                  <span className="text-sm text-gray-500">
-                                    Medium size
-                                  </span>
-                                  <span className="font-semibold text-primary">
-                                    1
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-sm">
-                              <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <img
-                                  src={suitcase}
-                                  alt="Suitcase"
-                                  className="w-full h-full object-cover rounded-lg"
-                                />
-                              </div>
-                              <div className="flex-1">
-                                <h5 className="font-medium text-gray-800">
-                                  Travel Suitcase
-                                </h5>
-                                <div className="flex items-center justify-between mt-1">
-                                  <span className="text-sm text-gray-500">
-                                    Large size
-                                  </span>
-                                  <span className="font-semibold text-primary">
-                                    3
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
+                           <p className="text-gray-600">No Products in the Cart. Click on Previous button and add some products.</p>
                           </>
                         )}
                       </div>
@@ -974,7 +925,7 @@ const QuoteBody = () => {
                         <h4 className="text-2xl font-bold text-gray-800 mb-2">
                           Destination Charges
                         </h4>
-                        <p className="text-gray-600">Shipping to Australia</p>
+                        <p className="text-gray-600">Shipping to {countryParam}</p>
                       </div>
 
                       <div className="bg-white rounded-lg p-6 shadow-sm border">
@@ -984,7 +935,7 @@ const QuoteBody = () => {
                               Total Destination Fees
                             </h5>
                             <p className="text-sm text-gray-500">
-                              All applicable charges for Australian delivery
+                              All applicable charges for {countryParam} delivery
                             </p>
                           </div>
                           <div className="text-right">
@@ -1110,7 +1061,7 @@ const QuoteBody = () => {
                                   {productDetails.price && (
                                     <div className="text-sm text-gray-600 mt-1">
                                       ${typeof productDetails.price === 'object' ? 
-                                        (productDetails.price.australia || 
+                                        (productDetails.price[toCountry] || 
                                          productDetails.price.canada || 
                                          Object.values(productDetails.price)[0] || 
                                          'N/A') : 

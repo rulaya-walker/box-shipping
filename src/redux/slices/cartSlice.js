@@ -50,12 +50,12 @@ export const fetchCart = createAsyncThunk(
 
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
-  async ({ productId, quantity, userId, guestId, price }, { rejectWithValue }) => {
+  async ({ productId, quantity, userId, guestId, price, country }, { rejectWithValue }) => {
     try {
       // Use axiosTokenInstance if userId exists (user is logged in)
       const axiosClient = userId ? axiosTokenInstance : axiosInstance;
       
-      console.log("Sending cart data:", { productId, quantity, userId, guestId, price });
+      console.log("Sending cart data:", { productId, quantity, userId, guestId, price, country });
       
       // Ensure price is a number
       const numericPrice = typeof price === 'number' ? price : parseFloat(price) || 25;
@@ -65,7 +65,8 @@ export const addToCart = createAsyncThunk(
         quantity,
         price: numericPrice,
         userId,
-        guestId
+        guestId,
+        country
       });
       
       console.log("Cart response:", response.data);
@@ -77,7 +78,8 @@ export const addToCart = createAsyncThunk(
       const localCartItem = {
         productId,
         quantity,
-        price: typeof price === 'number' ? price : parseFloat(price) || 25
+        price: typeof price === 'number' ? price : parseFloat(price) || 25,
+        country: country || 'australia'
       };
       
       // Return a mock cart response for local functionality

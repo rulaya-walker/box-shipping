@@ -4,7 +4,7 @@ import { fetchProductsByCategory } from '../../redux/slices/productSlice';
 import { box } from "../../constants";
 import { FaPlus } from "react-icons/fa";
 
-const ShippingBoxes = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChange }) => {
+const ShippingBoxes = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChange, toCountry }) => {
   const dispatch = useDispatch();
   const { productsByCategory, loading, error } = useSelector((state) => state.products);
 
@@ -106,7 +106,7 @@ const ShippingBoxes = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemI
                       {product.details || 'Our chemically hardened, double-walled cardboard box is best for bulky items like bedding and blankets.'}
                     </p>
                     <p className="text-gray-600 text-sm mb-2">
-                      ${parseFloat(product.price.australia || 0).toFixed(2)}
+                      ${parseFloat(product.price[toCountry] || 0).toFixed(2)}
                     </p>
                     <p className="text-gray-600 text-xs">
                       {product.size || '61cm x 41 x 51 / 24inches x 16 x 20(HWD) 30kg max'}
