@@ -9,6 +9,38 @@ const userInfoFromStorage = localStorage.getItem("userInfo")
 
 const tokenFromStorage = localStorage.getItem("userToken") || null;
 
+// Check if token is expired
+const isTokenExpired = (token) => {
+  if (!token) return true;
+  
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const currentTime = Date.now() / 1000;
+    return payload.exp < currentTime;
+  } catch (error) {
+    console.error('Error checking token expiration:', error);
+    return true;
+  }
+};
+
+// Clear expired token and user info
+const clearExpiredAuth = () => {
+  localStorage.removeItem("userInfo");
+  localStorage.removeItem("userToken");
+  localStorage.removeItem("userRole");
+};
+
+// Check if stored token is expired and clear if needed
+let validToken = tokenFromStorage;
+let validUser = userInfoFromStorage;
+
+if (tokenFromStorage && isTokenExpired(tokenFromStorage)) {
+  console.log('Stored token is expired, clearing auth data');
+  clearExpiredAuth();
+  validToken = null;
+  validUser = null;
+}
+
   //Check for an existing guest ID in the localStorage
 const initialGuestId = localStorage.getItem("guestId") || `guest_${new Date().getTime()}`;
 
@@ -16,8 +48,8 @@ localStorage.setItem("guestId", initialGuestId);
 
 // Initial state for the auth slice
 const initialState = {
-  user: userInfoFromStorage,
-  token: tokenFromStorage,
+  user: validUser,
+  token: validToken,
   guestId: initialGuestId,
   loading: false,
   error: null,
@@ -113,6 +145,25 @@ const authSlice = createSlice({
       const newGuestId = `guest_${new Date().getTime()}`;
       state.guestId = newGuestId;
       localStorage.setItem("guestId", newGuestId);
+    },
+    checkTokenExpiration: (state) => {
+      if (state.token && isTokenExpired(state.token)) {
+        console.log('Token expired, logging out user');
+        state.user = null;
+        state.token = null;
+        state.error = 'Session expired. Please login again.';
+        state.guestId = `guest_${new Date().getTime()}`;
+        clearExpiredAuth();
+        localStorage.setItem("guestId", state.guestId);
+      }
+    },
+    handleExpiredToken: (state) => {
+      state.user = null;
+      state.token = null;
+      state.error = 'Your session has expired. Please login again.';
+      state.guestId = `guest_${new Date().getTime()}`;
+      clearExpiredAuth();
+      localStorage.setItem("guestId", state.guestId);
     }
   },
   extraReducers: (builder) => {
@@ -147,6 +198,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, generateNewGuestId } = authSlice.actions;
+export const { logout, clearError, generateNewGuestId, checkTokenExpiration, handleExpiredToken } = authSlice.actions;
 
 export default authSlice.reducer;

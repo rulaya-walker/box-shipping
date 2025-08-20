@@ -23,4 +23,7 @@ const store = configureStore({
   },
 });
 
+// Make store available globally for axios interceptors
+window.store = store;
+
 export default store;
