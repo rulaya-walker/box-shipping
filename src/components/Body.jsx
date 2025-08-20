@@ -126,7 +126,7 @@ All your belongings sent across the globe with peace of mind. Get your free quot
             {activeTab === 'shipping' && (
                 <form className='space-y-4' onSubmit={handleShippingProceed}>
                     <p className='text-md font-semibold'>From country and town:</p>
-                    <div className=''>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                         <div className='mb-4'>
                             <select 
                                 className='w-full p-2 border border-gray-300 rounded bg-white'
@@ -136,7 +136,7 @@ All your belongings sent across the globe with peace of mind. Get your free quot
                                 <option value='uk'>UK</option>
                             </select>
                         </div>
-                        {/* <div className='mb-4'>
+                        <div className='mb-4'>
                             <input 
                                 type='text' 
                                 className='w-full p-2 border border-gray-300 rounded' 
@@ -144,11 +144,11 @@ All your belongings sent across the globe with peace of mind. Get your free quot
                                 value={shippingForm.fromCity}
                                 onChange={(e) => handleShippingFormChange('fromCity', e.target.value)}
                             />
-                        </div> */}
+                        </div>
                     </div>
 
                     <p className='text-md font-semibold'>To country and town:</p>
-                    <div>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                         <div className='mb-4'>
                             <select 
                                 className='w-full p-2 border border-gray-300 rounded bg-white'
@@ -161,16 +161,15 @@ All your belongings sent across the globe with peace of mind. Get your free quot
                                 ))}
                             </select>
                         </div>
-                        {/* <div className='mb-4'>
+                        <div className='mb-4'>
                             <input 
                                 type='text' 
                                 className='w-full p-2 border border-gray-300 rounded' 
                                 placeholder='City, town or zip / postcode'
                                 value={shippingForm.toCity}
                                 onChange={(e) => handleShippingFormChange('toCity', e.target.value)}
-                                required
                             />
-                        </div> */}
+                        </div>
                     </div>
                     
                     <div className='mt-6'>
