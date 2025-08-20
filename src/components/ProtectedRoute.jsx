@@ -7,7 +7,9 @@ const ProtectedRoute = ({ children, requiredRole = null, redirectTo = '/login' }
 
   // Check if user is authenticated
   if (!user) {
-    return <Navigate to={redirectTo} state={{ from: location }} replace />;
+    // Preserve the current path WITH query parameters
+    const fullPath = location.pathname + location.search;
+    return <Navigate to={redirectTo} state={{ from: { pathname: fullPath } }} replace />;
   }
 
   // Check if specific role is required

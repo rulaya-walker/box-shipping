@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../../redux/slices/authSlice';
 import { 
@@ -20,8 +20,12 @@ import Footer from '../../components/Footer';
 
 const Register = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const { loading, error, user } = useSelector((state) => state.auth);
+
+  // Get the intended destination from location state (includes query params)
+  const from = location.state?.from?.pathname || null;
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -40,14 +44,19 @@ const Register = () => {
   // Redirect if user is already logged in
   useEffect(() => {
     if (user) {
-      // Redirect based on user role
-      if (user.role === 'admin') {
-        navigate('/admin');
+      // If user was redirected from a protected route, go back there
+      if (from) {
+        navigate(from, { replace: true });
       } else {
-        navigate('/user/account');
+        // Otherwise, redirect based on user role
+        if (user.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/user/account');
+        }
       }
     }
-  }, [user, navigate]);
+  }, [user, navigate, from]);
 
   // Password requirements
   const passwordRequirements = [
@@ -159,10 +168,18 @@ const Register = () => {
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Create your account
         </h2>
+        {(from && from.includes('/new-quote')) && (
+          <div className="mt-3 text-center p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <p className="text-sm text-blue-800">
+              🚀 Create an account to access the quote builder and start planning your shipment
+            </p>
+          </div>
+        )}
         <p className="mt-2 text-center text-sm text-gray-600">
           Already have an account?{' '}
           <Link
             to="/login"
+            state={location.state}
             className="font-medium text-primary hover:text-primary-dark"
           >
             Sign in here

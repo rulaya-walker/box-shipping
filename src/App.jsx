@@ -25,7 +25,11 @@ function App() {
       <AuthNotifications />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/new-quote" element={<GetAQuote />} />
+        <Route path="/new-quote" element={
+          <ProtectedRoute>
+            <GetAQuote />
+          </ProtectedRoute>
+        } />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         
