@@ -99,7 +99,7 @@ All your belongings sent across the globe with peace of mind. Get your free quot
                     >
                         International Move
                     </button>
-                    <button
+                    {/* <button
                         onClick={() => setActiveTab('package')}
                         className={`py-2 px-1 border-b-2 font-medium text-sm ${
                             activeTab === 'package'
@@ -108,8 +108,8 @@ All your belongings sent across the globe with peace of mind. Get your free quot
                         }`}
                     >
                         Domestic Move
-                    </button>
-                    <button
+                    </button> */}
+                    {/* <button
                         onClick={() => setActiveTab('tracking')}
                         className={`py-2 px-1 border-b-2 font-medium text-sm ${
                             activeTab === 'tracking'
@@ -118,7 +118,7 @@ All your belongings sent across the globe with peace of mind. Get your free quot
                         }`}
                     >
                         Student Storage
-                    </button>
+                    </button> */}
                 </nav>
             </div>
 
@@ -126,7 +126,7 @@ All your belongings sent across the globe with peace of mind. Get your free quot
             {activeTab === 'shipping' && (
                 <form className='space-y-4' onSubmit={handleShippingProceed}>
                     <p className='text-md font-semibold'>From country and town:</p>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    <div className=''>
                         <div className='mb-4'>
                             <select 
                                 className='w-full p-2 border border-gray-300 rounded bg-white'
@@ -136,7 +136,7 @@ All your belongings sent across the globe with peace of mind. Get your free quot
                                 <option value='uk'>UK</option>
                             </select>
                         </div>
-                        <div className='mb-4'>
+                        {/* <div className='mb-4'>
                             <input 
                                 type='text' 
                                 className='w-full p-2 border border-gray-300 rounded' 
@@ -144,17 +144,16 @@ All your belongings sent across the globe with peace of mind. Get your free quot
                                 value={shippingForm.fromCity}
                                 onChange={(e) => handleShippingFormChange('fromCity', e.target.value)}
                             />
-                        </div>
+                        </div> */}
                     </div>
 
                     <p className='text-md font-semibold'>To country and town:</p>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    <div>
                         <div className='mb-4'>
                             <select 
                                 className='w-full p-2 border border-gray-300 rounded bg-white'
                                 value={shippingForm.toCountry}
                                 onChange={(e) => handleShippingFormChange('toCountry', e.target.value)}
-                                required
                             >
                                 <option value=''>Select Country</option>
                                 {countries.map((country) => (
@@ -162,7 +161,7 @@ All your belongings sent across the globe with peace of mind. Get your free quot
                                 ))}
                             </select>
                         </div>
-                        <div className='mb-4'>
+                        {/* <div className='mb-4'>
                             <input 
                                 type='text' 
                                 className='w-full p-2 border border-gray-300 rounded' 
@@ -171,7 +170,7 @@ All your belongings sent across the globe with peace of mind. Get your free quot
                                 onChange={(e) => handleShippingFormChange('toCity', e.target.value)}
                                 required
                             />
-                        </div>
+                        </div> */}
                     </div>
                     
                     <div className='mt-6'>
@@ -185,7 +184,7 @@ All your belongings sent across the globe with peace of mind. Get your free quot
                 </form>
             )}
 
-            {activeTab === 'package' && (
+            {/* {activeTab === 'package' && (
                 <form onSubmit={handlePackageProceed}>
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                         <div className='mb-4'>
@@ -197,7 +196,6 @@ All your belongings sent across the globe with peace of mind. Get your free quot
                                 placeholder='Enter package weight'
                                 value={packageForm.weight}
                                 onChange={(e) => handlePackageFormChange('weight', e.target.value)}
-                                required
                             />
                         </div>
                         <div className='mb-4'>
@@ -247,9 +245,9 @@ All your belongings sent across the globe with peace of mind. Get your free quot
                         </button>
                     </div>
                 </form>
-            )}
+            )} */}
 
-            {activeTab === 'tracking' && (
+            {/* {activeTab === 'tracking' && (
                 <div>
                     <div className='mb-4'>
                         <label className='block text-gray-700 mb-2' htmlFor='trackingNumber'>Tracking Number</label>
@@ -263,7 +261,7 @@ All your belongings sent across the globe with peace of mind. Get your free quot
                         <p className='text-gray-600'>Enter a tracking number to see package status</p>
                     </div>
                 </div>
-            )}
+            )} */}
         </div>
     </div>
   )
