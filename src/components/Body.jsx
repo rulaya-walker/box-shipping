@@ -26,7 +26,7 @@ const Body = () => {
     'Bahrain',
     'Canada',
     'USA',
-    'China',
+    'Dubai',
     'Hong Kong',
     'Japan',
     'Malaysia',
