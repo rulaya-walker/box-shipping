@@ -602,19 +602,16 @@ const ProductManagement = () => {
     });
   };
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (isPublished) => {
     const statusStyles = {
-      active: 'bg-green-100 text-green-800',
-      inactive: 'bg-red-100 text-red-800',
+      published: 'bg-green-100 text-green-800',
       draft: 'bg-yellow-100 text-yellow-800'
     };
-
-    // Handle undefined or null status
-    const safeStatus = status || 'draft';
-
+    const statusLabel = isPublished ? 'Published' : 'Draft';
+    const styleClass = isPublished ? statusStyles.published : statusStyles.draft;
     return (
-      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusStyles[safeStatus] || statusStyles.draft}`}>
-        {safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1)}
+      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${styleClass}`}>
+        {statusLabel}
       </span>
     );
   };
@@ -784,7 +781,7 @@ const ProductManagement = () => {
                               {product.category || 'Uncategorized'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              {getStatusBadge(product.status)}
+                              {getStatusBadge(product.isPublished)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                               <button
