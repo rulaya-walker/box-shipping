@@ -4,9 +4,9 @@ import { axiosTokenInstance } from "../../axios/axiosInstance";
 
 export const fetchAdminProducts = createAsyncThunk(
   "adminProduct/fetchAdminProducts",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await axiosTokenInstance.get("/api/admin/products");
+      const response = await axiosTokenInstance.get("/api/admin/products", { params });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);

@@ -11,6 +11,24 @@ import {
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaSave, FaTimes, FaImage, FaUpload } from 'react-icons/fa';
 
 const ProductManagement = () => {
+  // Handler for category filter
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
+    setCurrentPage(1); // Reset to first page when category changes
+  };
+
+  // Handler for pagination
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNextPage = () => {
+  if (currentPage < backendTotalPages) setCurrentPage(currentPage + 1);
+  };
   const dispatch = useDispatch();
   const adminProductState = useSelector((state) => state.adminProducts);
   const authState = useSelector((state) => state.auth);
@@ -58,6 +76,27 @@ const ProductManagement = () => {
     status: 'active',
     image: null
   });
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 10;
+    const [backendTotalPages, setBackendTotalPages] = useState(1);
+    const [backendTotal, setBackendTotal] = useState(0);
+
+    // Fetch products with pagination and category
+    useEffect(() => {
+      const params = {
+        page: currentPage,
+        limit: productsPerPage,
+        category: selectedCategory !== 'all' ? selectedCategory : undefined,
+      };
+      dispatch(fetchAdminProducts(params)).then((action) => {
+        if (action.payload && action.payload.totalPages) {
+          setBackendTotalPages(action.payload.totalPages);
+          setBackendTotal(action.payload.total);
+        }
+      });
+    }, [dispatch, currentPage, selectedCategory, productsPerPage]);
 
   const [imagePreview, setImagePreview] = useState(null);
   const [originalImageFile, setOriginalImageFile] = useState(null); // Store the original file
@@ -87,9 +126,12 @@ const ProductManagement = () => {
   ];
 
   // Ensure adminProducts is always an array for filtering
-  const productsArray = Array.isArray(adminProducts) ? adminProducts : 
-                       (adminProducts?.products && Array.isArray(adminProducts.products)) ? adminProducts.products : 
-                       [];
+  // Use backend paginated products only
+  const productsArray = Array.isArray(adminProducts.products)
+    ? adminProducts.products
+    : Array.isArray(adminProducts)
+      ? adminProducts
+      : [];
 
   // Parse price strings from backend and add them to products
   const processedProducts = productsArray.map(product => {
@@ -98,7 +140,6 @@ const ProductManagement = () => {
       try {
         priceObj = JSON.parse(product.price);
       } catch (e) {
-        console.error('Error parsing price for product:', product.name, e);
         priceObj = {
           australia: 0, bahrain: 0, canada: 0, china: 0,
           hongkong: 0, japan: 0, malasia: 0, newzealand: 0,
@@ -108,17 +149,25 @@ const ProductManagement = () => {
     } else if (typeof product.price === 'object' && product.price !== null) {
       priceObj = product.price;
     }
-    
     return {
       ...product,
       price: priceObj
     };
   });
 
+  // Filter by category and search, then sort
   const filteredProducts = processedProducts.filter(product =>
-    product?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product?.category?.toLowerCase().includes(searchTerm.toLowerCase())
+    (selectedCategory === 'all' || (product?.category && product.category.trim().toLowerCase() === selectedCategory.trim().toLowerCase())) &&
+    (product?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     product?.category?.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (sortOrder === 'asc') {
+      return (a.category || '').localeCompare(b.category || '');
+    } else {
+      return (b.category || '').localeCompare(a.category || '');
+    }
+  });
 
 
   // Add error boundary
@@ -607,25 +656,43 @@ const ProductManagement = () => {
         </div>
       </div>
 
-      {/* Search and Filters */}
-      <div className="mb-6">
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FaSearch className="h-5 w-5 text-gray-400" />
+      {/* Search, Category Filter, and Sorting */}
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Search */}
+        <div>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaSearch className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary focus:border-primary"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <input
-            type="text"
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary focus:border-primary"
-            placeholder="Search products..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
         </div>
+        {/* Category Filter */}
+        <div>
+          <select
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+            className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+          >
+            <option value="all">All Categories</option>
+            {categories.map(category => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+        </div>
+        {/* Category Sort */}
+  {/* Sort dropdown removed as requested */}
       </div>
 
       {/* Products Table */}
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div className="overflow-x-auto">
+  <div className="overflow-x-scroll scrollbar" style={{ WebkitOverflowScrolling: 'touch', overflowX: 'scroll', scrollbarWidth: 'auto' }}>
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
@@ -653,91 +720,149 @@ const ProductManagement = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {loading ? (
+              {/* Only <tr> elements allowed in <tbody> */}
+              {loading && (
                 <tr>
                   <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
                     Loading products...
                   </td>
                 </tr>
-              ) : error ? (
+              )}
+              {error && (
                 <tr>
                   <td colSpan="7" className="px-6 py-4 text-center text-red-500">
                     Error: {error}
                   </td>
                 </tr>
-              ) : filteredProducts.length === 0 ? (
+              )}
+              {!loading && !error && sortedProducts.length === 0 && (
                 <tr>
                   <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
                     No products found
                   </td>
                 </tr>
-              ) : (
-                filteredProducts.map((product) => (
-                  <tr key={product._id || product.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{product.name || 'Unnamed Product'}</div>
-                      <div className="text-sm text-gray-500">
-                        Created: {product.createdAt || product.dateCreated ? 
-                          new Date(product.createdAt || product.dateCreated).toLocaleDateString() : 
-                          'N/A'
-                        }
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center justify-center w-16 h-16 bg-gray-100 rounded-lg">
-                        {product.image ? (
-                          <img 
-                            src={product.image.url} 
-                            alt={product.altText || 'Product'}
-                            className="w-full h-full object-cover rounded-lg"
-                          />
-                        ) : (
-                          <FaImage className="h-6 w-6 text-gray-400" />
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        AUS: ${product.price?.australia || 0} / CAN: ${product.price?.canada || 0} / BHR: ${product.price?.bahrain || 0}
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        NZ: ${product.price?.newzealand || 0} / SG: ${product.price?.singapore || 0} / JP: ${product.price?.japan || 0}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 max-w-xs truncate" title={product.size || ''}>
-                        {product.size || 'No size specified'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {product.category || 'Uncategorized'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(product.status)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => handleEditProduct(product)}
-                        className="text-indigo-600 hover:text-indigo-900 mr-3"
-                        disabled={loading}
-                      >
-                        <FaEdit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteProduct(product._id || product.id)}
-                        className="text-red-600 hover:text-red-900"
-                        disabled={loading}
-                      >
-                        <FaTrash className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
               )}
-            </tbody>
-          </table>
+              {!loading && !error && sortedProducts.length > 0 &&
+                sortedProducts.map((product) => (
+                          <tr key={product._id || product.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-gray-900">{product.name || 'Unnamed Product'}</div>
+                              <div className="text-sm text-gray-500">
+                                Created: {product.createdAt || product.dateCreated ? 
+                                  new Date(product.createdAt || product.dateCreated).toLocaleDateString() : 
+                                  'N/A'
+                                }
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center justify-center w-16 h-16 bg-gray-100 rounded-lg">
+                                {product.image ? (
+                                  <img 
+                                    src={product.image.url} 
+                                    alt={product.altText || 'Product'}
+                                    className="w-full h-full object-cover rounded-lg"
+                                  />
+                                ) : (
+                                  <FaImage className="h-6 w-6 text-gray-400" />
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-900">
+                                AUS: ${product.price?.australia || 0} / CAN: ${product.price?.canada || 0} / BHR: ${product.price?.bahrain || 0}
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                NZ: ${product.price?.newzealand || 0} / SG: ${product.price?.singapore || 0} / JP: ${product.price?.japan || 0}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="text-sm text-gray-900 max-w-xs truncate" title={product.size || ''}>
+                                {product.size || 'No size specified'}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {product.category || 'Uncategorized'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {getStatusBadge(product.status)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <button
+                                onClick={() => handleEditProduct(product)}
+                                className="text-indigo-600 hover:text-indigo-900 mr-3"
+                                disabled={loading}
+                              >
+                                <FaEdit className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteProduct(product._id || product.id)}
+                                className="text-red-600 hover:text-red-900"
+                                disabled={loading}
+                              >
+                                <FaTrash className="h-4 w-4" />
+                              </button>
+                            </td>
+                          </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+
+      {/* Pagination Controls and Results Summary (only once, at the bottom) */}
+      {(backendTotalPages > 1 || backendTotal > 0) && (
+        <div className="flex flex-col items-center w-full mt-4">
+          {/* Results summary */}
+          <div className="w-full text-center py-2 text-sm text-gray-700">
+            Showing{' '}
+            <span className="font-medium">{(currentPage - 1) * productsPerPage + 1}</span>{' '}
+            to{' '}
+            <span className="font-medium">{Math.min(currentPage * productsPerPage, backendTotal)}</span>{' '}
+            of{' '}
+            <span className="font-medium">{backendTotal}</span> results
+          </div>
+          {/* Pagination controls */}
+          {backendTotalPages > 1 && (
+            <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 w-full">
+              <div className="flex-1 flex justify-between sm:hidden">
+                <button
+                  onClick={handlePrevPage}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={handleNextPage}
+                  disabled={currentPage === backendTotalPages}
+                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                    {Array.from({ length: backendTotalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                          page === currentPage
+                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </nav>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Add/Edit Product Modal */}
       {showAddForm && (
