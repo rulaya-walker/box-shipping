@@ -86,102 +86,66 @@ All your belongings sent across the globe with peace of mind. Get your free quot
 </p>
         </div>
         <div className='bg-white p-6 rounded-lg shadow-md'>
-            {/* Tab Navigation */}
-            <div className='border-b border-gray-200 mb-6'>
-                <nav className='-mb-px flex space-x-8'>
-                    <button
-                        onClick={() => setActiveTab('shipping')}
-                        className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                            activeTab === 'shipping'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        }`}
-                    >
-                        International Move
-                    </button>
-                    {/* <button
-                        onClick={() => setActiveTab('package')}
-                        className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                            activeTab === 'package'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        }`}
-                    >
-                        Domestic Move
-                    </button> */}
-                    {/* <button
-                        onClick={() => setActiveTab('tracking')}
-                        className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                            activeTab === 'tracking'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        }`}
-                    >
-                        Student Storage
-                    </button> */}
-                </nav>
-            </div>
+            {/* Tab Navigation removed: Only International Move remains */}
 
-            {/* Tab Content */}
-            {activeTab === 'shipping' && (
-                <form className='space-y-4' onSubmit={handleShippingProceed}>
-                    <p className='text-md font-semibold'>From country and town:</p>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                        <div className='mb-4'>
-                            <select 
-                                className='w-full p-2 border border-gray-300 rounded bg-white'
-                                value={shippingForm.fromCountry}
-                                onChange={(e) => handleShippingFormChange('fromCountry', e.target.value)}
-                            >
-                                <option value='uk'>UK</option>
-                            </select>
-                        </div>
-                        <div className='mb-4'>
-                            <input 
-                                type='text' 
-                                className='w-full p-2 border border-gray-300 rounded' 
-                                placeholder='City, town or zip / postcode'
-                                value={shippingForm.fromCity}
-                                onChange={(e) => handleShippingFormChange('fromCity', e.target.value)}
-                            />
-                        </div>
-                    </div>
-
-                    <p className='text-md font-semibold'>To country and town:</p>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                        <div className='mb-4'>
-                            <select 
-                                className='w-full p-2 border border-gray-300 rounded bg-white'
-                                value={shippingForm.toCountry}
-                                onChange={(e) => handleShippingFormChange('toCountry', e.target.value)}
-                            >
-                                <option value=''>Select Country</option>
-                                {countries.map((country) => (
-                                    <option key={country} value={country}>{country}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className='mb-4'>
-                            <input 
-                                type='text' 
-                                className='w-full p-2 border border-gray-300 rounded' 
-                                placeholder='City, town or zip / postcode'
-                                value={shippingForm.toCity}
-                                onChange={(e) => handleShippingFormChange('toCity', e.target.value)}
-                            />
-                        </div>
-                    </div>
-                    
-                    <div className='mt-6'>
-                        <button 
-                            type='submit'
-                            className='w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition duration-200 font-semibold cursor-pointer'
+            {/* Only International Move form remains */}
+            <form className='space-y-4' onSubmit={handleShippingProceed}>
+                <p className='text-md font-semibold'>From country and town:</p>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    <div className='mb-4'>
+                        <select 
+                            className='w-full p-2 border border-gray-300 rounded bg-white'
+                            value={shippingForm.fromCountry}
+                            onChange={(e) => handleShippingFormChange('fromCountry', e.target.value)}
                         >
-                            Proceed
-                        </button>
+                            <option value='uk'>UK</option>
+                        </select>
                     </div>
-                </form>
-            )}
+                    <div className='mb-4'>
+                        <input 
+                            type='text' 
+                            className='w-full p-2 border border-gray-300 rounded' 
+                            placeholder='City, town or zip / postcode'
+                            value={shippingForm.fromCity}
+                            onChange={(e) => handleShippingFormChange('fromCity', e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                <p className='text-md font-semibold'>To country and town:</p>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    <div className='mb-4'>
+                        <select 
+                            className='w-full p-2 border border-gray-300 rounded bg-white'
+                            value={shippingForm.toCountry}
+                            onChange={(e) => handleShippingFormChange('toCountry', e.target.value)}
+                        >
+                            <option value=''>Select Country</option>
+                            {countries.map((country) => (
+                                <option key={country} value={country}>{country}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className='mb-4'>
+                        <input 
+                            type='text' 
+                            className='w-full p-2 border border-gray-300 rounded' 
+                            placeholder='City, town or zip / postcode'
+                            value={shippingForm.toCity}
+                            onChange={(e) => handleShippingFormChange('toCity', e.target.value)}
+                        />
+                    </div>
+                </div>
+                
+                <div className='mt-6'>
+                    <button 
+                        type='submit'
+                        className='w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition duration-200 font-semibold cursor-pointer'
+                    >
+                        Proceed
+                    </button>
+                </div>
+            </form>
 
             {/* {activeTab === 'package' && (
                 <form onSubmit={handlePackageProceed}>

@@ -134,7 +134,7 @@ const Other = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChange
         )}
 
         {/* Add custom other option */}
-        <div className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
+        {/* <div className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
           <div className="flex items-center gap-6">
             <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
               <div className="text-center">
@@ -159,7 +159,7 @@ const Other = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChange
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -312,11 +312,7 @@ const QuoteBody = () => {
   };
 
   const handlePaymentClick = () => {
-    // Validate that user has selected a service and has items
-    if (!selectedService) {
-      alert('Please select a shipping service before proceeding to payment.');
-      return;
-    }
+  // Validate that user has items
     
     const totalItems = cart && cart.products ? 
       cart.products.reduce((sum, item) => sum + item.quantity, 0) : 0;
@@ -378,8 +374,7 @@ const QuoteBody = () => {
   const steps = [
     { id: 1, name: "Build Order", status: "current" },
     { id: 2, name: "Service Option", status: "service_option" },
-    { id: 3, name: "Destination Charges", status: "destination_charges" },
-    { id: 4, name: "Quote", status: "quote" },
+    { id: 3, name: "Quote Summary", status: "quote" },
   ];
 
   const tabs = [
@@ -662,10 +657,7 @@ const QuoteBody = () => {
               {/* Step 2: Service Option */}
               {currentStep === 2 && (
                 <div>
-                  <h3 className="text-xl font-semibold mb-6">
-                    Service Options
-                  </h3>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
                     {/* Left Column - Selected Items */}
                     <div className="bg-gray-50 rounded-lg p-6">
                       <h4 className="text-lg font-semibold mb-4 text-gray-800">
@@ -755,262 +747,16 @@ const QuoteBody = () => {
                       </div>
                     </div>
 
-                    {/* Right Column - Service Options */}
                     <div>
-                      <h4 className="text-lg font-semibold mb-4 text-gray-800">
-                        Choose Your Service
-                      </h4>
-                      <div className="space-y-4">
-                        {/* Standard Shipping */}
-                        <label className="block cursor-pointer">
-                          <input
-                            type="radio"
-                            name="serviceOption"
-                            value="standard"
-                            checked={selectedService === "standard"}
-                            onChange={(e) => setSelectedService(e.target.value)}
-                            className="sr-only"
-                          />
-                          <div
-                            className={`border-2 rounded-lg p-6 hover:shadow-lg transition-all duration-200 ${
-                              selectedService === "standard"
-                                ? "border-primary bg-blue-50"
-                                : "border-gray-200 hover:border-primary"
-                            }`}
-                          >
-                            <div className="flex items-start gap-4">
-                              <div
-                                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-1 flex-shrink-0 ${
-                                  selectedService === "standard"
-                                    ? "border-primary bg-primary"
-                                    : "border-gray-300"
-                                }`}
-                              >
-                                {selectedService === "standard" && (
-                                  <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
-                                )}
-                              </div>
-                              <div className="flex-1">
-                                <h5 className="font-semibold text-gray-800 mb-2">
-                                  Standard Shipping
-                                </h5>
-                                <p className="text-gray-600 text-sm mb-3">
-                                  5-7 business days delivery with basic handling
-                                </p>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-lg font-bold text-primary">
-                                    $15.99
-                                  </span>
-                                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                    Most Popular
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </label>
-
-                        {/* Express Shipping */}
-                        <label className="block cursor-pointer">
-                          <input
-                            type="radio"
-                            name="serviceOption"
-                            value="express"
-                            checked={selectedService === "express"}
-                            onChange={(e) => setSelectedService(e.target.value)}
-                            className="sr-only"
-                          />
-                          <div
-                            className={`border-2 rounded-lg p-6 hover:shadow-lg transition-all duration-200 ${
-                              selectedService === "express"
-                                ? "border-primary bg-blue-50"
-                                : "border-gray-200 hover:border-primary"
-                            }`}
-                          >
-                            <div className="flex items-start gap-4">
-                              <div
-                                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-1 flex-shrink-0 ${
-                                  selectedService === "express"
-                                    ? "border-primary bg-primary"
-                                    : "border-gray-300"
-                                }`}
-                              >
-                                {selectedService === "express" && (
-                                  <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
-                                )}
-                              </div>
-                              <div className="flex-1">
-                                <h5 className="font-semibold text-gray-800 mb-2">
-                                  Express Shipping
-                                </h5>
-                                <p className="text-gray-600 text-sm mb-3">
-                                  2-3 business days delivery with priority
-                                  handling
-                                </p>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-lg font-bold text-primary">
-                                    $29.99
-                                  </span>
-                                  <span className="text-xs text-white bg-primary px-2 py-1 rounded">
-                                    Fast
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </label>
-
-                        {/* White Glove Service */}
-                        <label className="block cursor-pointer">
-                          <input
-                            type="radio"
-                            name="serviceOption"
-                            value="whiteglove"
-                            checked={selectedService === "whiteglove"}
-                            onChange={(e) => setSelectedService(e.target.value)}
-                            className="sr-only"
-                          />
-                          <div
-                            className={`border-2 rounded-lg p-6 hover:shadow-lg transition-all duration-200 ${
-                              selectedService === "whiteglove"
-                                ? "border-primary bg-blue-50"
-                                : "border-gray-200 hover:border-primary"
-                            }`}
-                          >
-                            <div className="flex items-start gap-4">
-                              <div
-                                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-1 flex-shrink-0 ${
-                                  selectedService === "whiteglove"
-                                    ? "border-primary bg-primary"
-                                    : "border-gray-300"
-                                }`}
-                              >
-                                {selectedService === "whiteglove" && (
-                                  <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
-                                )}
-                              </div>
-                              <div className="flex-1">
-                                <h5 className="font-semibold text-gray-800 mb-2">
-                                  White Glove Service
-                                </h5>
-                                <p className="text-gray-600 text-sm mb-3">
-                                  Premium service with careful handling and
-                                  setup
-                                </p>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-lg font-bold text-primary">
-                                    $59.99
-                                  </span>
-                                  <span className="text-xs text-white bg-amber-500 px-2 py-1 rounded">
-                                    Premium
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </label>
-                      </div>
+                      {/* Service options removed as requested */}
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Step 3: Destination Charges */}
+
+              {/* Step 3: Quote Summary */}
               {currentStep === 3 && (
-                <div>
-                  <div className="max-w-2xl mx-auto">
-                    {/* Main Destination Charges Card */}
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-8 shadow-lg">
-                      <div className="text-center mb-6">
-                        <h4 className="text-2xl font-bold text-gray-800 mb-2">
-                          Destination Charges
-                        </h4>
-                        <p className="text-gray-600">Shipping to {countryParam}</p>
-                      </div>
-
-                      <div className="bg-white rounded-lg p-6 shadow-sm border">
-                        <div className="flex items-center justify-between mb-4">
-                          <div>
-                            <h5 className="text-lg font-semibold text-gray-800">
-                              Total Destination Fees
-                            </h5>
-                            <p className="text-sm text-gray-500">
-                              All applicable charges for {countryParam} delivery
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm text-gray-500 mb-1">
-                              USD
-                            </div>
-                            <div className="text-3xl font-bold text-primary">
-                             ${calculateCartTotal().toFixed(2)}
-                            </div>
-                          </div>
-                        </div>
-
-                      
-
-                        <div className="border-t-2 border-gray-200 pt-4 pb-4 space-y-3">
-                          <div className="flex flex-col text-center justify-center text-sm">
-                            <h2 className="text-2xl text-red-500 font-semibold">100% transparency.</h2>
-                            <h2 className="text-2xl text-primary font-semibold mb-4">Destination charges explained.</h2>
-                            <p className="text-left">
-                              Unlike most shipping and removal companies, our
-                              services are end-to-end, this means we can explain
-                              any charges in your destination country before you
-                              book. All countries impose these charges on
-                              international shipments. No matter who you ship
-                              with, these fees are unavoidable. But many
-                              shipping or removal companies either:
-                            </p>
-                            <ul className="list-disc list-inside text-left mt-2 space-y-1">
-                              <li>
-                                don't know the cost of destination charges, or
-                              </li>
-                              <li>
-                                exclude them from their quotes, leading to
-                                surprise costs.
-                              </li>
-                            </ul>
-                            <p className="mt-2 text-left">
-                                However, we at Seven Seas Worldwide are committed to 100% transparency, and because our service is end-to-end, we can tell you what these charges are before you book.
-                            </p>
-                          </div>
-
-                          
-                        </div>
-
-                        <div className="border-t-2 border-gray-200 pt-4 pb-4 space-y-3">
-                          <div className="flex flex-col text-center justify-center text-sm">
-                            <h2 className="text-2xl text-primary font-semibold mb-4">Destination charges include:</h2>
-                            <ul className="list-disc list-inside text-left mt-2 space-y-1">
-                              <li>
-                                Transport, including tolls, gate fees and demurrage.
-                              </li>
-                              <li>
-                                Port charges, including hub/depot handling and container cleaning, including an x-ray and fumigation.
-                              </li>
-                              <li>Customs and quarantine inspection and clearance.</li>
-                            </ul>
-                          </div>
-
-                          
-                        </div>
-                      </div>
-
-                      <div className="mt-4 text-center">
-                        <p className="text-xs text-gray-500">
-                          * Charges calculated based on current rates as of{" "}
-                          {new Date().toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 4: Quote */}
-              {currentStep === 4 && (
                 <div>
                   <h3 className="text-xl font-semibold mb-6">
                     Your Quote Summary
@@ -1190,15 +936,7 @@ const QuoteBody = () => {
                           </span>
                         </div>
                         
-                        <div className="flex justify-between text-gray-600">
-                          <span>Shipping Cost:</span>
-                          <span className="font-medium">
-                            ${selectedService === 'standard' ? '15.99' :
-                              selectedService === 'express' ? '29.99' :
-                              selectedService === 'whiteglove' ? '59.99' :
-                              '29.99'}
-                          </span>
-                        </div>
+
                         
                         <div className="flex justify-between text-gray-600">
                           <span>Destination Charges:</span>
@@ -1219,13 +957,9 @@ const QuoteBody = () => {
                           <div className="text-right">
                             <div className="text-2xl font-bold text-primary">
                               ${(() => {
-                                const shippingCost = parseFloat(selectedService === 'standard' ? '15.99' :
-                                                               selectedService === 'express' ? '29.99' :
-                                                               selectedService === 'whiteglove' ? '59.99' :
-                                                               '29.99');
                                 const processingFee = 12.50;
                                 const cartTotal = calculateCartTotal();
-                                return (shippingCost + processingFee + cartTotal).toFixed(2);
+                                return (processingFee + cartTotal).toFixed(2);
                               })()}
                             </div>
                             <div className="text-sm text-gray-500">USD</div>

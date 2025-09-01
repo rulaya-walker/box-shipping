@@ -140,7 +140,7 @@ const Picture = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChan
         )}
 
         {/* Add custom picture/mirror option */}
-        <div className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
+        {/* <div className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
           <div className="flex items-center gap-6">
             <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
               <img
@@ -166,7 +166,7 @@ const Picture = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChan
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
