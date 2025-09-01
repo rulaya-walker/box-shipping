@@ -64,7 +64,7 @@ const ProductManagement = () => {
       australia: '', 
       bahrain: '', 
       canada: '', 
-      china: '',
+      dubai: '',
       hongkong: '',
       japan: '',
       malasia: '',
@@ -141,7 +141,7 @@ const ProductManagement = () => {
         priceObj = JSON.parse(product.price);
       } catch (e) {
         priceObj = {
-          australia: 0, bahrain: 0, canada: 0, china: 0,
+          australia: 0, bahrain: 0, canada: 0, dubai: 0,
           hongkong: 0, japan: 0, malasia: 0, newzealand: 0,
           singapore: 0, southafrica: 0
         };
@@ -242,7 +242,7 @@ const ProductManagement = () => {
       } catch (e) {
         console.error('Error parsing price for editing:', e);
         priceObj = {
-          australia: 0, bahrain: 0, canada: 0, china: 0,
+          australia: 0, bahrain: 0, canada: 0, dubai: 0,
           hongkong: 0, japan: 0, malasia: 0, newzealand: 0,
           singapore: 0, southafrica: 0
         };
@@ -259,7 +259,7 @@ const ProductManagement = () => {
       } catch (e) {
         console.error('Error parsing minimumPrice for editing:', e);
         minimumPriceObj = {
-          australia: '', bahrain: '', canada: '', china: '',
+          australia: '', bahrain: '', canada: '', dubai: '',
           hongkong: '', japan: '', malasia: '', newzealand: '',
           singapore: '', southafrica: ''
         };
@@ -269,7 +269,7 @@ const ProductManagement = () => {
     } else {
       // Default empty object if minimumPrice doesn't exist
       minimumPriceObj = {
-        australia: '', bahrain: '', canada: '', china: '',
+        australia: '', bahrain: '', canada: '', dubai: '',
         hongkong: '', japan: '', malasia: '', newzealand: '',
         singapore: '', southafrica: ''
       };
@@ -281,7 +281,7 @@ const ProductManagement = () => {
         australia: priceObj.australia || '', 
         bahrain: priceObj.bahrain || '', 
         canada: priceObj.canada || '',
-        china: priceObj.china || '',
+        dubai: priceObj.dubai || '',
         hongkong: priceObj.hongkong || '',
         japan: priceObj.japan || '',
         malasia: priceObj.malasia || '',
@@ -295,7 +295,7 @@ const ProductManagement = () => {
         australia: minimumPriceObj.australia || '', 
         bahrain: minimumPriceObj.bahrain || '', 
         canada: minimumPriceObj.canada || '',
-        china: minimumPriceObj.china || '',
+        dubai: minimumPriceObj.dubai || '',
         hongkong: minimumPriceObj.hongkong || '',
         japan: minimumPriceObj.japan || '',
         malasia: minimumPriceObj.malasia || '',
@@ -335,7 +335,7 @@ const ProductManagement = () => {
       australia: parseFloat(formData.price.australia) || 0,
       bahrain: parseFloat(formData.price.bahrain) || 0,
       canada: parseFloat(formData.price.canada) || 0,
-      china: parseFloat(formData.price.china) || 0,
+      dubai: parseFloat(formData.price.dubai) || 0,
       hongkong: parseFloat(formData.price.hongkong) || 0,
       japan: parseFloat(formData.price.japan) || 0,
       malasia: parseFloat(formData.price.malasia) || 0,
@@ -348,7 +348,7 @@ const ProductManagement = () => {
       australia: formData.minimumPrice.australia ? parseFloat(formData.minimumPrice.australia) : null,
       bahrain: formData.minimumPrice.bahrain ? parseFloat(formData.minimumPrice.bahrain) : null,
       canada: formData.minimumPrice.canada ? parseFloat(formData.minimumPrice.canada) : null,
-      china: formData.minimumPrice.china ? parseFloat(formData.minimumPrice.china) : null,
+      dubai: formData.minimumPrice.dubai ? parseFloat(formData.minimumPrice.dubai) : null,
       hongkong: formData.minimumPrice.hongkong ? parseFloat(formData.minimumPrice.hongkong) : null,
       japan: formData.minimumPrice.japan ? parseFloat(formData.minimumPrice.japan) : null,
       malasia: formData.minimumPrice.malasia ? parseFloat(formData.minimumPrice.malasia) : null,
@@ -415,7 +415,7 @@ const ProductManagement = () => {
           australia: '', 
           bahrain: '', 
           canada: '', 
-          china: '',
+          dubai: '',
           hongkong: '',
           japan: '',
           malasia: '',
@@ -429,7 +429,7 @@ const ProductManagement = () => {
           australia: '', 
           bahrain: '', 
           canada: '', 
-          china: '',
+          dubai: '',
           hongkong: '',
           japan: '',
           malasia: '',
@@ -988,12 +988,12 @@ const ProductManagement = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">China</label>
+                    <label className="block text-xs text-gray-500 mb-1">Dubai</label>
                     <input
                       type="number"
                       step="0.01"
-                      value={formData.price.china}
-                      onChange={(e) => handlePriceChange('china', e.target.value)}
+                      value={formData.price.dubai}
+                      onChange={(e) => handlePriceChange('dubai', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                       placeholder="0.00"
                     />
@@ -1109,13 +1109,13 @@ const ProductManagement = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">China</label>
+                    <label className="block text-xs text-gray-500 mb-1">Dubai</label>
                     <input
                       type="number"
                       step="0.01"
                       min="0"
-                      value={formData.minimumPrice.china}
-                      onChange={(e) => handleMinimumPriceChange('china', e.target.value)}
+                      value={formData.minimumPrice.dubai}
+                      onChange={(e) => handleMinimumPriceChange('dubai', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                       placeholder="0.00"
                     />
