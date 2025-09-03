@@ -312,11 +312,7 @@ const QuoteBody = () => {
   };
 
   const handlePaymentClick = () => {
-    // Validate that user has selected a service and has items
-    if (!selectedService) {
-      alert('Please select a shipping service before proceeding to payment.');
-      return;
-    }
+  // Validate that user has items
     
     const totalItems = cart && cart.products ? 
       cart.products.reduce((sum, item) => sum + item.quantity, 0) : 0;
