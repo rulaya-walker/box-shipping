@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FaPlus } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
 
 import {
   picture,
@@ -35,6 +36,8 @@ import {
 const QuoteBody = () => {
   const dispatch = useDispatch();
   const { cart, loading: cartLoading } = useSelector((state) => state.cart);
+  const { user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
   //get params value
   const queryParams = new URLSearchParams(window.location.search);
   const countryParam = queryParams.get('toCountry');
@@ -312,8 +315,7 @@ const QuoteBody = () => {
   };
 
   const handlePaymentClick = () => {
-  // Validate that user has items
-    
+    // Validate that user has items
     const totalItems = cart && cart.products ? 
       cart.products.reduce((sum, item) => sum + item.quantity, 0) : 0;
     
@@ -321,13 +323,9 @@ const QuoteBody = () => {
       alert('Please add at least one item to your order before proceeding to payment.');
       return;
     }
-    
-    console.log('Proceeding to payment with:', { 
-      selectedService, 
-      cartItems: cart?.products || [], 
-      totalItems 
-    });
-    setShowPayment(true);
+
+    navigate('/checkout');
+    return;
   };
 
   const handlePaymentSuccess = (paymentData) => {

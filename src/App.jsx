@@ -17,6 +17,7 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import UnauthorizedAccess from "./components/UnauthorizedAccess"
 import AuthNotifications from "./components/AuthNotifications"
 import StripePayment from "./components/StripePayment"
+import Checkout from "./pages/Checkout"
 
 function App() {
 
@@ -25,9 +26,10 @@ function App() {
       <AuthNotifications />
       <Routes>
         <Route path="/" element={<Home />} />
-  <Route path="/new-quote" element={<GetAQuote />} />
+        <Route path="/new-quote" element={<GetAQuote />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/checkout" element={<Checkout />} />
         
         {/* Admin Routes - Only accessible by admin role */}
         <Route path="/admin" element={

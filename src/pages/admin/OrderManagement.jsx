@@ -344,7 +344,20 @@ const OrderManagement = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(order.status)}
+                    <select
+                      value={order.status}
+                      onChange={(e) => {
+                        handleUpdateStatus(order._id || order.id, e.target.value);
+                        order.status = e.target.value;
+                      }}
+                      className="block w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
+                    >
+                      {["Processing", "Shipped", "Delivered", "Cancelled"].map(status => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getPaymentStatusBadge(order.paymentStatus)}
@@ -447,9 +460,9 @@ const OrderManagement = () => {
                       }}
                       className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                     >
-                      {orderStatuses.map(status => (
+                      {["processing", "shipped", "delivered", "cancelled"].map(status => (
                         <option key={status} value={status}>
-                          {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
+                          {status.charAt(0).toUpperCase() + status.slice(1)}
                         </option>
                       ))}
                     </select>

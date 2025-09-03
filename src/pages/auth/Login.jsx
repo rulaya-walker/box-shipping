@@ -21,6 +21,10 @@ const Login = () => {
   const dispatch = useDispatch();
   const { loading, error, user } = useSelector((state) => state.auth);
 
+  // Get redirect param from query string
+  const params = new URLSearchParams(location.search);
+  const redirect = params.get('redirect');
+
   // Get the intended destination from location state (includes query params)
   const from = location.state?.from?.pathname || null;
 
@@ -36,9 +40,10 @@ const Login = () => {
   // Redirect if user is already logged in
   useEffect(() => {
     if (user) {
-      // If user was redirected from a protected route, go back there
-      if (from) {
-        navigate(from, { replace: true });
+      if (redirect) {
+        navigate(redirect, { replace: true });
+      } else if (location.state?.from?.pathname) {
+        navigate(location.state.from.pathname, { replace: true });
       } else {
         // Otherwise, redirect based on user role
         if (user.role === 'admin') {
@@ -48,7 +53,7 @@ const Login = () => {
         }
       }
     }
-  }, [user, navigate, from]);
+  }, [user, navigate, redirect, location.state]);
 
   const handleInputChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
