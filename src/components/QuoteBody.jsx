@@ -411,17 +411,17 @@ const QuoteBody = () => {
       {/* Main Quote Interface */}
       {!showPayment && (
         <>
-          <div className="h-96 w-full bg-primary flex items-center justify-center quote-bg relative">
+          <div className="h-96 w-full bg-[#f4f4f4] flex items-center justify-center quote-bg relative">
         <div className="py-64">
-          <h2 className="text-2xl lg:text-4xl font-bold text-white mb-6 text-center">
+          <h2 className="text-2xl lg:text-4xl font-bold text-primary mb-6 text-center">
             Build Your Order
           </h2>
-          <p className="text-sm text-white mb-6">
+          <p className="text-sm text-primary mb-6">
             Tell us what you want to ship. You can build your order up out of
             boxes, items and furniture.
           </p>
           <nav aria-label="Progress">
-            <ol className="flex items-center">
+            <ol className="flex items-center justify-center">
               {steps.map((step, stepIdx) => (
                 <li
                   key={step.name}
@@ -458,7 +458,7 @@ const QuoteBody = () => {
                   <div className="mt-12">
                     <span
                       className={`text-sm font-medium ${
-                        step.id <= currentStep ? "text-white" : "text-gray-500"
+                        step.id <= currentStep ? "text-gray-500" : "text-gray-500"
                       }`}
                     >
                       {step.name}
@@ -1008,7 +1008,7 @@ const QuoteBody = () => {
               </button>
               <button
                 onClick={() =>
-                  currentStep < 4 && setCurrentStep(currentStep + 1)
+                  currentStep === 2 ? setCurrentStep(4) : (currentStep < 4 && setCurrentStep(currentStep + 1))
                 }
                 disabled={currentStep === 4}
                 className={`px-6 py-2 rounded-lg ${

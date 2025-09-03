@@ -53,7 +53,7 @@ const Navbar = () => {
                             My Account
                         </Link>
                     )}
-                    <span className="text-sm text-gray-600 hidden lg:block">
+                    <span className="text-sm text-shadow-gray-100 hidden lg:block">
                         Welcome, {user?.name?.split(' ')[0] || 'User'}
                     </span>
                     <button 

@@ -17,7 +17,7 @@
 }
 
 
-.clip-path:before {
+/* .clip-path:before {
     background: #071F37;
     content: "";
     height: 0;
@@ -26,7 +26,7 @@
     width: 100%;
     clip-path: polygon(0% 0%, 100% 100%, 0% 100%, 0% 0%);
     bottom: calc(100% - 1px);
-}
+} */
 
 /* Notification animations */
 @keyframes slideIn {
@@ -44,7 +44,7 @@
   animation: slideIn 0.3s ease-out;
 }
 
-.quote-bg:after{
+/* .quote-bg:after{
   background: var(--sqc-header-2), var(--sqc-header-1);
     background-position: center center;
     background-repeat: no-repeat;
@@ -57,4 +57,4 @@
     pointer-events: none;
     position: absolute;
     width: 100%;
-}
+} */

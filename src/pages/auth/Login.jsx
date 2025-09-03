@@ -107,7 +107,7 @@ const Login = () => {
   return (
     <>
     <Navbar />
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className=" bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* <div className="flex justify-center">
           <div className="flex items-center space-x-2">
