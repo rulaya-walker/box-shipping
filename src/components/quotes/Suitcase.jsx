@@ -88,8 +88,17 @@ const Suitcase = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsCha
                 <div className="flex items-center gap-6">
                   <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <div className="text-center">
-                      <div className="text-lg font-semibold text-primary">🧳</div>
-                      <div className="text-xs text-gray-600">Suitcase</div>
+                      <div className="text-lg font-semibold text-primary">
+                        {product.image ? (
+                          <img
+                            src={product.image?.url}
+                            alt={product.name}
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        ) : (
+                          <span>🧳</span>
+                        )}
+                        </div>
                     </div>
                   </div>
                   <div className="flex-1">

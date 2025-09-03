@@ -99,7 +99,6 @@ const Bedrooms = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsCha
                           <span>🛏️</span>
                         )}
                       </div>
-                      <div className="text-xs text-gray-600">Bedroom</div>
                     </div>
                   </div>
                   <div className="flex-1">
