@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/slices/authSlice";
-import { RiCloseFill, RiMenuFill, RiUserLine, RiLogoutBoxLine, RiDashboardLine } from "react-icons/ri";
+import { RiCloseFill, RiMenuFill, RiUserLine, RiLogoutBoxLine, RiDashboardLine,RiStarSFill } from "react-icons/ri";
 import logo from "../assets/logo.png"; // Assuming you have a logo image
 
 const Navbar = () => {
@@ -30,10 +30,11 @@ const Navbar = () => {
     };
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50">
-        <div className="flex justify-between items-center w-full bg-white text-[#605F5E] md:mh-2 p-4 shadow-md">
+    <div className="bg-primary">
+    <nav className="max-w-7xl mx-auto bg-primary border-b-1 border-white">
+        <div className="flex justify-between items-center w-ful text-white md:mh-2 py-4 shadow-md">
         <div className="bg-primary p-2 rounded-lg">
-            <Link to="/"><img src={logo} alt="Logo" className="h-8" /></Link>
+            <Link to="/"><img src={logo} alt="Logo" className="h-12" /></Link>
         </div>
         <div className="hidden md:flex space-x-4 items-center">
             <Link to="/" className="hover:text-stone-400 transition-colors duration-300">
@@ -147,6 +148,29 @@ const Navbar = () => {
             </div>
         )}
     </nav>
+    <div className="max-w-7xl mx-auto bg-primary grid grid-cols-1 md:grid-cols-2 gap-4 py-12">
+        <div>
+            <h1 className="text-3xl font-bold text-white leading-12">International Movers</h1>
+            <p className="text-white text-2xl leading-12">Worldwide Shipping</p>
+            <p className="text-white text-2xl leading-12">European Movers</p>
+            <p className="text-white text-2xl leading-12">Full & Part Loads</p>
+            <div className="flex space-x-1 mt-2">
+                <RiStarSFill className="w-8 h-8 text-[#FFFC00]" />
+                <RiStarSFill className="w-8 h-8 text-[#FFFC00]" />
+                <RiStarSFill className="w-8 h-8 text-[#FFFC00]" />
+                <RiStarSFill className="w-8 h-8 text-[#FFFC00]" />
+                <RiStarSFill className="w-8 h-8 text-[#FFFC00]" />
+            </div>
+        </div>
+        <div className="text-center">
+            <h1 className="text-3xl font-bold text-white leading-12">Ready to move?</h1>
+            <p className="text-white text-2xl leading-12">Fill out our online form to receive a free, no-obligation quote.</p>
+            <button className="bg-[#FFFC00] text-primary text-2xl px-8 py-4 rounded-full hover:bg-gray-100 transition-colors duration-300 cursor-pointer mt-4">
+                Get a Quote
+            </button>
+        </div>
+    </div>
+    </div>
   )
 }
 

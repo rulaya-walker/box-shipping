@@ -312,7 +312,11 @@ const QuoteBody = () => {
   };
 
   const handlePaymentClick = () => {
-  // Validate that user has items
+    // Validate that user has selected a service and has items
+    if (!selectedService) {
+      alert('Please select a shipping service before proceeding to payment.');
+      return;
+    }
     
     const totalItems = cart && cart.products ? 
       cart.products.reduce((sum, item) => sum + item.quantity, 0) : 0;
@@ -374,7 +378,7 @@ const QuoteBody = () => {
   const steps = [
     { id: 1, name: "Build Order", status: "current" },
     { id: 2, name: "Service Option", status: "service_option" },
-    { id: 3, name: "Quote Summary", status: "quote" },
+    { id: 3, name: "Quote", status: "quote" },
   ];
 
   const tabs = [
@@ -755,8 +759,8 @@ const QuoteBody = () => {
               )}
 
 
-              {/* Step 3: Quote Summary */}
-              {currentStep === 3 && (
+              {/* Step 4: Quote */}
+              {currentStep === 4 && (
                 <div>
                   <h3 className="text-xl font-semibold mb-6">
                     Your Quote Summary

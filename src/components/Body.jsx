@@ -78,10 +78,10 @@ const Body = () => {
   };
 
   return (
-    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 p-12 w-full bg-primary relative clip-path'>
+    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 p-12 w-full bg-[#f4f4f4] relative clip-path'>
         <div className='w-xl mx-auto flex flex-col justify-center'>
-            <h2 className='text-white text-2xl lg:text-4xl font-semibold mb-4'>Moving made easy</h2>
-            <p className='text-white text-xl lg:text-2xl mb-6'>
+            <h2 className='text-black text-2xl lg:text-4xl font-semibold mb-4'>Moving made easy</h2>
+            <p className='text-black text-xl lg:text-2xl mb-6'>
 All your belongings sent across the globe with peace of mind. Get your free quote in minutes!
 </p>
         </div>
