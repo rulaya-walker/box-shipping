@@ -102,7 +102,7 @@ Takes 60 seconds • No obligation • Price-match backed
 <ImArrowRight className='w-32 h-32 absolute right-4 bottom-0 top-0 flex items-center justify-center m-auto' />
 
         </div>
-        <div className='bg-white p-6 rounded-lg shadow-md'>
+        <div className='bg-white p-6 border-2 border-primary'>
             {/* Tab Navigation removed: Only International Move remains */}
 
             {/* Only International Move form remains */}
