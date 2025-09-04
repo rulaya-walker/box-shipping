@@ -3,9 +3,9 @@ import { axiosTokenInstance } from "../../axios/axiosInstance";
 
 export const fetchAdminOrders = createAsyncThunk(
   "adminOrder/fetchAdminOrders",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await axiosTokenInstance.get("/api/admin/orders");
+      const response = await axiosTokenInstance.get("/api/admin/orders", { params });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -41,9 +41,18 @@ export const deleteOrder = createAsyncThunk(
 const adminOrderSlice = createSlice({
   name: "adminOrders",
   initialState: {
-    adminOrders: [],
+    orders: [],
+    pagination: {
+      currentPage: 1,
+      totalPages: 1,
+      total: 0,
+      limit: 10,
+      totalRevenue: 0,
+    },
     totalOrders: 0,
     totalSales: 0,
+    totalProcessingOrders: 0,
+    totalDeliveredOrders: 0,
     loading: false,
     error: null,
   },
@@ -56,11 +65,21 @@ const adminOrderSlice = createSlice({
       })
       .addCase(fetchAdminOrders.fulfilled, (state, action) => {
         state.loading = false;
-        // Ensure action.payload is an array
-        state.adminOrders = Array.isArray(action.payload) ? action.payload : [];
-        state.totalOrders = state.adminOrders.length;
-        // Safely calculate total sales with fallback for missing totalPrice
-        state.totalSales = state.adminOrders.reduce((acc, order) => acc + (order.totalPrice || 0), 0);
+        // Support paginated response from backend
+        if (action.payload && Array.isArray(action.payload.orders)) {
+          state.orders = action.payload.orders;
+          state.pagination = action.payload.pagination || state.pagination;
+          state.totalOrders = action.payload.pagination?.total || state.orders.length;
+          state.totalSales = state.orders.reduce((acc, order) => acc + (order.totalPrice || 0), 0);
+          state.totalProcessingOrders = action.payload.totalProcessingOrders ?? 0;
+          state.totalDeliveredOrders = action.payload.totalDeliveredOrders ?? 0;
+        } else {
+          state.orders = Array.isArray(action.payload) ? action.payload : [];
+          state.totalOrders = state.orders.length;
+          state.totalSales = state.orders.reduce((acc, order) => acc + (order.totalPrice || 0), 0);
+          state.totalProcessingOrders = 0;
+          state.totalDeliveredOrders = 0;
+        }
       })
       .addCase(fetchAdminOrders.rejected, (state, action) => {
         state.loading = false;
@@ -72,9 +91,9 @@ const adminOrderSlice = createSlice({
       })
       .addCase(updateOrderStatus.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.adminOrders.findIndex(order => order._id === action.payload._id);
+        const index = state.orders.findIndex(order => order._id === action.payload._id);
         if (index !== -1) {
-          state.adminOrders[index] = action.payload; // Update the order in the list
+          state.orders[index] = action.payload; // Update the order in the list
         }
       })
       .addCase(updateOrderStatus.rejected, (state, action) => {
@@ -87,10 +106,10 @@ const adminOrderSlice = createSlice({
       })
       .addCase(deleteOrder.fulfilled, (state, action) => {
         state.loading = false;
-        state.adminOrders = state.adminOrders.filter(order => order._id !== action.payload); // Remove the deleted order
+        state.orders = state.orders.filter(order => order._id !== action.payload); // Remove the deleted order
         // Recalculate totals after deletion
-        state.totalOrders = state.adminOrders.length;
-        state.totalSales = state.adminOrders.reduce((acc, order) => acc + order.totalPrice, 0);
+        state.totalOrders = state.orders.length;
+        state.totalSales = state.orders.reduce((acc, order) => acc + order.totalPrice, 0);
       })
       .addCase(deleteOrder.rejected, (state, action) => {
         state.loading = false;

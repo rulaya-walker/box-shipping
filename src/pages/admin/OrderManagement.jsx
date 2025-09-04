@@ -10,10 +10,12 @@ import {
 const OrderManagement = () => {
   const dispatch = useDispatch();
   const {
-    adminOrders,
+    orders: adminOrders,
     loading,
     error,
-    pagination,
+  totalProcessingOrders,
+  totalDeliveredOrders,
+  pagination,
   } = useSelector((state) => state.adminOrders);
   console.log('Admin Orders:', adminOrders);
 
@@ -22,20 +24,29 @@ const OrderManagement = () => {
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ordersPerPage = 10;
 
-  const orderStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+  const orderStatuses = ['Processing', 'Shipped', 'Delivered', 'Cancelled'];
   const paymentStatuses = ['pending', 'paid', 'failed', 'refunded'];
 
   // Fetch orders on component mount and when filters change
   useEffect(() => {
+    // Ensure status casing matches backend enum
     const filters = {
-      page: 1,
-      limit: 10,
+      page: currentPage,
+      limit: ordersPerPage,
       ...(statusFilter !== 'all' && { status: statusFilter }),
       ...(searchTerm && { search: searchTerm })
     };
     dispatch(fetchAdminOrders(filters));
-  }, [dispatch, statusFilter, searchTerm]);
+  }, [dispatch, currentPage, statusFilter, searchTerm]);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= (pagination?.totalPages || 1)) {
+      setCurrentPage(page);
+    }
+  };
 
   const handleViewOrder = (order) => {
     setSelectedOrder(order);
@@ -47,8 +58,8 @@ const OrderManagement = () => {
       await dispatch(updateOrderStatus({ id: orderId, status: newStatus })).unwrap();
       // Refresh orders after update
       const filters = {
-        page: pagination?.currentPage || 1,
-        limit: pagination?.limit || 10,
+        page: currentPage,
+        limit: ordersPerPage,
         ...(statusFilter !== 'all' && { status: statusFilter }),
         ...(searchTerm && { search: searchTerm })
       };
@@ -64,8 +75,8 @@ const OrderManagement = () => {
         await dispatch(deleteOrder(orderId)).unwrap();
         // Refresh orders after deletion
         const filters = {
-          page: pagination?.currentPage || 1,
-          limit: pagination?.limit || 10,
+          page: currentPage,
+          limit: ordersPerPage,
           ...(statusFilter !== 'all' && { status: statusFilter }),
           ...(searchTerm && { search: searchTerm })
         };
@@ -84,7 +95,6 @@ const OrderManagement = () => {
 
   const getStatusBadge = (status) => {
     const statusStyles = {
-      pending: 'bg-yellow-100 text-yellow-800',
       processing: 'bg-blue-100 text-blue-800',
       shipped: 'bg-purple-100 text-purple-800',
       in_transit: 'bg-indigo-100 text-indigo-800',
@@ -93,7 +103,6 @@ const OrderManagement = () => {
     };
 
     const statusIcons = {
-      pending: <FaClock className="w-3 h-3 mr-1" />,
       processing: <FaEdit className="w-3 h-3 mr-1" />,
       shipped: <FaTruck className="w-3 h-3 mr-1" />,
       in_transit: <FaTruck className="w-3 h-3 mr-1" />,
@@ -125,20 +134,21 @@ const OrderManagement = () => {
   };
 
   const calculateOrderStats = () => {
-    const totalOrders = adminOrders.length;
-    const totalRevenue = adminOrders
+    const ordersArr = Array.isArray(adminOrders) ? adminOrders : [];
+    const totalOrders = ordersArr.length;
+    const totalRevenue = ordersArr
       .filter(order => order.paymentStatus === 'paid')
       .reduce((sum, order) => sum + (order.totalAmount || 0), 0);
-    const pendingOrders = adminOrders.filter(order => order.status === 'pending').length;
-    const deliveredOrders = adminOrders.filter(order => order.status === 'delivered').length;
+    const pendingOrders = ordersArr.filter(order => order.status === 'pending').length;
+    const deliveredOrders = ordersArr.filter(order => order.status === 'delivered').length;
 
     return { totalOrders, totalRevenue, pendingOrders, deliveredOrders };
   };
 
   const stats = calculateOrderStats();
 
-  // For client-side display of the fetched orders
-  const filteredOrders = adminOrders || [];
+  // Use paginated orders directly from Redux
+  const ordersToDisplay = Array.isArray(adminOrders) ? adminOrders : [];
 
   return (
     <div>
@@ -183,7 +193,7 @@ const OrderManagement = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Total Orders</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.totalOrders}</p>
+              <p className="text-2xl font-semibold text-gray-900">{totalProcessingOrders ?? 0}</p>
             </div>
           </div>
         </div>
@@ -195,7 +205,7 @@ const OrderManagement = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Total Revenue</p>
-              <p className="text-2xl font-semibold text-gray-900">${stats.totalRevenue.toFixed(2)}</p>
+              <p className="text-2xl font-semibold text-gray-900">${(pagination?.totalRevenue ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
             </div>
           </div>
         </div>
@@ -206,8 +216,8 @@ const OrderManagement = () => {
               <FaClock className="h-6 w-6 text-yellow-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Pending Orders</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.pendingOrders}</p>
+              <p className="text-sm font-medium text-gray-500">Processing Orders</p>
+              <p className="text-2xl font-semibold text-gray-900">{totalProcessingOrders ?? 0}</p>
             </div>
           </div>
         </div>
@@ -219,7 +229,7 @@ const OrderManagement = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Delivered</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.deliveredOrders}</p>
+              <p className="text-2xl font-semibold text-gray-900">{totalDeliveredOrders ?? 0}</p>
             </div>
           </div>
         </div>
@@ -253,27 +263,13 @@ const OrderManagement = () => {
             <option value="all">All Statuses</option>
             {orderStatuses.map(status => (
               <option key={status} value={status}>
-                {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
+                {status}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Payment Status Filter */}
-        <div>
-          <select
-            value={paymentStatusFilter}
-            onChange={(e) => setPaymentStatusFilter(e.target.value)}
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-          >
-            <option value="all">All Payment Status</option>
-            {paymentStatuses.map(status => (
-              <option key={status} value={status}>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-              </option>
-            ))}
-          </select>
-        </div>
+  {/* Payment Status Filter removed as requested */}
       </div>
 
       {/* Orders Table */}
@@ -309,7 +305,7 @@ const OrderManagement = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredOrders.map((order) => (
+              {ordersToDisplay.map((order) => (
                 <tr key={order._id || order.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{order._id || order.id}</div>
@@ -329,10 +325,10 @@ const OrderManagement = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
-                      {order.shippingAddress?.origin || order.origin || 'N/A'}
+                    →  UK
                     </div>
                     <div className="text-sm text-gray-500">
-                      → {order.shippingAddress?.destination || order.destination || 'N/A'}
+                      → {order.shippingAddress?.address || order.destination || 'N/A'}, {order.shippingAddress?.city || 'N/A'},{order.shippingAddress?.state || 'N/A'},{order.shippingAddress?.zip || 'N/A'},{order.shippingAddress?.country || 'N/A'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -389,6 +385,60 @@ const OrderManagement = () => {
         </div>
       </div>
 
+      {/* Pagination Controls and Results Summary (only once, at the bottom) */}
+      {(pagination?.totalPages > 1 || pagination?.total > 0) && (
+        <div className="flex flex-col items-center w-full mt-4">
+          {/* Results summary */}
+          <div className="w-full text-center py-2 text-sm text-gray-700">
+            Showing{' '}
+            <span className="font-medium">{((currentPage - 1) * ordersPerPage + 1)}</span>{' '}
+            to{' '}
+            <span className="font-medium">{((currentPage - 1) * ordersPerPage + ordersToDisplay.length)}</span>{' '}
+            of{' '}
+            <span className="font-medium">{pagination?.total}</span> results
+          </div>
+          {/* Pagination controls */}
+          {pagination?.totalPages > 1 && (
+            <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 w-full">
+              <div className="flex-1 flex justify-between sm:hidden">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === (pagination?.totalPages || 1)}
+                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                    {Array.from({ length: pagination?.totalPages || 1 }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                          page === currentPage
+                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </nav>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       {/* Order Details Modal */}
       {showOrderDetails && selectedOrder && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
