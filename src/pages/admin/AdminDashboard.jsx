@@ -1,52 +1,18 @@
-import { useState, useEffect } from 'react';
-import { FaBox, FaUsers, FaShoppingCart, FaDollarSign } from 'react-icons/fa';
 
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { FaBox, FaUsers, FaShoppingCart, FaDollarSign } from 'react-icons/fa';
 import { IoMdTrendingUp as FaTrendingUp } from "react-icons/io";
+import { fetchDashboard } from '../../redux/slices/adminSlice';
+
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState({
-    totalProducts: 45,
-    totalUsers: 1248,
-    totalOrders: 324,
-    totalRevenue: 45680.50,
-    monthlyGrowth: 12.5,
-    revenueGrowth: 8.3
-  });
+  const dispatch = useDispatch();
+  const { dashboard, loading, error } = useSelector(state => state.admin);
 
-  const [recentOrders, setRecentOrders] = useState([
-    {
-      id: 'ORD-001',
-      customer: 'John Doe',
-      email: 'john@example.com',
-      total: 156.99,
-      status: 'completed',
-      date: '2025-07-21'
-    },
-    {
-      id: 'ORD-002',
-      customer: 'Jane Smith',
-      email: 'jane@example.com',
-      total: 89.50,
-      status: 'processing',
-      date: '2025-07-21'
-    },
-    {
-      id: 'ORD-003',
-      customer: 'Bob Johnson',
-      email: 'bob@example.com',
-      total: 234.75,
-      status: 'shipped',
-      date: '2025-07-20'
-    },
-    {
-      id: 'ORD-004',
-      customer: 'Alice Brown',
-      email: 'alice@example.com',
-      total: 67.25,
-      status: 'pending',
-      date: '2025-07-20'
-    }
-  ]);
+  useEffect(() => {
+    dispatch(fetchDashboard());
+  }, [dispatch]);
 
   const getStatusBadge = (status) => {
     const statusStyles = {
@@ -84,7 +50,7 @@ const AdminDashboard = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Total Products</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.totalProducts}</p>
+              <p className="text-2xl font-semibold text-gray-900">{dashboard.totalProducts}</p>
             </div>
           </div>
         </div>
@@ -97,11 +63,7 @@ const AdminDashboard = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Total Users</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.totalUsers.toLocaleString()}</p>
-              <div className="flex items-center text-sm text-green-600">
-                <FaTrendingUp className="h-3 w-3 mr-1" />
-                +{stats.monthlyGrowth}% this month
-              </div>
+              <p className="text-2xl font-semibold text-gray-900">{dashboard.totalUsers.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -114,7 +76,7 @@ const AdminDashboard = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Total Orders</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.totalOrders}</p>
+              <p className="text-2xl font-semibold text-gray-900">{dashboard.totalOrders}</p>
             </div>
           </div>
         </div>
@@ -128,12 +90,8 @@ const AdminDashboard = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Total Revenue</p>
               <p className="text-2xl font-semibold text-gray-900">
-                ${stats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                ${dashboard.totalRevenue?.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </p>
-              <div className="flex items-center text-sm text-green-600">
-                <FaTrendingUp className="h-3 w-3 mr-1" />
-                +{stats.revenueGrowth}% this month
-              </div>
             </div>
           </div>
         </div>
@@ -166,25 +124,25 @@ const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {recentOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
+              {dashboard.latestOrders?.map((order) => (
+                <tr key={order._id || order.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {order.id}
+                    {order._id || order.id}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{order.customer}</div>
-                      <div className="text-sm text-gray-500">{order.email}</div>
+                      <div className="text-sm font-medium text-gray-900">{order.user?.name || order.customerName || 'N/A'}</div>
+                      <div className="text-sm text-gray-500">{order.user?.email || order.customerEmail || 'N/A'}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    ${order.total.toFixed(2)}
+                    ${order.totalPrice?.toFixed(2) || order.total?.toFixed(2) || '0.00'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getStatusBadge(order.status)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(order.date).toLocaleDateString()}
+                    {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : (order.date ? new Date(order.date).toLocaleDateString() : 'N/A')}
                   </td>
                 </tr>
               ))}

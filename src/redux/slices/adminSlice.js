@@ -1,3 +1,15 @@
+// Thunk to fetch dashboard data
+export const fetchDashboard = createAsyncThunk(
+  "admin/fetchDashboard",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosTokenInstance.get("/api/dashboard");
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
 
 import { createSlice,createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosTokenInstance } from "../../axios/axiosInstance";
@@ -170,6 +182,13 @@ const adminSlice = createSlice({
     users: [],
     loading: false,
     error: null,
+    dashboard: {
+      totalOrders: 0,
+      totalUsers: 0,
+      totalRevenue: 0,
+      totalProducts: 0,
+      latestOrders: [],
+    },
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -248,6 +267,25 @@ const adminSlice = createSlice({
       .addCase(toggleUserStatus.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Failed to toggle user status";
+      })
+      // Dashboard API
+      .addCase(fetchDashboard.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDashboard.fulfilled, (state, action) => {
+        state.loading = false;
+        state.dashboard = {
+          totalOrders: action.payload.totalOrders || 0,
+          totalUsers: action.payload.totalUsers || 0,
+          totalRevenue: action.payload.totalRevenue || 0,
+          totalProducts: action.payload.totalProducts || 0,
+          latestOrders: action.payload.latestOrders || [],
+        };
+      })
+      .addCase(fetchDashboard.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message || "Failed to fetch dashboard data";
       });
   },
 });
