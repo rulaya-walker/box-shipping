@@ -80,7 +80,7 @@ const Body = () => {
   };
 
   return (
-    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 py-12 max-w-7xl mx-auto relative clip-path'>
+    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 px-4 md:px-0 py-12 max-w-7xl mx-auto relative '>
         <div className='w-xl mx-auto flex flex-col justify-center relative'>
             <h2 className='text-primary text-2xl lg:text-4xl font-semibold mb-4'>Faster Routes. Lower Prices</h2>
             <p>

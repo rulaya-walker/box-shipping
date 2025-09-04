@@ -157,7 +157,7 @@ const Navbar = () => {
             </div>
         )}
     </nav>
-    <div className="max-w-7xl mx-auto bg-primary grid grid-cols-1 md:grid-cols-2 gap-4 py-12">
+    <div className="max-w-7xl mx-auto bg-primary grid grid-cols-1 md:grid-cols-2 gap-4 px-4 md:px-0 py-12">
         <div>
             <h1 className="text-3xl font-bold text-white leading-12">International Shippers</h1>
             <p className="text-white text-2xl leading-12">Worldwide Service</p>
