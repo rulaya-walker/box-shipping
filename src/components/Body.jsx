@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ImArrowRight } from "react-icons/im";
+
 
 const Body = () => {
   const [activeTab, setActiveTab] = useState('shipping');
@@ -79,11 +81,26 @@ const Body = () => {
 
   return (
     <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 py-12 max-w-7xl mx-auto relative clip-path'>
-        <div className='w-xl mx-auto flex flex-col justify-center'>
-            <h2 className='text-black text-2xl lg:text-4xl font-semibold mb-4'>Moving made easy</h2>
-            <p className='text-black text-xl lg:text-2xl mb-6'>
-All your belongings sent across the globe with peace of mind. Get your free quote in minutes!
+        <div className='w-xl mx-auto flex flex-col justify-center relative'>
+            <h2 className='text-primary text-2xl lg:text-4xl font-semibold mb-4'>Faster Routes. Lower Prices</h2>
+            <p>
+            
+
+📦 Box Shipping<br />
+📅 Same-day Pickup<br/>
+🛋️ Furniture Shipping<br/>
+🌍 Worldwide Service<br/>
+⚡ Fastest Transit Times<br/>
+🚢 20FT & 40ft Containers<br/><br/>
+
+
+            </p>
+            <p className='text-primary text-xl font-bold lg:text-xl mb-6'>
+Takes 60 seconds • No obligation • Price-match backed
 </p>
+
+<ImArrowRight className='w-32 h-32 absolute right-4 bottom-0 top-0 flex items-center justify-center m-auto' />
+
         </div>
         <div className='bg-white p-6 rounded-lg shadow-md'>
             {/* Tab Navigation removed: Only International Move remains */}
@@ -140,9 +157,9 @@ All your belongings sent across the globe with peace of mind. Get your free quot
                 <div className='mt-6'>
                     <button 
                         type='submit'
-                        className='w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition duration-200 font-semibold cursor-pointer'
+                        className='w-full bg-primary text-[#FFFC00] px-6 py-3 rounded-full hover:bg-blue-600 transition duration-200 font-semibold cursor-pointer'
                     >
-                        Proceed
+                        Get Your Free Quote Now
                     </button>
                 </div>
             </form>

@@ -150,24 +150,11 @@ const Navbar = () => {
     </nav>
     <div className="max-w-7xl mx-auto bg-primary grid grid-cols-1 md:grid-cols-2 gap-4 py-12">
         <div>
-            <h1 className="text-3xl font-bold text-white leading-12">International Movers</h1>
-            <p className="text-white text-2xl leading-12">Worldwide Shipping</p>
-            <p className="text-white text-2xl leading-12">European Movers</p>
-            <p className="text-white text-2xl leading-12">Full & Part Loads</p>
-            <div className="flex space-x-1 mt-2">
-                <RiStarSFill className="w-8 h-8 text-[#FFFC00]" />
-                <RiStarSFill className="w-8 h-8 text-[#FFFC00]" />
-                <RiStarSFill className="w-8 h-8 text-[#FFFC00]" />
-                <RiStarSFill className="w-8 h-8 text-[#FFFC00]" />
-                <RiStarSFill className="w-8 h-8 text-[#FFFC00]" />
-            </div>
+            <h1 className="text-3xl font-bold text-white leading-12">International Shippers</h1>
+            <p className="text-white text-2xl leading-12">Worldwide Service</p>
         </div>
         <div className="text-center">
-            <h1 className="text-3xl font-bold text-white leading-12">Ready to move?</h1>
-            <p className="text-white text-2xl leading-12">Fill out our online form to receive a free, no-obligation quote.</p>
-            <button className="bg-[#FFFC00] text-primary text-2xl px-8 py-4 rounded-full hover:bg-gray-100 transition-colors duration-300 cursor-pointer mt-4">
-                Get a Quote
-            </button>
+            <h1 className="text-4xl font-bold text-[#FFFC00] leading-12">Save 20% Online</h1>
         </div>
     </div>
     </div>
