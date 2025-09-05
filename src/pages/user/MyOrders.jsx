@@ -23,7 +23,7 @@ const MyOrders = () => {
   const navigate = useNavigate();
   
   // Redux state
-  const { orders, loading, error } = useSelector(state => state.orders);
+  const { orders, loading, error, totalRevenue, processingOrders, deliveredOrders } = useSelector(state => state.orders);
   const { user, token } = useSelector(state => state.auth);
   console.log('My Orders', orders);
 
@@ -162,12 +162,11 @@ const MyOrders = () => {
   };
 
   const getOrderStats = () => {
+    // Use backend-driven stats if available
     const total = ordersToUse.length;
-    const delivered = ordersToUse.filter(o => o.status === 'delivered').length;
-    const inProgress = ordersToUse.filter(o => ['processing', 'shipped', 'in_transit'].includes(o.status)).length;
-    const totalSpent = ordersToUse
-      .filter(o => o.status !== 'cancelled')
-      .reduce((sum, order) => sum + order.total, 0);
+    const delivered = deliveredOrders ?? ordersToUse.filter(o => o.status === 'delivered').length;
+    const inProgress = processingOrders ?? ordersToUse.filter(o => ['processing', 'shipped', 'in_transit'].includes(o.status)).length;
+    const totalSpent = totalRevenue ?? ordersToUse.filter(o => o.status !== 'cancelled').reduce((sum, order) => sum + (order.total || order.totalPrice || 0), 0);
 
     return { total, delivered, inProgress, totalSpent };
   };
@@ -243,7 +242,7 @@ const MyOrders = () => {
                 <FaClock className="h-6 w-6 text-yellow-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">In Progress</p>
+                <p className="text-sm font-medium text-gray-500">Processing Orders</p>
                 <p className="text-2xl font-semibold text-gray-900">{stats.inProgress}</p>
               </div>
             </div>

@@ -70,6 +70,9 @@ const orderSlice = createSlice({
   initialState: {
     orders: [],
     totalOrders: 0,
+    totalRevenue: 0,
+    processingOrders: 0,
+    deliveredOrders: 0,
     orderDetails: null,
     loading: false,
     error: null,
@@ -108,6 +111,9 @@ const orderSlice = createSlice({
         state.loading = false;
         state.orders = action.payload.orders || action.payload;
         state.totalOrders = action.payload.count || action.payload.length;
+        state.totalRevenue = action.payload.totalRevenue ?? 0;
+        state.processingOrders = action.payload.processingOrders ?? 0;
+        state.deliveredOrders = action.payload.deliveredOrders ?? 0;
       })
       .addCase(fetchUserOrders.rejected, (state, action) => {
         state.loading = false;

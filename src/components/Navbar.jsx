@@ -34,7 +34,7 @@ const Navbar = () => {
     <nav className="max-w-7xl mx-auto bg-primary border-b-1 border-white">
         <div className="flex justify-between items-center w-ful text-white md:mh-2 py-4 shadow-md">
         <div className="bg-primary p-2 rounded-lg">
-            <Link to="/"><img src={logo} alt="Logo" className="h-12" /></Link>
+            <Link to="/"><img src={logo} alt="Logo" className="h-16" /></Link>
         </div>
     <div className="hidden md:flex flex-row gap-6 items-center whitespace-nowrap">
             <Link to="/" className="hover:text-stone-400 transition-colors duration-300">
@@ -83,7 +83,7 @@ const Navbar = () => {
             )}
 
                                 <Link to="tel:08007723539" className="bg-[#FFFC00] p-2 rounded-full text-primary hover:text-primary transition-colors duration-300 block w-full text-center">
-                                    0800 772 3539
+                                     Call Free : 0800 772 3539
                                 </Link>
         </div>
 

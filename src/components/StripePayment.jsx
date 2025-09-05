@@ -37,8 +37,8 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
   const [currentStep, setCurrentStep] = useState('payment'); // payment, processing, success
   
   const [customerInfo, setCustomerInfo] = useState({
-    name: '',
-    email: '',
+    name: user?.name || '',
+    email: user?.email || '',
     phone: '',
     address: {
       line1: '',

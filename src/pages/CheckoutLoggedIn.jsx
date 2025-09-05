@@ -26,10 +26,13 @@ const CheckoutLoggedIn = () => {
       <Navbar />
       <div className="max-w-2xl mx-auto mt-12 p-6 bg-white rounded-lg shadow">
         <h2 className="text-2xl font-bold mb-6">Checkout</h2>
+  {/* Removed extra Name and Email fields at the top. These will be handled in StripePayment Billing Information section. */}
         <StripePayment orderDetails={{
           cartItems: cart.products,
           cartTotal: cart.products.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0),
-          totalAmount: cart.products.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0)
+          totalAmount: cart.products.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0),
+          name: user?.name,
+          email: user?.email
         }} />
         <div className="mt-6 p-4 bg-green-50 rounded-lg text-green-700">
           Welcome, {user?.name || user?.email}! You are logged in and can complete your order.
