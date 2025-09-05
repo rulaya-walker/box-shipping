@@ -405,8 +405,8 @@ const QuoteBody = () => {
       {/* Main Quote Interface */}
       {!showPayment && (
         <>
-          <div className="h-96 w-full bg-[#f4f4f4] flex items-center justify-center quote-bg relative">
-        <div className="py-64">
+          <div className="w-full bg-[#f4f4f4] flex items-center justify-center quote-bg relative">
+        <div className="py-4">
           <h2 className="text-2xl lg:text-4xl font-bold text-primary mb-6 text-center">
             Build Your Order
           </h2>
@@ -464,7 +464,7 @@ const QuoteBody = () => {
           </nav>
         </div>
       </div>
-      <div className="w-full max-w-7xl mx-auto p-6 mt-24">
+      <div className="w-full max-w-7xl mx-auto p-6">
         {/* Progress Bar */}
 
         {/* Main Content with Vertical Tabs */}
