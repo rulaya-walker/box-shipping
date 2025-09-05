@@ -158,12 +158,21 @@ const Navbar = () => {
         )}
     </nav>
     <div className="max-w-7xl mx-auto bg-primary grid grid-cols-1 md:grid-cols-2 gap-4 px-4 md:px-0 py-12">
-        <div>
+        <div className="text-center md:text-left">
             <h1 className="text-3xl font-bold text-white leading-12">International Shippers</h1>
             <p className="text-white text-2xl leading-12">Worldwide Service</p>
+
+        <div>
+            <RiStarSFill className="w-8 h-8 text-[#FFFC00] inline-block mr-1" />
+            <RiStarSFill className="w-8 h-8 text-[#FFFC00] inline-block mr-1" />
+            <RiStarSFill className="w-8 h-8 text-[#FFFC00] inline-block mr-1" />
+            <RiStarSFill className="w-8 h-8 text-[#FFFC00] inline-block mr-1" />
+            <RiStarSFill className="w-8 h-8 text-[#FFFC00] inline-block mr-1" />
+        </div>
         </div>
         <div className="text-center">
-            <h1 className="text-4xl font-bold text-[#FFFC00] leading-12">Save 20% Online</h1>
+            <h1 className="text-4xl font-bold text-[#FFFC00] leading-12 mb-5">Save 20% Online</h1>
+            <p className="text-white text-lg">Australia - USA - Dubai - Singapore - Canada - Hong Kong - New Zealand</p>
         </div>
     </div>
     </div>

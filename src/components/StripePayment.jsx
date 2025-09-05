@@ -226,9 +226,7 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
       });
 
       // Redirect to order details after a short delay
-      setTimeout(() => {
-        navigate(`/user/orders/${newOrder._id}`);
-      }, 3000);
+  navigate(`/user/orders/${newOrder._id}`);
 
     } catch (error) {
       console.error('Payment workflow error:', error);
