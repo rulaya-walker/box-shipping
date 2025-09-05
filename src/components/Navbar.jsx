@@ -30,7 +30,7 @@ const Navbar = () => {
     };
 
   return (
-    <div className="bg-primary">
+    <div className="bg-primary p-4 md:p-0">
     <nav className="max-w-7xl mx-auto bg-primary border-b-1 border-white">
         <div className="flex justify-between items-center w-ful text-white md:mh-2 py-4 shadow-md">
         <div className="bg-primary p-2 rounded-lg">
@@ -88,7 +88,7 @@ const Navbar = () => {
         </div>
 
         <div className="md:hidden">
-            <button onClick={toggleMenu} className="text-[#605F5E] focus:outline-none" aria-label={menuOpen ? "Close menu" : "Open menu"}>
+            <button onClick={toggleMenu} className="text-white focus:outline-none" aria-label={menuOpen ? "Close menu" : "Open menu"}>
                 {menuOpen ? (<RiCloseFill className="w-6 h-6 cursor-pointer" />) : (<RiMenuFill className="w-6 h-6 cursor-pointer" />)}
             </button>
         </div>

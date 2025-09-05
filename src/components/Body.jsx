@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ImArrowRight } from "react-icons/im";
+import { ImArrowRight,ImArrowDown } from "react-icons/im";
 
 
 const Body = () => {
@@ -81,7 +81,7 @@ const Body = () => {
 
   return (
     <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 px-4 md:px-0 py-12 max-w-7xl mx-auto relative '>
-        <div className='w-xl mx-auto flex flex-col justify-center relative'>
+        <div className='flex flex-col justify-center relative'>
             <h2 className='text-primary text-2xl lg:text-4xl font-semibold mb-4'>Faster Routes. Lower Prices</h2>
             <p>
             
@@ -99,7 +99,8 @@ const Body = () => {
 Takes 60 seconds • No obligation • Price-match backed
 </p>
 
-<ImArrowRight className='w-32 h-32 absolute right-4 bottom-0 top-0 flex items-center justify-center m-auto' />
+<ImArrowRight className='hidden md:flex w-32 h-32 absolute right-4 bottom-0 top-0  items-center justify-center m-auto' />
+<ImArrowDown className='md:hidden w-32 h-32  flex items-center justify-center m-auto' />
 
         </div>
         <div className='bg-white p-6 border-2 border-primary'>
