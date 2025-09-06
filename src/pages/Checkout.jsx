@@ -14,7 +14,7 @@ const Checkout = () => {
   // Redirect to login if not logged in
   React.useEffect(() => {
     if (!user) {
-      navigate('/login?redirect=/checkout');
+      navigate('/register?redirect=/checkout');
     }
   }, [user, navigate]);
 

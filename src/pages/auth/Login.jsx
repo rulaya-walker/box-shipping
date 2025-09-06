@@ -45,12 +45,8 @@ const Login = () => {
       } else if (location.state?.from?.pathname) {
         navigate(location.state.from.pathname, { replace: true });
       } else {
-        // Otherwise, redirect based on user role
-        if (user.role === 'admin') {
-          navigate('/admin');
-        } else {
-          navigate('/user/account');
-        }
+        // If user just logged in, default to /checkout if coming from payment
+        navigate('/checkout', { replace: true });
       }
     }
   }, [user, navigate, redirect, location.state]);
@@ -131,18 +127,12 @@ const Login = () => {
           </div>
         )}
         <p className="mt-2 text-center text-sm text-gray-600">
-          Don't have an account?{' '}
-          <Link
-            to="/register"
-            state={location.state}
-            className="font-medium text-primary hover:text-primary-dark"
-          >
-            Sign up now
-          </Link>
+          Securely sign in to access your account.
+          
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
         <div className="bg-white py-8 px-4 shadow-xl rounded-lg sm:px-10">
           {/* Social Login Buttons */}
           {/* <div className="space-y-3 mb-6">
@@ -274,12 +264,18 @@ const Login = () => {
               </div>
 
               <div className="text-sm">
-                <Link
-                  to="/register"
-                  className="font-medium text-primary hover:text-primary-dark"
-                >
-                  Already have an account? 
-                </Link>
+                
+
+                Don't have an account?{' '}
+          <Link
+            to="/register"
+            state={location.state}
+            className="font-medium text-primary hover:text-primary-dark"
+          >
+            Sign up now
+          </Link>
+
+                
               </div>
             </div>
 

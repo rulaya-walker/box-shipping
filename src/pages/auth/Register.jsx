@@ -42,21 +42,22 @@ const Register = () => {
   const [errors, setErrors] = useState({});
 
   // Redirect if user is already logged in
+  // Get redirect param from query string
+  const params = new URLSearchParams(location.search);
+  const redirect = params.get('redirect');
+
   useEffect(() => {
     if (user) {
-      // If user was redirected from a protected route, go back there
-      if (from) {
+      if (redirect) {
+        navigate(redirect, { replace: true });
+      } else if (from) {
         navigate(from, { replace: true });
       } else {
-        // Otherwise, redirect based on user role
-        if (user.role === 'admin') {
-          navigate('/admin');
-        } else {
-          navigate('/user/account');
-        }
+        // If user just registered, default to /checkout if coming from payment
+        navigate('/checkout', { replace: true });
       }
     }
-  }, [user, navigate, from]);
+  }, [user, navigate, redirect, from]);
 
   // Password requirements
   const passwordRequirements = [
@@ -178,16 +179,15 @@ const Register = () => {
         <p className="mt-2 text-center text-sm text-gray-600">
           Already have an account?{' '}
           <Link
-            to="/login"
-            state={location.state}
-            className="font-medium text-primary hover:text-primary-dark"
+            to={redirect ? `/login?redirect=${encodeURIComponent(redirect)}` : "/login"}
+            className="font-medium text-primary hover:underline"
           >
-            Sign in here
+            Login
           </Link>
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
         <div className="bg-white py-8 px-4 shadow-xl rounded-lg sm:px-10">
 
 
@@ -360,23 +360,7 @@ const Register = () => {
                 <p className="text-sm text-red-600">{errors.agreeToTerms}</p>
               )}
 
-              <div className="flex items-start">
-                <div className="flex items-center h-5">
-                  <input
-                    id="subscribeNewsletter"
-                    name="subscribeNewsletter"
-                    type="checkbox"
-                    checked={formData.subscribeNewsletter}
-                    onChange={(e) => handleInputChange('subscribeNewsletter', e.target.checked)}
-                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                  />
-                </div>
-                <div className="ml-3 text-sm">
-                  <label htmlFor="subscribeNewsletter" className="text-gray-700">
-                    Subscribe to our newsletter for shipping tips and promotions
-                  </label>
-                </div>
-              </div>
+
             </div>
 
             {/* Submit Button */}
