@@ -893,14 +893,14 @@ const QuoteBody = () => {
                       <div className="mt-4 pt-4 border-t border-gray-200">
                         <div className="flex justify-between items-center">
                           <span className="font-semibold text-gray-800">
-                            Total Items:
+                          Quotation is for a door to door service, we will collect your items in the UK and deliver to {countryParam}
                           </span>
-                          <span className="font-semibold text-primary">
+                          {/* <span className="font-semibold text-primary">
                             {cart && cart.products ? 
                               cart.products.reduce((sum, item) => sum + item.quantity, 0) :
                               6
                             }
-                          </span>
+                          </span> */}
                         </div>
                       </div>
 
