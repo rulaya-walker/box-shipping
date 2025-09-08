@@ -158,7 +158,7 @@ Takes 60 seconds • No obligation • Price-match backed
                 <div className='mt-6'>
                     <button 
                         type='submit'
-                        className='w-full bg-primary text-[#FFFC00] px-6 py-3 rounded-full hover:bg-blue-600 transition duration-200 font-semibold cursor-pointer'
+                        className='w-full bg-primary text-[#FFFC00] hover:text-white px-6 py-3 rounded-full hover:bg-primary transition duration-200 font-semibold cursor-pointer'
                     >
                         Get Your Free Quote Now
                     </button>

@@ -969,7 +969,7 @@ const QuoteBody = () => {
                       <div className="space-y-4">
                         <button 
                           onClick={handlePaymentClick}
-                          className="w-full py-4 bg-green-600 text-white text-lg font-semibold rounded-lg hover:bg-green-700 transition-colors shadow-lg cursor-pointer"
+                          className="w-full py-4 bg-primary text-white hover:text-secondary text-lg font-semibold rounded-lg hover:bg-primary transition-colors shadow-lg cursor-pointer"
                         >
                           💳 Proceed to Payment
                         </button>
