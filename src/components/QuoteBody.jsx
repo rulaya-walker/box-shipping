@@ -408,7 +408,7 @@ const QuoteBody = () => {
           <div className="w-full bg-[#f4f4f4] flex items-center justify-center quote-bg relative">
         <div className="py-4">
           <h2 className="text-2xl lg:text-4xl font-bold text-primary mb-6 text-center">
-            Build Your Order
+            Your shipment to {countryParam}
           </h2>
           <p className="text-sm text-primary mb-6">
             Tell us what you want to ship. You can build your order up out of
@@ -680,7 +680,7 @@ const QuoteBody = () => {
                               >
                                 <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                                   <img
-                                    src={productDetails.image || box}
+                                    src={productDetails.image.url || box}
                                     alt={productDetails.name || 'Product'}
                                     className="w-full h-full object-cover rounded-lg"
                                   />
