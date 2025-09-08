@@ -785,7 +785,7 @@ const QuoteBody = () => {
                               >
                                 <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                                   <img
-                                    src={productDetails.image || box}
+                                    src={productDetails.image.url || box}
                                     alt={productDetails.name || 'Product'}
                                     className="w-full h-full object-cover rounded-lg"
                                   />
