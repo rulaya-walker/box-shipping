@@ -45,15 +45,12 @@ const QuoteBody = () => {
   // Helper function to calculate item price from various sources
   const calculateItemPrice = (cartItem) => {
     // First, try to get price from the cart item itself
-    if (typeof cartItem.price === 'number' && cartItem.price > 0) {
-      return cartItem.price;
+    if (typeof cartItem.price[toCountry] === 'number' && cartItem.price[toCountry] > 0) {
+      return cartItem.price[toCountry];
     }
     
     if (typeof cartItem.price === 'object' && cartItem.price) {
-      const objectPrice = parseFloat(cartItem.price[toCountry] || 
-                                   cartItem.price.canada || 
-                                   Object.values(cartItem.price)[0] || 
-                                   0);
+      const objectPrice = parseFloat(cartItem.price[toCountry]);
       if (objectPrice > 0) return objectPrice;
     }
     
@@ -64,14 +61,11 @@ const QuoteBody = () => {
     
     // Fallback: get price from productDetailsMap using productId
     const productDetails = productDetailsMap[cartItem.productId] || {};
-    if (productDetails.price) {
-      if (typeof productDetails.price === 'object') {
-        return parseFloat(productDetails.price[toCountry] || 
-                         productDetails.price.canada || 
-                         Object.values(productDetails.price)[0] || 
-                         0);
+    if (productDetails.price[toCountry]) {
+      if (typeof productDetails.price[toCountry] === 'object') {
+        return parseFloat(productDetails.price[toCountry]);
       } else {
-        return parseFloat(productDetails.price) || 0;
+        return parseFloat(productDetails.price[toCountry]) || 0;
       }
     }
     
@@ -699,12 +693,7 @@ const QuoteBody = () => {
                                   </div>
                                   {productDetails.price && (
                                     <div className="text-sm text-gray-600 mt-1">
-                                      ${typeof productDetails.price === 'object' ? 
-                                        (productDetails.price[toCountry] || 
-                                         productDetails.price.canada || 
-                                         Object.values(productDetails.price)[0] || 
-                                         'N/A') : 
-                                        productDetails.price}
+                                      ${productDetails.price[toCountry] || 0 }
                                     </div>
                                   )}
                                 </div>
@@ -736,11 +725,11 @@ const QuoteBody = () => {
                       <div className="mt-4 pt-4 border-t border-gray-200">
                         <div className="flex justify-between items-center">
                           <span className="font-semibold text-gray-800">
-                            Total Price:
+                            Quotation is for a door to door service, we will collect your items in the UK and deliver to <strong>{countryParam}</strong>. Once you have made the booking we will make contact with you to confirm all details and arrange collection date. **Please note all bookings are FULLY refundable until 24 hours before collection date.**
                           </span>
-                          <span className="font-semibold text-primary">
+                          {/* <span className="font-semibold text-primary">
                             ${calculateCartTotal().toFixed(2)}
-                          </span>
+                          </span> */}
                         </div>
                       </div>
                     </div>
@@ -802,14 +791,9 @@ const QuoteBody = () => {
                                       {cartItem.quantity}
                                     </span>
                                   </div>
-                                  {productDetails.price && (
+                                  {productDetails.price[toCountry] && (
                                     <div className="text-sm text-gray-600 mt-1">
-                                      ${typeof productDetails.price === 'object' ? 
-                                        (productDetails.price[toCountry] || 
-                                         productDetails.price.canada || 
-                                         Object.values(productDetails.price)[0] || 
-                                         'N/A') : 
-                                        productDetails.price}
+                                      ${productDetails.price[toCountry] }
                                     </div>
                                   )}
                                 </div>
@@ -893,7 +877,7 @@ const QuoteBody = () => {
                       <div className="mt-4 pt-4 border-t border-gray-200">
                         <div className="flex justify-between items-center">
                           <span className="font-semibold text-gray-800">
-                          Quotation is for a door to door service, we will collect your items in the UK and deliver to {countryParam}
+                          Quotation is for a door to door service, we will collect your items in the UK and deliver to <strong>{countryParam}</strong>. Once you have made the booking we will make contact with you to confirm all details and arrange collection date. **Please note all bookings are FULLY refundable until 24 hours before collection date.**
                           </span>
                           {/* <span className="font-semibold text-primary">
                             {cart && cart.products ? 
