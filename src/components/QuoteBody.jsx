@@ -9,14 +9,13 @@ import {
   sb,
   imgTab,
   cycle,
-  suitcase,
-  backpacks,
+  suitcase
 } from "../constants";
 import ShippingBoxes from "./quotes/ShippingBoxes";
 import Picture from "./quotes/Picture";
 import Sports from "./quotes/Sports";
 import Suitcase from "./quotes/Suitcase";
-import Backpacks from "./quotes/Backpacks";
+// import Backpacks from "./quotes/Backpacks";
 import Bedrooms from "./quotes/Bedrooms";
 import DiningRoom from "./quotes/DiningRoom";
 import Garden from "./quotes/Garden";
@@ -373,8 +372,7 @@ const QuoteBody = () => {
     { id: "origin", name: "Shipping Boxes", icon: box },
     { id: "picture", name: "Pictures and Mirrors", icon: picture },
     { id: "package", name: "Sports and Outdoors", icon: box },
-    { id: "service", name: "Suitcases", icon: suitcase },
-    { id: "additional", name: "Backpacks", icon: backpacks },
+    { id: "service", name: "Suitcase & Luggage", icon: suitcase },
     { id: "bedrooms", name: "Bedrooms", icon: box },
     { id: "dining_room", name: "Dining Room", icon: box },
     { id: "garden", name: "Garden", icon: box },
@@ -545,16 +543,7 @@ const QuoteBody = () => {
                     />
                   )}
 
-                  {/* Specialty Items Tab */}
-                  {activeTab === "additional" && (
-                    <Backpacks
-                      getQuantity={getQuantity}
-                      updateQuantity={updateQuantity}
-                      setShowAddBoxForm={setShowAddBoxForm}
-                      onItemIdsChange={onItemIdsChange}
-                      toCountry={toCountry}
-                    />
-                  )}
+                  {/* Specialty Items Tab removed: Backpacks */}
 
                   {/* Bedrooms Items Tab */}
                   {activeTab === "bedrooms" && (
@@ -711,25 +700,25 @@ const QuoteBody = () => {
                       <div className="mt-4 pt-4 border-t border-gray-200">
                         <div className="flex justify-between items-center">
                           <span className="font-semibold text-gray-800">
-                            Total Items:
+                            Quotation is for a door to door service, we will collect your items in the UK and deliver to <strong>{countryParam}</strong>. Once you have made the booking we will make contact with you to confirm all details and arrange collection date. **Please note all bookings are FULLY refundable until 24 hours before collection date.**
                           </span>
-                          <span className="font-semibold text-primary">
+                          {/* <span className="font-semibold text-primary">
                             {cart && cart.products ? 
                               cart.products.reduce((sum, item) => sum + item.quantity, 0) :
                               6
                             }
-                          </span>
+                          </span> */}
                         </div>
                       </div>
 
                       <div className="mt-4 pt-4 border-t border-gray-200">
                         <div className="flex justify-between items-center">
                           <span className="font-semibold text-gray-800">
-                            Quotation is for a door to door service, we will collect your items in the UK and deliver to <strong>{countryParam}</strong>. Once you have made the booking we will make contact with you to confirm all details and arrange collection date. **Please note all bookings are FULLY refundable until 24 hours before collection date.**
+                            Total Price:
                           </span>
-                          {/* <span className="font-semibold text-primary">
+                          <span className="font-semibold text-primary">
                             ${calculateCartTotal().toFixed(2)}
-                          </span> */}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -972,9 +961,10 @@ const QuoteBody = () => {
             {/* Action Buttons */}
             <div className="mt-8 flex justify-between">
               <button
-                onClick={() =>
-                  currentStep > 1 && setCurrentStep(currentStep - 1)
-                }
+                onClick={() => {
+                  if (currentStep === 4) setCurrentStep(2);
+                  else if (currentStep === 2) setCurrentStep(1);
+                }}
                 disabled={currentStep === 1}
                 className={`px-6 py-2 border border-gray-300 rounded-lg ${
                   currentStep === 1
@@ -985,9 +975,10 @@ const QuoteBody = () => {
                 Previous
               </button>
               <button
-                onClick={() =>
-                  currentStep === 2 ? setCurrentStep(4) : (currentStep < 4 && setCurrentStep(currentStep + 1))
-                }
+                onClick={() => {
+                  if (currentStep === 1) setCurrentStep(2);
+                  else if (currentStep === 2) setCurrentStep(4);
+                }}
                 disabled={currentStep === 4}
                 className={`px-6 py-2 rounded-lg ${
                   currentStep === 4
