@@ -17,6 +17,7 @@ import {
 import { createCheckout, payCheckout, finalizeCheckout } from '../redux/slices/checkoutSlice';
 import { clearCart } from '../redux/slices/cartSlice';
 
+
 // Initialize Stripe with your publishable key
 const stripePromise = loadStripe(import.meta.env.VITE_REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
@@ -211,6 +212,9 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
       setPaymentSuccess(true);
       setCurrentStep('success');
       setIsLoading(false);
+
+    // Remove toCountry from localStorage after successful checkout
+    localStorage.removeItem('toCountry');
 
       // Call success callback
       onPaymentSuccess && onPaymentSuccess({

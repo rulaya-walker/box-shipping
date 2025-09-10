@@ -1,14 +1,27 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import StripePayment from '../components/StripePayment';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CheckoutLoggedIn from './CheckoutLoggedIn';
+import { getPriceByCountry } from '../redux/slices/priceSlice';
 
 const Checkout = () => {
   const { cart } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  // get toCountry from localstorage
+  const toCountry = localStorage.getItem('toCountry');
+  console.log("toCountry in Checkout:", toCountry);
+  const selectedCountryPrice = useSelector((state) => state.prices.selectedCountryPrice);
+  
+  useEffect(() => {
+    dispatch(getPriceByCountry(toCountry));
+  }, [toCountry]);
+
+  
+
   const navigate = useNavigate();
 
   // Redirect to login if not logged in
@@ -51,13 +64,15 @@ const Checkout = () => {
             ))}
           </ul>
         </div>
-
+          {/* Total Price Section */}
+          <div className="mb-6 flex justify-between items-center bg-gray-100 p-4 rounded">
+            <span className="text-lg font-semibold">Total Price:</span>
+            
+          </div>
         <StripePayment orderDetails={{
-          cartItems: cart.products,
-          cartTotal: cart.products.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0),
-          totalAmount: selectedCountryPrice && typeof selectedCountryPrice.price === 'number' && cart.products.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0) < selectedCountryPrice.price
-            ? selectedCountryPrice.price
-            : cart.products.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0)
+            cartItems: cart.products,
+            cartTotal: selectedCountryPrice?.price ? selectedCountryPrice?.price : cart.totalPrice,
+            totalAmount: cart.totalPrice < selectedCountryPrice?.price ? selectedCountryPrice?.price : cart.totalPrice,
         }} />
       </div>
       <Footer />

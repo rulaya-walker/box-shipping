@@ -42,12 +42,15 @@ const QuoteBody = () => {
   //get params value
   const queryParams = new URLSearchParams(window.location.search);
   let countryParam = queryParams.get('toCountry');
+
+  // add countryParam in localstorage 
   // If countryParam has two words like 'South Africa', make single word 'southafrica'
   const toCountry = countryParam ? countryParam.replace(/\s+/g, '').toLowerCase() : 'australia';
 
   // Fetch price for selected country on mount or when toCountry changes
   useEffect(() => {
       dispatch(getPriceByCountry(countryParam));
+      localStorage.setItem('toCountry', countryParam);
   }, [dispatch, countryParam]);
   // Helper function to calculate item price from various sources
   const calculateItemPrice = (cartItem) => {

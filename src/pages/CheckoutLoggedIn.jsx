@@ -1,10 +1,19 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import StripePayment from '../components/StripePayment';
+import { getPriceByCountry } from '../redux/slices/priceSlice';
 
 const CheckoutLoggedIn = () => {
+  const dispatch = useDispatch();
+    // get toCountry from localstorage
+    const toCountry = localStorage.getItem('toCountry');
+    const selectedCountryPrice = useSelector((state) => state.prices.selectedCountryPrice);
+    
+    useEffect(() => {
+      dispatch(getPriceByCountry(toCountry));
+    }, [toCountry]);
   const { cart } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.auth);
 
@@ -29,8 +38,8 @@ const CheckoutLoggedIn = () => {
         <h2 className="text-2xl font-bold mb-6">Checkout</h2>
         <StripePayment orderDetails={{
           cartItems: cart.products,
-          cartTotal,
-          totalAmount: cartTotal,
+          cartTotal: selectedCountryPrice?.price ? selectedCountryPrice?.price : cart.totalPrice,
+            totalAmount: cart.totalPrice < selectedCountryPrice?.price ? selectedCountryPrice?.price : cart.totalPrice,
           name: user?.name,
           email: user?.email
         }} />
