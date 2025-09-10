@@ -318,11 +318,11 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span>Cart Items ({orderDetails?.cartItems?.length || 0}):</span>
-            <span>${orderDetails?.cartTotal || '0.00'}</span>
+            <span>${orderDetails?.totalAmount || '0.00'}</span>
           </div>
           <div className="border-t pt-2">
             <div className="flex justify-between font-semibold text-lg">
-              {console.log('Order Details in Summary:', orderDetails)}
+              
               <span>Total:</span>
               <span className="text-blue-600">${orderDetails?.totalAmount || '0.00'}</span>
             </div>

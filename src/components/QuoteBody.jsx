@@ -648,7 +648,7 @@ const QuoteBody = () => {
                     {/* Left Column - Selected Items */}
                     <div className="bg-gray-50 rounded-lg p-6">
                       <h4 className="text-lg font-semibold mb-4 text-gray-800">
-                        Selected Items
+                        Selected Items (Scroll to see all items)
                       </h4>
                       <div className="space-y-4 max-h-96 overflow-y-auto">
                         {cart && cart.products && cart.products.length > 0 ? (
@@ -669,7 +669,7 @@ const QuoteBody = () => {
                               >
                                 <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                                   <img
-                                    src={productDetails.image.url || box}
+                                    src={productDetails.image && productDetails.image.url || box}
                                     alt={productDetails.name || 'Product'}
                                     className="w-full h-full object-cover rounded-lg"
                                   />
@@ -748,7 +748,7 @@ const QuoteBody = () => {
                     {/* Left Column - Selected Items */}
                     <div className="bg-gray-50 rounded-lg p-6">
                       <h4 className="text-lg font-semibold mb-4 text-gray-800">
-                        Selected Items
+                        Selected Items (Scroll to see all items)
                       </h4>
                       <div className="space-y-4 max-h-96 overflow-y-auto">
                         {cart && cart.products && cart.products.length > 0 ? (
@@ -769,7 +769,7 @@ const QuoteBody = () => {
                               >
                                 <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                                   <img
-                                    src={productDetails.image.url || box}
+                                    src={productDetails.image && productDetails.image.url || box}
                                     alt={productDetails.name || 'Product'}
                                     className="w-full h-full object-cover rounded-lg"
                                   />
