@@ -39,8 +39,12 @@ const QuoteBody = () => {
   const navigate = useNavigate();
   //get params value
   const queryParams = new URLSearchParams(window.location.search);
-  const countryParam = queryParams.get('toCountry');
-  const toCountry = countryParam?.toLowerCase() || 'australia';
+  let countryParam = queryParams.get('toCountry');
+  // If countryParam has two words like 'South Africa', make single word 'southafrica'
+
+   const toCountry = countryParam.replace(/\s+/g, '').toLowerCase();
+  
+  //const toCountry = newCountryParam || 'australia';
   // Helper function to calculate item price from various sources
   const calculateItemPrice = (cartItem) => {
     // First, try to get price from the cart item itself
