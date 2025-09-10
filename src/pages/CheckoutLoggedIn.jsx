@@ -21,9 +21,7 @@ const CheckoutLoggedIn = () => {
     );
   }
 
-  const selectedCountryPrice = useSelector(state => state.prices.selectedCountryPrice);
   const cartTotal = cart.products.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
-  const showMinPrice = selectedCountryPrice && typeof selectedCountryPrice.price === 'number' && cartTotal < selectedCountryPrice.price;
   return (
     <>
       <Navbar />
@@ -32,13 +30,11 @@ const CheckoutLoggedIn = () => {
         <StripePayment orderDetails={{
           cartItems: cart.products,
           cartTotal,
-          totalAmount: showMinPrice ? selectedCountryPrice.price : cartTotal,
+          totalAmount: cartTotal,
           name: user?.name,
           email: user?.email
         }} />
-        <div className="mt-6 p-4 bg-green-50 rounded-lg text-green-700">
-          Welcome, {user?.name || user?.email}! You are logged in and can complete your order.
-        </div>
+
       </div>
       <Footer />
     </>

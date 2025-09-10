@@ -138,7 +138,7 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
           country: customerInfo.address.country
         },
         paymentMethod: 'stripe',
-        totalPrice: parseFloat(orderDetails.totalAmount || orderDetails.total || 0)
+        totalPrice: parseFloat(orderDetails.totalAmount || 0)
       };
 
       const checkoutResult = await dispatch(createCheckout(checkoutData));
@@ -174,10 +174,6 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
         throw new Error(stripeError.message);
       }
 
-      console.log('Stripe payment confirmed successfully:', paymentIntent.status);
-
-      // Step 5: Update payment status in backend
-      console.log('Step 5: Updating payment status...');
       const payResult = await dispatch(payCheckout({
         checkoutId,
         paymentStatus: 'Paid', // Fixed case sensitivity - backend expects 'Paid' not 'paid'
@@ -185,7 +181,9 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
           paymentIntentId: paymentIntent.id,
           paymentMethodId: paymentMethod.id,
           amount: paymentIntent.amount,
-          currency: paymentIntent.currency
+          currency: paymentIntent.currency,
+          email: customerInfo.email,
+          phone: customerInfo.phone
         }
       }));
       
@@ -207,7 +205,6 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
       const newOrder = finalizeResult.payload.order; // Order comes from finalize, not separate step
 
       // Step 7: Clear cart
-      console.log('Step 7: Clearing cart...');
       dispatch(clearCart());
 
       // Success!
@@ -319,20 +316,9 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
             <span>Cart Items ({orderDetails?.cartItems?.length || 0}):</span>
             <span>${orderDetails?.cartTotal || '0.00'}</span>
           </div>
-          {orderDetails?.selectedService && (
-            <div className="flex justify-between">
-              <span>Service ({orderDetails.selectedService}):</span>
-              <span>${orderDetails?.serviceCharges || '0.00'}</span>
-            </div>
-          )}
-          {orderDetails?.destinationCharges && (
-            <div className="flex justify-between">
-              <span>Destination Charges:</span>
-              <span>${orderDetails?.destinationCharges || '0.00'}</span>
-            </div>
-          )}
           <div className="border-t pt-2">
             <div className="flex justify-between font-semibold text-lg">
+              {console.log('Order Details in Summary:', orderDetails)}
               <span>Total:</span>
               <span className="text-blue-600">${orderDetails?.totalAmount || '0.00'}</span>
             </div>
@@ -489,10 +475,10 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
         <button
           type="submit"
           disabled={!stripe || isLoading || !user || !token}
-          className={`w-full py-4 px-6 rounded-lg text-white font-semibold text-lg transition-colors ${
+          className={`w-full py-4 px-6 rounded-lg text-white font-semibold text-lg transition-colors cursor-pointer ${
             !stripe || isLoading || !user || !token
               ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-green-600 hover:bg-green-700'
+              : 'bg-primary hover:bg-primary/50'
           }`}
         >
           {isLoading ? (

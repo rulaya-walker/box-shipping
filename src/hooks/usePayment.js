@@ -50,7 +50,7 @@ export const usePayment = () => {
       selectedService = 'express',
       quantities = {},
       destinationCharges = 1329.73,
-      processingFee = 12.50
+  // processingFee removed
     } = orderData;
 
     // Service pricing
@@ -64,13 +64,13 @@ export const usePayment = () => {
     const totalItems = Object.values(quantities).reduce((sum, qty) => sum + qty, 0) || 6;
     const itemsTotal = totalItems * 5.00; // Assuming $5 per item for demo
 
-    const total = shippingCost + destinationCharges + processingFee + itemsTotal;
+  const total = shippingCost + destinationCharges + itemsTotal;
 
     return {
       itemsTotal: itemsTotal.toFixed(2),
       shippingCost: shippingCost.toFixed(2),
       destinationCharges: destinationCharges.toFixed(2),
-      processingFee: processingFee.toFixed(2),
+  // processingFee removed
       total: total.toFixed(2),
       totalItems,
       serviceType: selectedService.charAt(0).toUpperCase() + selectedService.slice(1) + ' Shipping'

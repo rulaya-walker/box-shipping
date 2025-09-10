@@ -349,25 +349,14 @@ const QuoteBody = () => {
     // Calculate cart total using helper function
     const cartTotal = calculateCartTotal();
 
-    console.log('Total amount for order: $' + cartTotal.toFixed(2));
-
-    // Calculate shipping cost
-    const shippingCost = parseFloat(selectedService === 'standard' ? '15.99' :
-                                   selectedService === 'express' ? '29.99' :
-                                   selectedService === 'whiteglove' ? '59.99' :
-                                   '29.99');
     
-    const processingFee = 12.50;
-    const totalAmount = cartTotal + shippingCost + processingFee;
+  const totalAmount = cartTotal;
 
     const orderDetails = {
       selectedService: selectedService || 'express',
       cartItems: cart?.products || [],
       cartTotal: cartTotal.toFixed(2),
-      shippingCost: shippingCost.toFixed(2),
-      processingFee: processingFee.toFixed(2),
       totalAmount: totalAmount.toFixed(2),
-      destinationCharges: cartTotal.toFixed(2),
       currency: 'USD'
     };
     
@@ -931,8 +920,7 @@ const QuoteBody = () => {
                         </div>
                         
                         <div className="flex justify-between text-gray-600">
-                          <span>Processing Fee:</span>
-                          <span className="font-medium">$12.50</span>
+                          {/* Processing Fee removed */}
                         </div>
                         
                         <hr className="border-gray-300" />
@@ -942,9 +930,8 @@ const QuoteBody = () => {
                           <div className="text-right">
                             <div className="text-2xl font-bold text-primary">
                               ${(() => {
-                                const processingFee = 12.50;
                                 const cartTotal = calculateCartTotal();
-                                return (processingFee + cartTotal).toFixed(2);
+                                return cartTotal.toFixed(2);
                               })()}
                             </div>
                             <div className="text-sm text-gray-500">USD</div>
