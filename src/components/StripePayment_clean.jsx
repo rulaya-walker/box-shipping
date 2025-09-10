@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { getPriceByCountry } from '../redux/slices/priceSlice';
 import { useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import {
@@ -18,10 +19,18 @@ import { createCheckout, payCheckout, finalizeCheckout } from '../redux/slices/c
 import { createOrderFromCheckout } from '../redux/slices/orderSlice';
 import { clearCart } from '../redux/slices/cartSlice';
 
+
 // Initialize Stripe with your publishable key
 const stripePromise = loadStripe(import.meta.env.VITE_REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
 const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
+  const selectedCountryPrice = useSelector(state => state.prices.selectedCountryPrice);
+  // Fetch price by country on mount (or when country changes)
+  useEffect(() => {
+    if (orderDetails && orderDetails.destinationCountry) {
+      dispatch(getPriceByCountry(orderDetails.destinationCountry.replace(/\s+/g, '').toLowerCase()));
+    }
+  }, [dispatch, orderDetails?.destinationCountry]);
   const stripe = useStripe();
   const elements = useElements();
   const dispatch = useDispatch();
@@ -124,6 +133,11 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
 
       // Step 2: Create checkout in backend
       console.log('Step 2: Creating checkout...');
+      // Calculate total price with country minimum
+      let calculatedTotal = parseFloat(orderDetails.totalAmount || orderDetails.total || 0);
+      if (selectedCountryPrice && typeof selectedCountryPrice.price === 'number' && calculatedTotal < selectedCountryPrice.price) {
+        calculatedTotal = selectedCountryPrice.price;
+      }
       const checkoutData = {
         checkoutItems: orderDetails.cartItems?.map(item => ({
           productId: item.productId || item.id || item._id,
@@ -141,7 +155,7 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
           country: customerInfo.address.country
         },
         paymentMethod: 'stripe',
-        totalPrice: parseFloat(orderDetails.totalAmount || orderDetails.total || 0)
+        totalPrice: calculatedTotal
       };
 
       const checkoutResult = await dispatch(createCheckout(checkoutData));

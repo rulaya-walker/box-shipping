@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { getPriceByCountry } from '../redux/slices/priceSlice';
 import { FaPlus } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 
@@ -33,6 +34,7 @@ import {
   fetchCart 
 } from "../redux/slices/cartSlice";
 const QuoteBody = () => {
+  const selectedCountryPrice = useSelector((state) => state.prices.selectedCountryPrice);
   const dispatch = useDispatch();
   const { cart, loading: cartLoading } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.auth);
@@ -41,10 +43,12 @@ const QuoteBody = () => {
   const queryParams = new URLSearchParams(window.location.search);
   let countryParam = queryParams.get('toCountry');
   // If countryParam has two words like 'South Africa', make single word 'southafrica'
+  const toCountry = countryParam ? countryParam.replace(/\s+/g, '').toLowerCase() : 'australia';
 
-   const toCountry = countryParam.replace(/\s+/g, '').toLowerCase();
-  
-  //const toCountry = newCountryParam || 'australia';
+  // Fetch price for selected country on mount or when toCountry changes
+  useEffect(() => {
+      dispatch(getPriceByCountry(countryParam));
+  }, [dispatch, countryParam]);
   // Helper function to calculate item price from various sources
   const calculateItemPrice = (cartItem) => {
     // First, try to get price from the cart item itself
@@ -81,11 +85,15 @@ const QuoteBody = () => {
     if (!cart || !cart.products || cart.products.length === 0) {
       return 0;
     }
-    
-    return cart.products.reduce((sum, item) => {
+    let total = cart.products.reduce((sum, item) => {
       const itemPrice = calculateItemPrice(item);
       return sum + (itemPrice * item.quantity);
     }, 0);
+    // Only apply minimum price logic in step 3 (currentStep === 4)
+    if (currentStep === 4 && selectedCountryPrice && typeof selectedCountryPrice.price === 'number' && total < selectedCountryPrice.price) {
+      total = selectedCountryPrice.price;
+    }
+    return total;
   };
   
   const [activeTab, setActiveTab] = useState("origin");
@@ -741,8 +749,17 @@ const QuoteBody = () => {
                   <h3 className="text-xl font-semibold mb-6">
                     Your Quote Summary
                   </h3>
+                  {/* Debug info for minimum price logic */}
+                  <div className="mb-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded">
+                    <div><strong>Country:</strong> {countryParam}</div>
+                    <div><strong>Cart Total:</strong> ${cart && cart.products ? cart.products.reduce((sum, item) => sum + (calculateItemPrice(item) * item.quantity), 0).toFixed(2) : '0.00'}</div>
+                    <div><strong>Minimum Price for {countryParam}:</strong> ${selectedCountryPrice && selectedCountryPrice.price ? selectedCountryPrice.price : 'N/A'}</div>
+                    <div><strong>Total Shown:</strong> ${calculateCartTotal().toFixed(2)}</div>
+                    {selectedCountryPrice && typeof selectedCountryPrice.price === 'number' && cart && cart.products && cart.products.reduce((sum, item) => sum + (calculateItemPrice(item) * item.quantity), 0) < selectedCountryPrice.price ? (
+                      <div className="mt-2 text-sm text-yellow-700">Minimum price applied for {countryParam}.</div>
+                    ) : null}
+                  </div>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    
                     {/* Left Column - Selected Items */}
                     <div className="bg-gray-50 rounded-lg p-6">
                       <h4 className="text-lg font-semibold mb-4 text-gray-800">

@@ -18,6 +18,7 @@ import UnauthorizedAccess from "./components/UnauthorizedAccess"
 import AuthNotifications from "./components/AuthNotifications"
 import StripePayment from "./components/StripePayment"
 import Checkout from "./pages/Checkout"
+import Price from './pages/admin/PriceManagement'
 
 function App() {
 
@@ -38,6 +39,7 @@ function App() {
           </ProtectedRoute>
         }>
           <Route index element={<AdminDashboard />} />
+          <Route path="prices" element={<Price />} />
           <Route path="products" element={<ProductManagement />} />
           <Route path="users" element={<UserManagement />} />
           <Route path="debug" element={<AdminDebug />} />

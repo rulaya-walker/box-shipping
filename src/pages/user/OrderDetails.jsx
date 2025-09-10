@@ -376,7 +376,11 @@ const OrderDetails = () => {
                     <div key={item.id || index} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
                       <div className="flex-shrink-0">
                         <div className="h-16 w-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                          <FaBox className="h-8 w-8 text-gray-400" />
+                          {item.image ? (
+                            <img src={item.image} alt={item.name} className="h-16 w-16 object-cover rounded-lg" />
+                          ) : (
+                            <FaBox className="h-8 w-8 text-gray-400" />
+                          )}
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">

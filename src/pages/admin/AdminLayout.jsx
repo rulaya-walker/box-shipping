@@ -23,6 +23,7 @@ const AdminLayout = () => {
 
   const navigationItems = [
     { name: 'Dashboard', path: '/admin', icon: FaDashboard },
+    { name: 'Price Management', path: '/admin/prices', icon: FaCog },
     { name: 'Products', path: '/admin/products', icon: FaBoxes },
     { name: 'Users', path: '/admin/users', icon: FaUsers },
     { name: 'Orders', path: '/admin/orders', icon: FaShoppingCart },
