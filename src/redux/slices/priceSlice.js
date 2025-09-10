@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { axiosTokenInstance } from '../../axios/axiosInstance';
+import { axiosInstance, axiosTokenInstance } from '../../axios/axiosInstance';
 
 // Get price by country
 export const getPriceByCountry = createAsyncThunk('prices/getPriceByCountry', async (country) => {
-  const response = await axiosTokenInstance.get(`/api/prices/${encodeURIComponent(country)}`);
+  const response = await axiosInstance.get(`/api/prices/${encodeURIComponent(country)}`);
   return response.data;
 });
 export const getPrices = createAsyncThunk('prices/getPrices', async () => {
