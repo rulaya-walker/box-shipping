@@ -51,7 +51,14 @@ const Checkout = () => {
             ))}
           </ul>
         </div>
-        <StripePayment />
+
+        <StripePayment orderDetails={{
+          cartItems: cart.products,
+          cartTotal: cart.products.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0),
+          totalAmount: selectedCountryPrice && typeof selectedCountryPrice.price === 'number' && cart.products.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0) < selectedCountryPrice.price
+            ? selectedCountryPrice.price
+            : cart.products.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0)
+        }} />
       </div>
       <Footer />
     </>

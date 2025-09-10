@@ -136,6 +136,13 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
       // Calculate total price with country minimum
       let calculatedTotal = parseFloat(orderDetails.totalAmount || orderDetails.total || 0);
       if (selectedCountryPrice && typeof selectedCountryPrice.price === 'number' && calculatedTotal < selectedCountryPrice.price) {
+        // Set all item prices to minimum price divided by item count
+        const itemCount = orderDetails.cartItems?.length || 1;
+        const minItemPrice = selectedCountryPrice.price / itemCount;
+        orderDetails.cartItems = orderDetails.cartItems?.map(item => ({
+          ...item,
+          price: minItemPrice
+        })) || [];
         calculatedTotal = selectedCountryPrice.price;
       }
       const checkoutData = {

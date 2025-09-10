@@ -21,16 +21,18 @@ const CheckoutLoggedIn = () => {
     );
   }
 
+  const selectedCountryPrice = useSelector(state => state.prices.selectedCountryPrice);
+  const cartTotal = cart.products.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+  const showMinPrice = selectedCountryPrice && typeof selectedCountryPrice.price === 'number' && cartTotal < selectedCountryPrice.price;
   return (
     <>
       <Navbar />
       <div className="max-w-2xl mx-auto mt-12 p-6 bg-white rounded-lg shadow">
         <h2 className="text-2xl font-bold mb-6">Checkout</h2>
-  {/* Removed extra Name and Email fields at the top. These will be handled in StripePayment Billing Information section. */}
         <StripePayment orderDetails={{
           cartItems: cart.products,
-          cartTotal: cart.products.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0),
-          totalAmount: cart.products.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0),
+          cartTotal,
+          totalAmount: showMinPrice ? selectedCountryPrice.price : cartTotal,
           name: user?.name,
           email: user?.email
         }} />
