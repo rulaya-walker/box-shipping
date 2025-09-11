@@ -71,7 +71,7 @@ const QuoteBody = () => {
     
     // Fallback: get price from productDetailsMap using productId
     const productDetails = productDetailsMap[cartItem.productId] || {};
-    if (productDetails.price[toCountry]) {
+    if (productDetails.price) {
       if (typeof productDetails.price[toCountry] === 'object') {
         return parseFloat(productDetails.price[toCountry]);
       } else {
@@ -786,7 +786,7 @@ const QuoteBody = () => {
                                       {cartItem.quantity}
                                     </span>
                                   </div>
-                                  {productDetails.price[toCountry] && (
+                                  {productDetails.price && (
                                     <div className="text-sm text-gray-600 mt-1">
                                       ${productDetails.price[toCountry] }
                                     </div>

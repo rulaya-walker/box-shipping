@@ -15,6 +15,7 @@ import {
   resetStripeState 
 } from '../redux/slices/stripeSlice';
 import { createCheckout, payCheckout, finalizeCheckout } from '../redux/slices/checkoutSlice';
+import { sendOrderDetailsEmail } from '../redux/slices/emailSlice';
 import { clearCart } from '../redux/slices/cartSlice';
 
 
@@ -215,6 +216,9 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
 
     // Remove toCountry from localStorage after successful checkout
     localStorage.removeItem('toCountry');
+
+    // Send order details email to user and admin
+    dispatch(sendOrderDetailsEmail({ order: newOrder, userEmail: customerInfo.email }));
 
       // Call success callback
       onPaymentSuccess && onPaymentSuccess({
