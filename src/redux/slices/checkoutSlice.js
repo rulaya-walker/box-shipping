@@ -21,11 +21,12 @@ export const createCheckout = createAsyncThunk(
 
 export const payCheckout = createAsyncThunk(
   "checkout/payCheckout",
-  async ({ checkoutId, paymentStatus, paymentDetails }, { rejectWithValue }) => {
+  async ({ checkoutId, paymentStatus, paymentDetails, collectionDate }, { rejectWithValue }) => {
     try {
       const response = await axiosTokenInstance.put(`/api/checkout/${checkoutId}/pay`, {
         paymentStatus,
-        paymentDetails
+        paymentDetails,
+        collectionDate
       });
 
       console.log("Pay checkout response:", response.data);

@@ -186,7 +186,8 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
           currency: paymentIntent.currency,
           email: customerInfo.email,
           phone: customerInfo.phone
-        }
+        },
+        collectionDate: localStorage.getItem('collectionDate')
       }));
       
       if (payCheckout.rejected.match(payResult)) {
@@ -216,6 +217,7 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
 
     // Remove toCountry from localStorage after successful checkout
     localStorage.removeItem('toCountry');
+    localStorage.removeItem('collectionDate');
 
     // Send order details email to user and admin
     dispatch(sendOrderDetailsEmail({ order: newOrder, userEmail: customerInfo.email }));

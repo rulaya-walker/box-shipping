@@ -39,7 +39,7 @@ const CheckoutLoggedIn = () => {
         <StripePayment orderDetails={{
           cartItems: cart.products,
           cartTotal: selectedCountryPrice?.price ? selectedCountryPrice?.price : cart.totalPrice,
-            totalAmount: cart.totalPrice < selectedCountryPrice?.price ? selectedCountryPrice?.price : cart.totalPrice,
+          totalAmount: cart.totalPrice < selectedCountryPrice?.price ? selectedCountryPrice?.price : cart.totalPrice,
           name: user?.name,
           email: user?.email
         }} />

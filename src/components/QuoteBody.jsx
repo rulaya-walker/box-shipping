@@ -103,6 +103,7 @@ const QuoteBody = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showAddBoxForm, setShowAddBoxForm] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
+  const [collectionDate, setCollectionDate] = useState("");
   const [quantities, setQuantities] = useState({});
   const [dynamicItemIds, setDynamicItemIds] = useState({});
   const [itemIdToProductMap, setItemIdToProductMap] = useState({}); // Maps itemId to productId
@@ -117,6 +118,8 @@ const QuoteBody = () => {
     weight: "0-30",
   });
 
+localStorage.setItem('collectionDate', collectionDate);
+console.log("Collection Date in QuoteBody:", localStorage.getItem('collectionDate'));
   const { calculateOrderTotal } = usePayment();
 
   // Generate a unique guest ID for cart operations
@@ -351,20 +354,16 @@ const QuoteBody = () => {
   const getOrderDetails = () => {
     // Calculate cart total using helper function
     const cartTotal = calculateCartTotal();
-
-    
-  const totalAmount = cartTotal;
-
+    const totalAmount = cartTotal;
     const orderDetails = {
       selectedService: selectedService || 'express',
       cartItems: cart?.products || [],
       cartTotal: cartTotal.toFixed(2),
       totalAmount: totalAmount.toFixed(2),
-      currency: 'USD'
+      currency: 'USD',
+      collectionDate,
     };
-    
     console.log('Order Details:', orderDetails);
-    
     return orderDetails;
   };
 
@@ -412,6 +411,7 @@ const QuoteBody = () => {
             Tell us what you want to ship. You can build your order up out of
             boxes, items and furniture.
           </p>
+          
           <nav aria-label="Progress">
             <ol className="flex items-center justify-center">
               {steps.map((step, stepIdx) => (
@@ -943,6 +943,20 @@ const QuoteBody = () => {
                       </div>
                       
                       {/* Payment Button */}
+                      <div className="mb-6 flex flex-col items-center">
+            <label htmlFor="collectionDate" className="block text-md font-semibold text-primary mb-2">Choose Collection Date</label>
+            <input
+              type="date"
+              id="collectionDate"
+              value={collectionDate}
+              onChange={e => setCollectionDate(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              min={new Date().toISOString().split('T')[0]}
+              required
+            />
+          </div>
+                      <div className="my-4">
+                      </div>
                       <div className="space-y-4">
                         <button 
                           onClick={handlePaymentClick}

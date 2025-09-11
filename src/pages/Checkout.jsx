@@ -13,7 +13,6 @@ const Checkout = () => {
   const dispatch = useDispatch();
   // get toCountry from localstorage
   const toCountry = localStorage.getItem('toCountry');
-  console.log("toCountry in Checkout:", toCountry);
   const selectedCountryPrice = useSelector((state) => state.prices.selectedCountryPrice);
   
   useEffect(() => {

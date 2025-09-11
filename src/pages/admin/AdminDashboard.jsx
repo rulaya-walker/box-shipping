@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FaBox, FaUsers, FaShoppingCart, FaDollarSign } from 'react-icons/fa';
 import { IoMdTrendingUp as FaTrendingUp } from "react-icons/io";
 import { fetchDashboard } from '../../redux/slices/adminSlice';
+import { Link } from 'react-router-dom';
 
 
 const AdminDashboard = () => {
@@ -113,6 +114,9 @@ const AdminDashboard = () => {
                   Customer
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Collection Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Total
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -136,6 +140,9 @@ const AdminDashboard = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {new Date(order.collectionDate).toLocaleDateString() || 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     ${order.totalPrice?.toFixed(2) || order.total?.toFixed(2) || '0.00'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -151,9 +158,9 @@ const AdminDashboard = () => {
         </div>
         <div className="px-6 py-4 border-t border-gray-200">
           <div className="text-center">
-            <button className="text-primary hover:text-primary-dark font-medium text-sm">
+            <Link to="/admin/orders" className="text-primary hover:text-primary-dark font-medium text-sm">
               View All Orders →
-            </button>
+            </Link>
           </div>
         </div>
       </div>

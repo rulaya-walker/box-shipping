@@ -6,6 +6,7 @@ import {
   updateOrderStatus,
   deleteOrder,
 } from '../../redux/slices/adminOrderSlice';
+import { Link } from 'react-router-dom';
 
 const OrderManagement = () => {
   const dispatch = useDispatch();
@@ -285,6 +286,9 @@ const OrderManagement = () => {
                   Customer
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Collection Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Route
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -308,7 +312,7 @@ const OrderManagement = () => {
               {ordersToDisplay.map((order) => (
                 <tr key={order._id || order.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{order._id || order.id}</div>
+                    <div className="text-sm font-medium text-gray-900"><Link to={`/user/orders/${order._id || order.id}`}>{order._id || order.id}</Link></div>
                     {order.trackingNumber && (
                       <div className="text-xs text-gray-500">{order.trackingNumber}</div>
                     )}
@@ -320,6 +324,13 @@ const OrderManagement = () => {
                       </div>
                       <div className="text-sm text-gray-500">
                         {order.user?.email || order.customerEmail || 'N/A'}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {new Date(order.collectionDate).toLocaleDateString() || 'N/A'}
                       </div>
                     </div>
                   </td>
