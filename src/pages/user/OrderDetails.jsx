@@ -16,6 +16,8 @@ import {
   FaBox,
   FaCreditCard
 } from 'react-icons/fa';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 
 const OrderDetails = () => {
   const { orderId } = useParams();
@@ -29,7 +31,6 @@ const OrderDetails = () => {
 
   useEffect(() => {
     if (orderId) {
-      console.log('Dispatching fetchOrderById for orderId:', orderId);
       dispatch(fetchOrderById(orderId))
         .then((result) => {
           console.log('fetchOrderById result:', result);
@@ -231,6 +232,8 @@ const OrderDetails = () => {
   // }
 
   return (
+    <>
+    <Navbar />
     <div className="min-h-screen bg-gray-50 py-8">
       {/* Confetti Animation */}
       {showConfetti && (
@@ -450,9 +453,7 @@ const OrderDetails = () => {
                     <p className="text-sm font-medium text-gray-900">From</p>
                   </div>
                   <div className="text-sm text-gray-600 ml-6">
-                    <p>{displayOrder.shippingAddress?.address || 'N/A'}</p>
-                    <p>{displayOrder.shippingAddress?.city || 'N/A'}, {displayOrder.shippingAddress?.state || 'N/A'} {displayOrder.shippingAddress?.zipCode || 'N/A'}</p>
-                    <p>{displayOrder.shippingAddress?.country || 'N/A'}</p>
+                    <p>{displayOrder.origin || 'N/A'}</p>
                   </div>
                 </div>
                 <div>
@@ -461,9 +462,7 @@ const OrderDetails = () => {
                     <p className="text-sm font-medium text-gray-900">To</p>
                   </div>
                   <div className="text-sm text-gray-600 ml-6">
-                    <p>{displayOrder.shippingAddress?.address || 'N/A'}</p>
-                    <p>{displayOrder.shippingAddress?.city || 'N/A'}, {displayOrder.shippingAddress?.state || 'N/A'} {displayOrder.shippingAddress?.zipCode || 'N/A'}</p>
-                    <p>{displayOrder.shippingAddress?.country || 'N/A'}</p>
+                    <p>{displayOrder.destination || 'N/A'}</p>
                   </div>
                 </div>
               </div>
@@ -479,7 +478,7 @@ const OrderDetails = () => {
                   <FaCreditCard className="h-5 w-5 text-gray-400" />
                   <div>
                     <p className="text-sm font-medium text-gray-900">
-                      {displayOrder.paymentDetails?.paymentIntentId || 'Unknown'} ending in {displayOrder.paymentDetails?.last4 || '****'}
+                      {displayOrder.paymentDetails?.paymentIntentId || 'Unknown'} ending in {displayOrder.paymentDetails?.cardLast4 || '****'} exp date {displayOrder.paymentDetails?.cardExpMonth || 'MM'}/{displayOrder.paymentDetails?.cardExpYear || 'YY'}
                     </p>
                     <p className="text-sm text-gray-500 capitalize">{displayOrder.paymentStatus || 'pending'}</p>
                   </div>
@@ -499,7 +498,7 @@ const OrderDetails = () => {
                 </div>
                 <div className="flex items-center space-x-3">
                   <FaPhone className="h-4 w-4 text-gray-400" />
-                  <span className="text-sm text-gray-900">{user?.phone || 'Not provided'}</span>
+                  <span className="text-sm text-gray-900">{displayOrder.paymentDetails?.phone || 'Not provided'}</span>
                 </div>
               </div>
             </div>
@@ -521,6 +520,8 @@ const OrderDetails = () => {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 };
 

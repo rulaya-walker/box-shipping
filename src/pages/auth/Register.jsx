@@ -45,6 +45,9 @@ const Register = () => {
   // Get redirect param from query string
   const params = new URLSearchParams(location.search);
   const redirect = params.get('redirect');
+  const { fromCity, toCity } = location.state || {};
+  console.log('From City (Register):', fromCity);
+  console.log('To City (Register):', toCity);
 
   useEffect(() => {
     if (user) {
@@ -54,7 +57,7 @@ const Register = () => {
         navigate(from, { replace: true });
       } else {
         // If user just registered, default to /checkout if coming from payment
-        navigate('/checkout', { replace: true });
+        navigate('/checkout', { replace: true, state: { fromCity, toCity } });
       }
     }
   }, [user, navigate, redirect, from]);
@@ -180,6 +183,7 @@ const Register = () => {
           Already have an account?{' '}
           <Link
             to={redirect ? `/login?redirect=${encodeURIComponent(redirect)}` : "/login"}
+            state={{ fromCity, toCity }}
             className="font-medium text-primary hover:underline"
           >
             Login

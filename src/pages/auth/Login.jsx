@@ -36,17 +36,18 @@ const Login = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const { fromCity, toCity } = location.state || {};
 
   // Redirect if user is already logged in
   useEffect(() => {
     if (user) {
       if (redirect) {
-        navigate(redirect, { replace: true });
+        navigate(redirect, { replace: true, state: { fromCity, toCity } });
       } else if (location.state?.from?.pathname) {
-        navigate(location.state.from.pathname, { replace: true });
+        navigate(location.state.from.pathname, { replace: true, state: { fromCity, toCity } });
       } else {
-        // If user just logged in, default to /checkout if coming from payment
-        navigate('/checkout', { replace: true });
+        // If direct login (no redirect, no from), go to homepage
+        navigate('/', { replace: true });
       }
     }
   }, [user, navigate, redirect, location.state]);

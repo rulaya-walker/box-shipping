@@ -336,10 +336,10 @@ const OrderManagement = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
-                    →  UK
+                    →  {order.origin || 'N/A'}
                     </div>
                     <div className="text-sm text-gray-500">
-                      → {order.shippingAddress?.address || order.destination || 'N/A'}, {order.shippingAddress?.city || 'N/A'},{order.shippingAddress?.state || 'N/A'},{order.shippingAddress?.zip || 'N/A'},{order.shippingAddress?.country || 'N/A'}
+                      → {order.destination || 'N/A'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

@@ -107,7 +107,7 @@ const Kitchen = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChan
                       {product.details || 'Professional packaging solution for kitchen appliances.'}
                     </p>
                     <p className="text-gray-600 text-sm mb-2">
-                      ${parseFloat(product.price[toCountry] || 0).toFixed(2)}
+                      £{parseFloat(product.price[toCountry] || 0).toFixed(2)}
                     </p>
                     <p className="text-gray-600 text-xs">
                       {product.size || 'Custom dimensions available'}

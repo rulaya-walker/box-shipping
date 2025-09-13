@@ -126,6 +126,7 @@ Takes 60 seconds • No obligation • Price-match backed
                             placeholder='City, town or zip / postcode'
                             value={shippingForm.fromCity}
                             onChange={(e) => handleShippingFormChange('fromCity', e.target.value)}
+                            required
                         />
                     </div>
                 </div>
@@ -151,6 +152,7 @@ Takes 60 seconds • No obligation • Price-match backed
                             placeholder='City, town or zip / postcode'
                             value={shippingForm.toCity}
                             onChange={(e) => handleShippingFormChange('toCity', e.target.value)}
+                            required
                         />
                     </div>
                 </div>

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import StripePayment from '../components/StripePayment';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CheckoutLoggedIn from './CheckoutLoggedIn';
@@ -10,6 +10,8 @@ import { getPriceByCountry } from '../redux/slices/priceSlice';
 const Checkout = () => {
   const { cart } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.auth);
+  const location = useLocation();
+  const { fromCity, toCity } = location.state || {};
   const dispatch = useDispatch();
   // get toCountry from localstorage
   const toCountry = localStorage.getItem('toCountry');
@@ -26,12 +28,12 @@ const Checkout = () => {
   // Redirect to login if not logged in
   React.useEffect(() => {
     if (!user) {
-      navigate('/register?redirect=/checkout');
+      navigate('/register?redirect=/checkout', { state: { fromCity, toCity } });
     }
   }, [user, navigate]);
 
   if (user) {
-    return <CheckoutLoggedIn />;
+    return <CheckoutLoggedIn fromCity1={fromCity} toCity1={toCity} />;
   }
 
   if (!cart || !cart.products || cart.products.length === 0) {

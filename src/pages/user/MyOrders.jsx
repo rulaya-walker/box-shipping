@@ -25,12 +25,9 @@ const MyOrders = () => {
   // Redux state
   const { orders, loading, error, totalRevenue, processingOrders, deliveredOrders } = useSelector(state => state.orders);
   const { user, token } = useSelector(state => state.auth);
-  console.log('My Orders', orders);
 
   // More detailed Redux state logging
   const fullOrdersState = useSelector(state => state.orders);
-  console.log('Full Redux orders state:', fullOrdersState);
-  console.log('Auth state:', { user: !!user, token: !!token, userDetails: user });
   
   // Local state for filters
   const [searchTerm, setSearchTerm] = useState('');

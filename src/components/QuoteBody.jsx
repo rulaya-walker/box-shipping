@@ -42,6 +42,8 @@ const QuoteBody = () => {
   //get params value
   const queryParams = new URLSearchParams(window.location.search);
   let countryParam = queryParams.get('toCountry');
+  const fromCity = queryParams.get('fromCity');
+  const toCity = queryParams.get('toCity');
 
   // add countryParam in localstorage 
   // If countryParam has two words like 'South Africa', make single word 'southafrica'
@@ -335,7 +337,7 @@ console.log("Collection Date in QuoteBody:", localStorage.getItem('collectionDat
       return;
     }
 
-    navigate('/checkout');
+  navigate('/checkout', { state: { fromCity, toCity } });
     return;
   };
 
@@ -362,6 +364,8 @@ console.log("Collection Date in QuoteBody:", localStorage.getItem('collectionDat
       totalAmount: totalAmount.toFixed(2),
       currency: 'USD',
       collectionDate,
+      fromCity,
+      toCity,
     };
     console.log('Order Details:', orderDetails);
     return orderDetails;
@@ -688,7 +692,7 @@ console.log("Collection Date in QuoteBody:", localStorage.getItem('collectionDat
                                   </div>
                                   {productDetails.price && (
                                     <div className="text-sm text-gray-600 mt-1">
-                                      ${productDetails.price[toCountry] || 0 }
+                                      £{productDetails.price[toCountry] || 0 }
                                     </div>
                                   )}
                                 </div>
@@ -723,7 +727,7 @@ console.log("Collection Date in QuoteBody:", localStorage.getItem('collectionDat
                             Total Price:
                           </span>
                           <span className="font-semibold text-primary">
-                            ${calculateCartTotal().toFixed(2)}
+                            £{parseFloat(calculateCartTotal()).toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -788,7 +792,7 @@ console.log("Collection Date in QuoteBody:", localStorage.getItem('collectionDat
                                   </div>
                                   {productDetails.price && (
                                     <div className="text-sm text-gray-600 mt-1">
-                                      ${productDetails.price[toCountry] }
+                                      £{productDetails.price[toCountry] }
                                     </div>
                                   )}
                                 </div>
@@ -889,7 +893,7 @@ console.log("Collection Date in QuoteBody:", localStorage.getItem('collectionDat
                             Total Price:
                           </span>
                           <span className="font-semibold text-primary">
-                            ${calculateCartTotal().toFixed(2)}
+                            £{calculateCartTotal().toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -918,7 +922,7 @@ console.log("Collection Date in QuoteBody:", localStorage.getItem('collectionDat
                         <div className="flex justify-between text-gray-600">
                           <span>Destination Charges:</span>
                           <span className="font-medium">
-                            ${calculateCartTotal().toFixed(2)}
+                            £{parseFloat(calculateCartTotal()).toFixed(2)}
                           </span>
                         </div>
                         
@@ -932,12 +936,12 @@ console.log("Collection Date in QuoteBody:", localStorage.getItem('collectionDat
                           <span className="text-xl font-bold text-gray-800">Total:</span>
                           <div className="text-right">
                             <div className="text-2xl font-bold text-primary">
-                              ${(() => {
+                              £{(() => {
                                 const cartTotal = calculateCartTotal();
-                                return cartTotal.toFixed(2);
+                                return parseFloat(cartTotal).toFixed(2);
                               })()}
                             </div>
-                            <div className="text-sm text-gray-500">USD</div>
+                            {/* <div className="text-sm text-gray-500">Pound</div> */}
                           </div>
                         </div>
                       </div>

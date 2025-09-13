@@ -22,7 +22,7 @@ import { clearCart } from '../redux/slices/cartSlice';
 // Initialize Stripe with your publishable key
 const stripePromise = loadStripe(import.meta.env.VITE_REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
-const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
+const CheckoutForm = ({ orderDetails, fromCity, toCity, onPaymentSuccess, onPaymentError }) => {
   const stripe = useStripe();
   const elements = useElements();
   const dispatch = useDispatch();
@@ -140,7 +140,9 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
           country: customerInfo.address.country
         },
         paymentMethod: 'stripe',
-        totalPrice: parseFloat(orderDetails.totalAmount || 0)
+        totalPrice: parseFloat(orderDetails.totalAmount || 0),
+        origin: fromCity,
+        destination: toCity
       };
 
       const checkoutResult = await dispatch(createCheckout(checkoutData));
@@ -150,13 +152,12 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
       }
 
       const checkoutId = checkoutResult.payload._id;
-      console.log('Checkout created successfully:', checkoutId);
 
       // Step 3: Create payment intent
       console.log('Step 3: Creating payment intent...');
       const paymentIntentResult = await dispatch(createPaymentIntent({ 
         checkoutId, 
-        currency: 'usd' 
+        currency: 'GBP', 
       }));
       
       if (createPaymentIntent.rejected.match(paymentIntentResult)) {
@@ -182,10 +183,14 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
         paymentDetails: {
           paymentIntentId: paymentIntent.id,
           paymentMethodId: paymentMethod.id,
+          cardLast4: paymentMethod.card.last4,
+          cardBrand: paymentMethod.card.brand,
+          cardExpMonth: paymentMethod.card.exp_month,
+          cardExpYear: paymentMethod.card.exp_year,
           amount: paymentIntent.amount,
           currency: paymentIntent.currency,
           email: customerInfo.email,
-          phone: customerInfo.phone
+          phone: customerInfo.phone,
         },
         collectionDate: localStorage.getItem('collectionDate')
       }));
@@ -194,17 +199,14 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
         throw new Error(payResult.payload?.message || 'Failed to update payment status');
       }
 
-      console.log('Payment status updated successfully');
 
       // Step 6: Finalize checkout (this creates the order)
-      console.log('Step 6: Finalizing checkout and creating order...');
       const finalizeResult = await dispatch(finalizeCheckout(checkoutId));
       
       if (finalizeCheckout.rejected.match(finalizeResult)) {
         throw new Error(finalizeResult.payload?.message || 'Failed to finalize checkout');
       }
 
-      console.log('Checkout finalized and order created successfully');
       const newOrder = finalizeResult.payload.order; // Order comes from finalize, not separate step
 
       // Step 7: Clear cart
@@ -220,7 +222,7 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
     localStorage.removeItem('collectionDate');
 
     // Send order details email to user and admin
-    dispatch(sendOrderDetailsEmail({ order: newOrder, userEmail: customerInfo.email }));
+    dispatch(sendOrderDetailsEmail({ order: newOrder, userEmail: customerInfo.email, userName: customerInfo.name }));
 
       // Call success callback
       onPaymentSuccess && onPaymentSuccess({
@@ -324,13 +326,23 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span>Cart Items ({orderDetails?.cartItems?.length || 0}):</span>
-            <span>${orderDetails?.totalAmount || '0.00'}</span>
+            <span>£{parseFloat(orderDetails?.totalAmount || 0).toFixed(2)}</span>
           </div>
+          {/* Product price breakdown */}
+          {orderDetails?.cartItems?.length > 0 && (
+            <div className="mt-2">
+              {orderDetails.cartItems.map((item, idx) => (
+                <div key={idx} className="flex justify-between text-xs text-gray-600">
+                  <span>{item.name} x {item.quantity}</span>
+                  <span>£{parseFloat(item.price).toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="border-t pt-2">
             <div className="flex justify-between font-semibold text-lg">
-              
               <span>Total:</span>
-              <span className="text-blue-600">${orderDetails?.totalAmount || '0.00'}</span>
+              <span className="text-blue-600">£{parseFloat(orderDetails?.totalAmount || 0).toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -502,7 +514,7 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
           ) : !user || !token ? (
             'Please Log In to Continue'
           ) : (
-            `Pay $${orderDetails?.totalAmount || '0.00'} Now`
+            `Pay £${parseFloat(orderDetails?.totalAmount || 0).toFixed(2)} Now`
           )}
         </button>
         
@@ -549,13 +561,15 @@ const CheckoutForm = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
   );
 };
 
-const StripePayment = ({ orderDetails, onPaymentSuccess, onPaymentError }) => {
+const StripePayment = ({ orderDetails, fromCity, toCity, onPaymentSuccess, onPaymentError }) => {
   return (
     <Elements stripe={stripePromise}>
       <div className="min-h-screen bg-gray-100 py-8">
         <div className="container mx-auto px-4">
           <CheckoutForm 
             orderDetails={orderDetails}
+            fromCity={fromCity}
+            toCity={toCity}
             onPaymentSuccess={onPaymentSuccess}
             onPaymentError={onPaymentError}
           />

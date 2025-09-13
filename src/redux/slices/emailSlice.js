@@ -4,11 +4,12 @@ import {axiosInstance} from '../../axios/axiosInstance';
 // Send order details email to user and admin
 export const sendOrderDetailsEmail = createAsyncThunk(
   'email/sendOrderDetailsEmail',
-  async ({ order, userEmail }, { rejectWithValue }) => {
+  async ({ order, userEmail, userName }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post('/api/email/order-details', {
         order,
         userEmail,
+        userName,
       });
       return response.data;
     } catch (error) {

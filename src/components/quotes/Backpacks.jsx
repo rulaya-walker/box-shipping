@@ -103,7 +103,7 @@ const Backpacks = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsCh
                       {product.details || 'Professional packaging solution for your backpacks.'}
                     </p>
                     <p className="text-gray-600 text-sm mb-2">
-                      ${parseFloat(product.price[toCountry] || 0).toFixed(2)}
+                      £{parseFloat(product.price[toCountry] || 0).toFixed(2)}
                     </p>
                     <p className="text-gray-600 text-xs">
                       {product.size || 'Custom dimensions available'}

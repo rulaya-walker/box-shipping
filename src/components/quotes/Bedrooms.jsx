@@ -107,7 +107,7 @@ const Bedrooms = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsCha
                       {product.details || 'Professional packaging solution for bedroom furniture.'}
                     </p>
                     <p className="text-gray-600 text-sm mb-2">
-                      ${parseFloat(product.price[toCountry] || 0).toFixed(2)}
+                      £{parseFloat(product.price[toCountry] || 0).toFixed(2)}
                     </p>
                     <p className="text-gray-600 text-xs">
                       {product.size || 'Custom dimensions available'}

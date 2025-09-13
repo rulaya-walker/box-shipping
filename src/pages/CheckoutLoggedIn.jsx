@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import StripePayment from '../components/StripePayment';
 import { getPriceByCountry } from '../redux/slices/priceSlice';
 
-const CheckoutLoggedIn = () => {
+const CheckoutLoggedIn = ({ fromCity1='', toCity1='' }) => {
+  const location = useLocation();
   const dispatch = useDispatch();
     // get toCountry from localstorage
     const toCountry = localStorage.getItem('toCountry');
@@ -31,6 +33,8 @@ const CheckoutLoggedIn = () => {
   }
 
   const cartTotal = cart.products.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+  // Get fromCity and toCity from location.state if available
+  const { fromCity, toCity } = location.state || {};
   return (
     <>
       <Navbar />
@@ -41,8 +45,8 @@ const CheckoutLoggedIn = () => {
           cartTotal: selectedCountryPrice?.price ? selectedCountryPrice?.price : cart.totalPrice,
           totalAmount: cart.totalPrice < selectedCountryPrice?.price ? selectedCountryPrice?.price : cart.totalPrice,
           name: user?.name,
-          email: user?.email
-        }} />
+          email: user?.email,
+        }} fromCity={fromCity || fromCity1} toCity={toCity || toCity1} />
 
       </div>
       <Footer />
