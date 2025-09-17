@@ -14,7 +14,7 @@ const Kitchen = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChan
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
-    return `kitchen-${cleanName}`;
+    return `68ca7da0baa7abdb6cbd528f-${cleanName}`;
   };
 
   // Function to get all current item IDs
@@ -43,7 +43,7 @@ const Kitchen = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChan
     }
     
     if (onItemIdsChange) {
-      onItemIdsChange('kitchen', itemIds, itemToProductMap, productDetails);
+      onItemIdsChange('68ca7da0baa7abdb6cbd528f', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 

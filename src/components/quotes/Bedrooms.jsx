@@ -14,7 +14,7 @@ const Bedrooms = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsCha
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
-    return `bedrooms-${cleanName}`;
+    return `68ca7ddebaa7abdb6cbd5298-${cleanName}`;
   };
 
   // Function to get all current item IDs
@@ -43,7 +43,7 @@ const Bedrooms = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsCha
     }
     
     if (onItemIdsChange) {
-      onItemIdsChange('bedrooms', itemIds, itemToProductMap, productDetails);
+      onItemIdsChange('68ca7ddebaa7abdb6cbd5298', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 

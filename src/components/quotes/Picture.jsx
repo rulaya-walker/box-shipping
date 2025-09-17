@@ -17,7 +17,7 @@ const Picture = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChan
       .replace(/-+/g, '-') // Replace multiple hyphens with single
       .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
     
-    return `picture-${cleanName}`;
+    return `68ca7e2fbaa7abdb6cbd52a3-${cleanName}`;
   };
 
   // Function to get all current item IDs for parent component use
@@ -46,7 +46,7 @@ const Picture = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChan
     }
     
     if (onItemIdsChange) {
-      onItemIdsChange('picture', itemIds, itemToProductMap, productDetails);
+      onItemIdsChange('68ca7e2fbaa7abdb6cbd52a3', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 

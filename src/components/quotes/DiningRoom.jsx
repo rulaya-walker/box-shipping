@@ -14,7 +14,7 @@ const DiningRoom = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsC
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
-    return `dining-room-${cleanName}`;
+    return `68ca7dc6baa7abdb6cbd5295-${cleanName}`;
   };
 
   // Function to get all current item IDs
@@ -43,7 +43,7 @@ const DiningRoom = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsC
     }
     
     if (onItemIdsChange) {
-      onItemIdsChange('dining_room', itemIds, itemToProductMap, productDetails);
+      onItemIdsChange('68ca7dc6baa7abdb6cbd5295', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 

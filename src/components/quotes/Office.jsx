@@ -18,7 +18,7 @@ const Office = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChang
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
-    return `office-${cleanName}`;
+    return `68ca7c40baa7abdb6cbd527a-${cleanName}`;
   };
 
   // Function to get all current item IDs
@@ -43,7 +43,7 @@ const Office = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChang
     }
     
     if (onItemIdsChange) {
-      onItemIdsChange('office', itemIds, itemToProductMap, productDetails);
+      onItemIdsChange('68ca7c40baa7abdb6cbd527a', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 

@@ -14,7 +14,7 @@ const LivingRoom = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsC
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
-    return `living-room-${cleanName}`;
+    return `68ca7c82baa7abdb6cbd5282-${cleanName}`;
   };
 
   // Function to get all current item IDs
@@ -43,7 +43,7 @@ const LivingRoom = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsC
     }
     
     if (onItemIdsChange) {
-      onItemIdsChange('living_room', itemIds, itemToProductMap, productDetails);
+      onItemIdsChange('68ca7c82baa7abdb6cbd5282', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 

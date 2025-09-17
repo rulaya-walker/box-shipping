@@ -14,7 +14,7 @@ const Garden = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChang
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
-    return `garden-${cleanName}`;
+    return `68ca7db3baa7abdb6cbd5292-${cleanName}`;
   };
 
   // Function to get all current item IDs
@@ -43,7 +43,7 @@ const Garden = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChang
     }
     
     if (onItemIdsChange) {
-      onItemIdsChange('garden', itemIds, itemToProductMap, productDetails);
+      onItemIdsChange('68ca7db3baa7abdb6cbd5292', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 

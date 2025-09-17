@@ -10,6 +10,7 @@ import adminOrderReducer from './slices/adminOrderSlice';
 import stripeReducer from './slices/stripeSlice';
 import priceSlice from './slices/priceSlice';
 import emailSlice from './slices/emailSlice';
+import categorySlice from './slices/categorySlice';
 
 const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ const store = configureStore({
     stripe: stripeReducer,
     prices: priceSlice,
     emails: emailSlice,
+    categories: categorySlice,
   },
 });
 

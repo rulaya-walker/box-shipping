@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { fetchCategories } from '../../redux/slices/categorySlice';
 import { 
   fetchAdminProducts, 
   createProduct, 
@@ -60,21 +61,10 @@ const ProductManagement = () => {
     },
     size: '',
     details: '',
-    minimumPrice: { 
-      australia: '', 
-      bahrain: '', 
-      canada: '', 
-      dubai: '',
-      hongkong: '',
-      japan: '',
-      malasia: '',
-      newzealand: '',
-      singapore: '',
-      southafrica: ''
-    },
     category: 'Shipping Boxes',
     status: 'active',
-    image: null
+    image: null,
+    createdAt: '',
   });
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortOrder, setSortOrder] = useState('asc');
@@ -109,20 +99,13 @@ const ProductManagement = () => {
     });
   }, [dispatch]);
 
-  const categories = [
-    'Shipping Boxes', 
-    'Pictures and Mirrors', 
-    'Sports and Outdoors', 
-    'Suitcase & Luggage', 
-    'Bedrooms', 
-    'Dining Room', 
-    'Garden', 
-    'Kitchen', 
-    'Living Room', 
-    'Musical Instruments', 
-    'Office', 
-    'Other'
-  ];
+  // Fetch categories from Redux
+  const categoryState = useSelector(state => state.categories);
+  const { categories: categoryList = [], loading: categoryLoading } = categoryState || {};
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
   // Ensure adminProducts is always an array for filtering
   // Use backend paginated products only
@@ -210,21 +193,10 @@ const ProductManagement = () => {
       },
       size: '',
       details: '',
-      minimumPrice: { 
-        australia: '', 
-        bahrain: '', 
-        canada: '', 
-        dubai: '',
-        hongkong: '',
-        japan: '',
-        malasia: '',
-        newzealand: '',
-        singapore: '',
-        southafrica: ''
-      },
       category: 'Shipping Boxes',
       status: 'active',
-      image: null
+  image: null,
+  createdAt: '',
     });
     setImagePreview(null);
     setOriginalImageFile(null);
@@ -250,29 +222,6 @@ const ProductManagement = () => {
       priceObj = product.price;
     }
 
-    // Parse minimumPrice data if it's a string from backend
-    let minimumPriceObj = {};
-    if (typeof product.minimumPrice === 'string') {
-      try {
-        minimumPriceObj = JSON.parse(product.minimumPrice);
-      } catch (e) {
-        console.error('Error parsing minimumPrice for editing:', e);
-        minimumPriceObj = {
-          australia: '', bahrain: '', canada: '', dubai: '',
-          hongkong: '', japan: '', malasia: '', newzealand: '',
-          singapore: '', southafrica: ''
-        };
-      }
-    } else if (typeof product.minimumPrice === 'object' && product.minimumPrice !== null) {
-      minimumPriceObj = product.minimumPrice;
-    } else {
-      // Default empty object if minimumPrice doesn't exist
-      minimumPriceObj = {
-        australia: '', bahrain: '', canada: '', dubai: '',
-        hongkong: '', japan: '', malasia: '', newzealand: '',
-        singapore: '', southafrica: ''
-      };
-    }
 
     setFormData({
       name: product.name || '',
@@ -290,21 +239,10 @@ const ProductManagement = () => {
       },
       size: product.size || '',
       details: product.details || '',
-      minimumPrice: { 
-        australia: minimumPriceObj.australia || '', 
-        bahrain: minimumPriceObj.bahrain || '', 
-        canada: minimumPriceObj.canada || '',
-        dubai: minimumPriceObj.dubai || '',
-        hongkong: minimumPriceObj.hongkong || '',
-        japan: minimumPriceObj.japan || '',
-        malasia: minimumPriceObj.malasia || '',
-        newzealand: minimumPriceObj.newzealand || '',
-        singapore: minimumPriceObj.singapore || '',
-        southafrica: minimumPriceObj.southafrica || ''
-      },
       category: product.category || 'Shipping Boxes',
       status: product.status || 'active',
-      image: product.image?.url || null // Extract URL from image object
+      image: product.image?.url || null, // Extract URL from image object
+      createdAt: product.createdAt ? new Date(product.createdAt).toISOString().split('T')[0] : '',
     });
     setImagePreview(product.image?.url || null);
     setEditingProduct(product);
@@ -316,19 +254,6 @@ const ProductManagement = () => {
       alert('Please fill in all required fields (name, size, and at least Australia price)');
       return;
     }
-
-    // Validate minimum prices if provided
-    const minimumPriceValues = Object.values(formData.minimumPrice).filter(value => value !== '');
-    for (const value of minimumPriceValues) {
-      if (isNaN(value) || parseFloat(value) < 0) {
-        alert('Please enter valid minimum prices (must be positive numbers)');
-        return;
-      }
-    }
-
-    // Log authentication state for debugging
-    console.log('Authentication state:', { user, token, authState });
-    console.log('localStorage token:', localStorage.getItem('userToken'));
 
     const priceData = {
       australia: parseFloat(formData.price.australia) || 0,
@@ -343,19 +268,6 @@ const ProductManagement = () => {
       southafrica: parseFloat(formData.price.southafrica) || 0
     };
 
-    const minimumPriceData = {
-      australia: formData.minimumPrice.australia ? parseFloat(formData.minimumPrice.australia) : null,
-      bahrain: formData.minimumPrice.bahrain ? parseFloat(formData.minimumPrice.bahrain) : null,
-      canada: formData.minimumPrice.canada ? parseFloat(formData.minimumPrice.canada) : null,
-      dubai: formData.minimumPrice.dubai ? parseFloat(formData.minimumPrice.dubai) : null,
-      hongkong: formData.minimumPrice.hongkong ? parseFloat(formData.minimumPrice.hongkong) : null,
-      japan: formData.minimumPrice.japan ? parseFloat(formData.minimumPrice.japan) : null,
-      malasia: formData.minimumPrice.malasia ? parseFloat(formData.minimumPrice.malasia) : null,
-      newzealand: formData.minimumPrice.newzealand ? parseFloat(formData.minimumPrice.newzealand) : null,
-      singapore: formData.minimumPrice.singapore ? parseFloat(formData.minimumPrice.singapore) : null,
-      southafrica: formData.minimumPrice.southafrica ? parseFloat(formData.minimumPrice.southafrica) : null
-    };
-
     // Create FormData for multipart/form-data submission
     const formDataToSend = new FormData();
     
@@ -364,9 +276,10 @@ const ProductManagement = () => {
     formDataToSend.append('price', JSON.stringify(priceData));
     formDataToSend.append('size', formData.size);
     formDataToSend.append('details', formData.details);
-    formDataToSend.append('minimumPrice', JSON.stringify(minimumPriceData));
     formDataToSend.append('category', formData.category);
     formDataToSend.append('status', formData.status);
+    formDataToSend.append('createdAt', formData.createdAt);
+   
     
     // Add image file if present
     if (originalImageFile) {
@@ -378,11 +291,6 @@ const ProductManagement = () => {
       formDataToSend.append('image', originalImageFile);
       formDataToSend.append('altText', `${formData.name} product image`);
     }
-
-    // Log FormData contents
-    console.log('FormData contents:');
-    console.log('Price data:', priceData);
-    console.log('Minimum price data:', minimumPriceData);
     for (let [key, value] of formDataToSend.entries()) {
       if (value instanceof File) {
         console.log(`${key}: File(${value.name}, ${value.size} bytes, ${value.type})`);
@@ -424,21 +332,10 @@ const ProductManagement = () => {
         },
         size: '',
         details: '',
-        minimumPrice: { 
-          australia: '', 
-          bahrain: '', 
-          canada: '', 
-          dubai: '',
-          hongkong: '',
-          japan: '',
-          malasia: '',
-          newzealand: '',
-          singapore: '',
-          southafrica: ''
-        },
         category: 'Shipping Boxes',
         status: 'active',
-        image: null
+        image: null,
+        createdAt: '',
       });
       setImagePreview(null);
       setOriginalImageFile(null);
@@ -491,16 +388,6 @@ const ProductManagement = () => {
       ...formData,
       price: {
         ...formData.price,
-        [country]: value
-      }
-    });
-  };
-
-  const handleMinimumPriceChange = (country, value) => {
-    setFormData({
-      ...formData,
-      minimumPrice: {
-        ...formData.minimumPrice,
         [country]: value
       }
     });
@@ -671,16 +558,16 @@ const ProductManagement = () => {
         </div>
         {/* Category Filter */}
         <div>
-          <select
-            value={selectedCategory}
-            onChange={handleCategoryChange}
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-          >
-            <option value="all">All Categories</option>
-            {categories.map(category => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
+            <select
+              value={selectedCategory}
+              onChange={handleCategoryChange}
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+            >
+              <option value="all">All Categories</option>
+              {categoryList.map(cat => (
+                <option key={cat._id || cat.name} value={cat.name}>{cat.name}</option>
+              ))}
+            </select>
         </div>
         {/* Category Sort */}
   {/* Sort dropdown removed as requested */}
@@ -1065,135 +952,6 @@ const ProductManagement = () => {
                   </div>
                 </div>
               </div>
-              {/* Minimum Prices */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Minimum Prices by Country
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Australia</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.minimumPrice.australia}
-                      onChange={(e) => handleMinimumPriceChange('australia', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Bahrain</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.minimumPrice.bahrain}
-                      onChange={(e) => handleMinimumPriceChange('bahrain', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Canada</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.minimumPrice.canada}
-                      onChange={(e) => handleMinimumPriceChange('canada', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Dubai</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.minimumPrice.dubai}
-                      onChange={(e) => handleMinimumPriceChange('dubai', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Hong Kong</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.minimumPrice.hongkong}
-                      onChange={(e) => handleMinimumPriceChange('hongkong', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Japan</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.minimumPrice.japan}
-                      onChange={(e) => handleMinimumPriceChange('japan', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Malaysia</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.minimumPrice.malasia}
-                      onChange={(e) => handleMinimumPriceChange('malasia', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">New Zealand</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.minimumPrice.newzealand}
-                      onChange={(e) => handleMinimumPriceChange('newzealand', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Singapore</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.minimumPrice.singapore}
-                      onChange={(e) => handleMinimumPriceChange('singapore', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">South Africa</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.minimumPrice.southafrica}
-                      onChange={(e) => handleMinimumPriceChange('southafrica', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                      placeholder="0.00"
-                    />
-                  </div>
-                </div>
-              </div>
-              {/* Size */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Size/Dimensions *
@@ -1231,8 +989,10 @@ const ProductManagement = () => {
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                 >
-                  {categories.map(category => (
-                    <option key={category} value={category}>{category}</option>
+                  {categoryLoading && <option>Loading...</option>}
+                  {!categoryLoading && categoryList.length === 0 && <option>No categories found</option>}
+                  {!categoryLoading && categoryList.map(cat => (
+                    <option key={cat._id || cat.name} value={cat.name}>{cat.name}</option>
                   ))}
                 </select>
               </div>
@@ -1252,6 +1012,28 @@ const ProductManagement = () => {
                   <option value="draft">Draft</option>
                 </select>
               </div>
+              {/* Created At Date Field */}
+              {editingProduct && (
+              <div className="mb-4">
+                <label htmlFor="createdAt" className="block text-sm font-medium text-gray-700">Created At</label>
+                <input
+                  type="date"
+                  id="createdAt"
+                  name="createdAt"
+                  value={formData.createdAt}
+                  onChange={e => setFormData({ ...formData, createdAt: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 custom-date-input"
+                  style={{
+                    backgroundColor: '#f9fafb',
+                    border: '1px solid #d1d5db',
+                    padding: '0.5rem 0.75rem',
+                    fontSize: '1rem',
+                    color: '#374151',
+                    transition: 'border-color 0.2s',
+                  }}
+                />
+              </div>
+              )}
             </div>
 
             <div className="flex justify-end space-x-3 mt-6">

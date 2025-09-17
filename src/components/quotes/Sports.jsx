@@ -18,7 +18,7 @@ const Sports = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChang
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
-    return `sports-${cleanName}`;
+    return `68ca7e1ebaa7abdb6cbd52a0-${cleanName}`;
   };
 
   // Function to get all current item IDs
@@ -43,7 +43,7 @@ const Sports = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChang
     }
     
     if (onItemIdsChange) {
-      onItemIdsChange('package', itemIds, itemToProductMap, productDetails);
+      onItemIdsChange('68ca7e1ebaa7abdb6cbd52a0', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 

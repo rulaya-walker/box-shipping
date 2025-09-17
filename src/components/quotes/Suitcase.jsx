@@ -8,7 +8,7 @@ const Suitcase = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsCha
   const { productsByCategory, loading, error } = useSelector((state) => state.products);
 
   useEffect(() => {
-    dispatch(fetchProductsByCategory('Suitcases'));
+    dispatch(fetchProductsByCategory('Suitcase & Luggage'));
   }, [dispatch]);
 
   // Generate unique item ID from product
@@ -18,7 +18,7 @@ const Suitcase = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsCha
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
-    return `suitcase-${cleanName}`;
+    return `68ca7dfbbaa7abdb6cbd529b-${cleanName}`;
   };
 
   // Function to get all current item IDs
@@ -43,7 +43,7 @@ const Suitcase = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsCha
     }
     
     if (onItemIdsChange) {
-      onItemIdsChange('service', itemIds, itemToProductMap, productDetails);
+      onItemIdsChange('68ca7dfbbaa7abdb6cbd529b', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 

@@ -19,6 +19,7 @@ import AuthNotifications from "./components/AuthNotifications"
 import StripePayment from "./components/StripePayment"
 import Checkout from "./pages/Checkout"
 import Price from './pages/admin/PriceManagement'
+import CategoryManagement from './pages/admin/CategoryManagement'
 
 function App() {
 
@@ -41,6 +42,7 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="prices" element={<Price />} />
           <Route path="products" element={<ProductManagement />} />
+          <Route path="categories" element={<CategoryManagement />} />
           <Route path="users" element={<UserManagement />} />
           <Route path="debug" element={<AdminDebug />} />
           <Route path="orders" element={<OrderManagement />} />

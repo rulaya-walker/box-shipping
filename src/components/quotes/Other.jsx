@@ -18,7 +18,7 @@ const Other = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChange
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
-    return `other-${cleanName}`;
+    return `68ca7bdbbaa7abdb6cbd5268-${cleanName}`;
   };
 
   // Function to get all current item IDs
@@ -43,7 +43,7 @@ const Other = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChange
     }
     
     if (onItemIdsChange) {
-      onItemIdsChange('other', itemIds, itemToProductMap, productDetails);
+      onItemIdsChange('68ca7bdbbaa7abdb6cbd5268', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 

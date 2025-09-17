@@ -453,7 +453,9 @@ const OrderDetails = () => {
                     <p className="text-sm font-medium text-gray-900">From</p>
                   </div>
                   <div className="text-sm text-gray-600 ml-6">
-                    <p>{displayOrder.origin || 'N/A'}</p>
+                    <p>{typeof displayOrder.origin === 'object'
+                      ? `${displayOrder.origin.address}, ${displayOrder.origin.city}, ${displayOrder.origin.state} ${displayOrder.origin.zipCode}, ${displayOrder.origin.country}`
+                      : displayOrder.origin || 'N/A'}</p>
                   </div>
                 </div>
                 <div>
@@ -462,7 +464,9 @@ const OrderDetails = () => {
                     <p className="text-sm font-medium text-gray-900">To</p>
                   </div>
                   <div className="text-sm text-gray-600 ml-6">
-                    <p>{displayOrder.destination || 'N/A'}</p>
+                    <p>{typeof displayOrder.destination === 'object'
+                      ? `${displayOrder.destination.address}, ${displayOrder.destination.city}, ${displayOrder.destination.state} ${displayOrder.destination.zipCode}, ${displayOrder.destination.country}`
+                      : displayOrder.destination || 'N/A'}</p>
                   </div>
                 </div>
               </div>

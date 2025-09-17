@@ -1,10 +1,9 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchProductsByCategory } from '../../redux/slices/productSlice';
 import { box } from "../../constants";
-import { FaPlus } from "react-icons/fa";
 
-const ShippingBoxes = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChange, toCountry }) => {
+const ShippingBoxes = ({ getQuantity, updateQuantity, onItemIdsChange, toCountry }) => {
   const dispatch = useDispatch();
   const { productsByCategory, loading, error } = useSelector((state) => state.products);
 
@@ -17,7 +16,7 @@ const ShippingBoxes = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemI
       .replace(/-+/g, '-') // Replace multiple hyphens with single
       .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
     
-    const itemId = `origin-${cleanName}`;
+    const itemId = `68ca7e40baa7abdb6cbd52a6-${cleanName}`;
     return itemId;
   };
 
@@ -48,7 +47,7 @@ const ShippingBoxes = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemI
     }
     
     if (onItemIdsChange) {
-      onItemIdsChange('origin', itemIds, itemToProductMap, productDetails);
+      onItemIdsChange('68ca7e40baa7abdb6cbd52a6', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 

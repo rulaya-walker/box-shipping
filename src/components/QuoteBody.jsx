@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchCategories } from '../redux/slices/categorySlice';
 import { getPriceByCountry } from '../redux/slices/priceSlice';
 import { FaPlus } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
@@ -34,8 +35,16 @@ import {
   fetchCart 
 } from "../redux/slices/cartSlice";
 const QuoteBody = () => {
-  const selectedCountryPrice = useSelector((state) => state.prices.selectedCountryPrice);
   const dispatch = useDispatch();
+  // Categories from Redux
+  const categoryState = useSelector(state => state.categories);
+  const { categories: categoryList = [], loading: categoryLoading } = categoryState || {};
+
+  // Fetch categories on mount
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
+  const selectedCountryPrice = useSelector((state) => state.prices.selectedCountryPrice);
   const { cart, loading: cartLoading } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
@@ -101,7 +110,10 @@ const QuoteBody = () => {
     return total;
   };
   
-  const [activeTab, setActiveTab] = useState("origin");
+  // Set default active tab to Shipping Boxes category _id
+  const shippingBoxesCategory = categoryList.find(cat => cat.name === "Shipping Boxes");
+  const [activeTab, setActiveTab] = useState(() => shippingBoxesCategory ? shippingBoxesCategory._id : "68ca7e40baa7abdb6cbd52a6");
+  // Use category _id for active tab
   const [currentStep, setCurrentStep] = useState(1);
   const [showAddBoxForm, setShowAddBoxForm] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
@@ -232,8 +244,6 @@ console.log("Collection Date in QuoteBody:", localStorage.getItem('collectionDat
       [itemId]: newQuantity,
     }));
 
-    // Log the quantity change for debugging
-    console.log(`Quantity change: ${itemId} from ${currentQuantity} to ${newQuantity}`);
 
     // Handle cart operations in background without blocking UI
     const handleCartOperation = async () => {
@@ -246,12 +256,9 @@ console.log("Collection Date in QuoteBody:", localStorage.getItem('collectionDat
         // Get product details for price
         const productDetails = productDetailsMap[productId];
         const price = productDetails?.price?.[toCountry] || 25; // Default to australia price or fallback
-
-        console.log(`Cart operation: itemId=${itemId}, productId=${productId}, quantity=${newQuantity}, price=${price}`);
         
         if (newQuantity === 0 && currentQuantity > 0) {
           // Remove from cart when quantity becomes 0
-          console.log(`Removing ${itemId} from cart`);
           await dispatch(removeFromCart({ 
             productId, 
             guestId 
@@ -277,7 +284,6 @@ console.log("Collection Date in QuoteBody:", localStorage.getItem('collectionDat
             guestId 
           })).unwrap();
         }
-        console.log(`✅ Cart operation successful for ${itemId}`);
       } catch (error) {
         console.warn('⚠️ Cart operation failed, continuing with local quantities:', error.message);
         // Don't revert UI state - let user continue with local quantities
@@ -377,21 +383,6 @@ console.log("Collection Date in QuoteBody:", localStorage.getItem('collectionDat
     { id: 3, name: "Quote", status: "quote" },
   ];
 
-  const tabs = [
-    { id: "origin", name: "Shipping Boxes", icon: box },
-    { id: "picture", name: "Pictures and Mirrors", icon: picture },
-    { id: "package", name: "Sports and Outdoors", icon: box },
-    { id: "service", name: "Suitcase & Luggage", icon: suitcase },
-    { id: "bedrooms", name: "Bedrooms", icon: box },
-    { id: "dining_room", name: "Dining Room", icon: box },
-    { id: "garden", name: "Garden", icon: box },
-    { id: "kitchen", name: "Kitchen", icon: box },
-    { id: "living_room", name: "Living Room", icon: box },
-    { id: "musical", name: "Musical Instruments", icon: box },
-    { id: "office", name: "Office", icon: box },
-    { id: "other", name: "Other", icon: box },
-  ];
-
   return (
     <>
       {/* Show Stripe Payment if payment is triggered */}
@@ -475,23 +466,27 @@ console.log("Collection Date in QuoteBody:", localStorage.getItem('collectionDat
           {currentStep === 1 && (
             <div className="w-64 bg-white rounded-lg shadow-md p-4">
               <nav className="space-y-2">
-                {tabs.map((tab) => (
+                {categoryList.map((cat) => (
                   <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
+                    key={cat._id}
+                    onClick={() => setActiveTab(cat._id)}
                     className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors duration-200 cursor-pointer ${
-                      activeTab === tab.id
+                      activeTab === cat._id
                         ? "bg-blue-50 text-primary border-l-4 border-primary"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     }`}
                   >
                     <span className="text-sm text-white mr-3 relative">
-                      <img src={tab.icon} className="w-8" alt={tab.name} />{" "}
+                      {cat.image ? (
+                        <img src={cat.image} className="w-8" alt={cat.name} />
+                      ) : (
+                        <span className="w-8 h-8 bg-gray-200 rounded" />
+                      )}
                       <span className="absolute -bottom-2 -right-2 rounded-full flex items-center justify-center border-2 border-transparent w-6 h-6 bg-primary">
-                        {getTabQuantity(tab.id)}
+                        {getTabQuantity(cat._id)}
                       </span>
                     </span>
-                    <span className="font-medium">{tab.name}</span>
+                    <span className="font-medium">{cat.name}</span>
                   </button>
                 ))}
               </nav>
@@ -509,139 +504,40 @@ console.log("Collection Date in QuoteBody:", localStorage.getItem('collectionDat
               {/* Step 1: Build Order */}
               {currentStep === 1 && (
                 <>
-                  {/* Small Boxes Tab */}
-                  {activeTab === "origin" && (
-                    <ShippingBoxes
-                      getQuantity={getQuantity}
-                      updateQuantity={updateQuantity}
-                      setShowAddBoxForm={setShowAddBoxForm}
-                      onItemIdsChange={onItemIdsChange}
-                      toCountry={toCountry}
-                    />
-                  )}
-
-                  {/* Medium Boxes Tab */}
-                  {activeTab === "picture" && (
-                    <Picture
-                      getQuantity={getQuantity}
-                      updateQuantity={updateQuantity}
-                      setShowAddBoxForm={setShowAddBoxForm}
-                      onItemIdsChange={onItemIdsChange}
-                      toCountry={toCountry}
-                    />
-                  )}
-
-                  {/* Large Boxes Tab */}
-                  {activeTab === "package" && (
-                    <Sports
-                      getQuantity={getQuantity}
-                      updateQuantity={updateQuantity}
-                      setShowAddBoxForm={setShowAddBoxForm}
-                      onItemIdsChange={onItemIdsChange}
-                      toCountry={toCountry}
-                    />
-                  )}
-
-                  {/* Packing Supplies Tab */}
-                  {activeTab === "service" && (
-                    <Suitcase
-                      getQuantity={getQuantity}
-                      updateQuantity={updateQuantity}
-                      setShowAddBoxForm={setShowAddBoxForm}
-                      onItemIdsChange={onItemIdsChange}
-                      toCountry={toCountry}
-                    />
-                  )}
-
-                  {/* Specialty Items Tab removed: Backpacks */}
-
-                  {/* Bedrooms Items Tab */}
-                  {activeTab === "bedrooms" && (
-                    <Bedrooms
-                      getQuantity={getQuantity}
-                      updateQuantity={updateQuantity}
-                      setShowAddBoxForm={setShowAddBoxForm}
-                      onItemIdsChange={onItemIdsChange}
-                      toCountry={toCountry}
-                    />
-                  )}
-
-                  {/* Bedrooms Items Tab */}
-                  {activeTab === "dining_room" && (
-                    <DiningRoom
-                      getQuantity={getQuantity}
-                      updateQuantity={updateQuantity}
-                      setShowAddBoxForm={setShowAddBoxForm}
-                      onItemIdsChange={onItemIdsChange}
-                      toCountry={toCountry}
-                    />
-                  )}
-
-                  {/* Garden Items Tab */}
-                  {activeTab === "garden" && (
-                    <Garden
-                      getQuantity={getQuantity}
-                      updateQuantity={updateQuantity}
-                      setShowAddBoxForm={setShowAddBoxForm}
-                      onItemIdsChange={onItemIdsChange}
-                      toCountry={toCountry}
-                    />
-                  )}
-
-                  {/* Kitchen Items Tab */}
-                  {activeTab === "kitchen" && (
-                    <Kitchen
-                      getQuantity={getQuantity}
-                      updateQuantity={updateQuantity}
-                      setShowAddBoxForm={setShowAddBoxForm}
-                      onItemIdsChange={onItemIdsChange}
-                      toCountry={toCountry}
-                    />
-                  )}
-
-                  {/* Living Room Items Tab */}
-                  {activeTab === "living_room" && (
-                    <LivingRoom
-                      getQuantity={getQuantity}
-                      updateQuantity={updateQuantity}
-                      setShowAddBoxForm={setShowAddBoxForm}
-                      onItemIdsChange={onItemIdsChange}
-                      toCountry={toCountry}
-                    />
-                  )}
-
-                  {/* Music Items Tab */}
-                  {activeTab === "musical" && (
-                    <Musica
-                      getQuantity={getQuantity}
-                      updateQuantity={updateQuantity}
-                      setShowAddBoxForm={setShowAddBoxForm}
-                      onItemIdsChange={onItemIdsChange}
-                      toCountry={toCountry}
-                    />
-                  )}
-
-                  {/* Office Items Tab */}
-                  {activeTab === "office" && (
-                    <Office
-                      getQuantity={getQuantity}
-                      updateQuantity={updateQuantity}
-                      setShowAddBoxForm={setShowAddBoxForm}
-                      onItemIdsChange={onItemIdsChange}
-                      toCountry={toCountry}
-                    />
-                  )}
-
-                  {/* Other Items Tab */}
-                  {activeTab === "other" && (
-                    <Other
-                      getQuantity={getQuantity}
-                      updateQuantity={updateQuantity}
-                      setShowAddBoxForm={setShowAddBoxForm}
-                      onItemIdsChange={onItemIdsChange}
-                      toCountry={toCountry}
-                    />
-                  )}
+                  {/* Dynamic Tab Content based on categoryList, using _id */}
+                  {categoryList.map(cat => (
+                    activeTab === cat._id && (
+                      <div key={cat._id}>
+                        {/* Optionally, you can use a mapping object to map category name to component, or fallback to a generic component */}
+                        {(() => {
+                          const componentMap = {
+                            'Shipping Boxes': ShippingBoxes,
+                            'Pictures and Mirrors': Picture,
+                            'Sports and Outdoors': Sports,
+                            'Suitcase & Luggage': Suitcase,
+                            'Bedrooms': Bedrooms,
+                            'Dining Room': DiningRoom,
+                            'Garden': Garden,
+                            'Kitchen': Kitchen,
+                            'Living Room': LivingRoom,
+                            'Musical Instruments': Musica,
+                            'Office': Office,
+                            'Other': Other,
+                          };
+                          const DynamicComponent = componentMap[cat.name] || Other;
+                          return (
+                            <DynamicComponent
+                              getQuantity={getQuantity}
+                              updateQuantity={updateQuantity}
+                              setShowAddBoxForm={setShowAddBoxForm}
+                              onItemIdsChange={onItemIdsChange}
+                              toCountry={toCountry}
+                            />
+                          );
+                        })()}
+                      </div>
+                    )
+                  ))}
                 </>
               )}
 

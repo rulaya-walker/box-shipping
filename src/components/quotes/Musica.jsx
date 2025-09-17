@@ -18,7 +18,7 @@ const Musica = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChang
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
-    return `musical-${cleanName}`;
+    return `68ca7c5fbaa7abdb6cbd527f-${cleanName}`;
   };
 
   // Function to get all current item IDs
@@ -43,7 +43,7 @@ const Musica = ({ getQuantity, updateQuantity, setShowAddBoxForm, onItemIdsChang
     }
     
     if (onItemIdsChange) {
-      onItemIdsChange('musical', itemIds, itemToProductMap, productDetails);
+      onItemIdsChange('68ca7c5fbaa7abdb6cbd527f', itemIds, itemToProductMap, productDetails);
     }
   }, [productsByCategory, onItemIdsChange]);
 
